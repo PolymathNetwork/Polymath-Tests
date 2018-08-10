@@ -3,11 +3,11 @@ import * as path from 'path';
 import { sync as rmdir } from 'rimraf';
 import ChromeExtension = require('crx');
 import rsa = require('node-rsa');
-import { MetamaskDownloader, MetmaskData } from "./abstract";
+import { MetamaskDownloader, MetmaskData } from ".";
 import { ExtensionBrowser } from "../../shared";
 
 
-export class ChromeMetamask extends MetamaskDownloader {
+class ChromeMetamask extends MetamaskDownloader {
     public async getExtension(): Promise<MetmaskData> {
         let contents = await this.getRelease(ExtensionBrowser.Chrome);
         let result: MetmaskData = {

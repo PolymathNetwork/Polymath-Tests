@@ -1,6 +1,6 @@
 import { oh, WindowInfo, RunnerConfig } from "framework/helpers";
 import { ExtensionManager, Extension } from "../extensionManager";
-import { MetamaskDownloader } from "./browsers/abstract";
+import { MetamaskDownloader } from "./browsers";
 import { MetamaskOptions, Network } from "./shared";
 import { ExtensionConfig, ExtensionBrowser, ExtensionData } from "../shared";
 import { InitMode } from "framework/object/core/iConstructor";
