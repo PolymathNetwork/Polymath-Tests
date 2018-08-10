@@ -127,7 +127,8 @@ export class Metamask extends Extension {
 
     public async accountInfo(): Promise<{ name: string, ethAmount: number, ethAddress: string }> {
         await this.navigateToPage();
-        let page = await Detail.WaitForPage<Detail>(Detail, null, { mode: InitMode.Full });
+        let page = await Detail.WaitForPage<Detail>(Detail);
+        await page.init();
         await this.exitPage();
         return page;
     }
