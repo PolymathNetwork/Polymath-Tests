@@ -1,2 +1,2 @@
 export * from './extensionManager';
-export * from './metamask';
+export * from './shared';
