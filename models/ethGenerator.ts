@@ -1,11 +1,22 @@
 import vanity = require('vanity-eth/libs/VanityEth');
 
+interface Wallet {
+    address: string;
+    privKey: string;
+}
+
 export class EthAddress {
-    constructor(public address: string, public privKey: string) { }
+    public static prefix: string = 'FAB';
+    public address: string;
+    public privKey: string;
+    constructor(public wallet: Wallet) {
+        this.address = wallet.address;
+        this.privKey = wallet.privKey;
+    }
     public static Generate(): EthAddress {
         console.log(`Generating ETH Address...`);
-        let wallet = vanity.getVanityWallet('FAB', true, false);
+        let wallet = vanity.getVanityWallet(EthAddress.prefix, true, false);
         console.log(`Generated ${wallet.address}`);
-        return new EthAddress(wallet.address, wallet.privKey);
+        return new EthAddress(wallet);
     }
 }

@@ -1,4 +1,4 @@
-@mint @full
+@edge @mint @long
 Feature: Mint test
     This is the test related to the mint a token Feature
 
@@ -8,5 +8,5 @@ Feature: Mint test
         And A token is created
 
     Scenario: Mint a Token positive path
-        Given The issuer adds minting data
+        Given The issuer adds 2000 investors to mint
         Then The issuer mints new investors
