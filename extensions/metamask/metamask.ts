@@ -58,27 +58,28 @@ export class Metamask extends Extension {
     public async navigateToPage() {
         this.window = await oh.browser.window().open();
         await oh.get(this.extensionUrl);
+        await MetamaskPage.RemoveCss();
     }
     public exitPage() {
         return oh.browser.window().close(this.window);
     }
     private termsAccepted = false;
-    public async acceptTerms() {
+    public async acceptTerms(exitPage: boolean = true) {
         this.termsAccepted = true;
         await this.navigateToPage();
         let page = await TermsAndConditions.WaitForPage<TermsAndConditions>(TermsAndConditions);
         await page.skipTou();
-        //await this.exitPage();
+        if (exitPage) await this.exitPage();
     }
     public async createAccount(password: string = "password1234") {
-        if (!this.termsAccepted) await this.acceptTerms();
+        if (!this.termsAccepted) await this.acceptTerms(false);
         else await this.navigateToPage();
         let page = await Create.WaitForPage<Create>(Create);
         await page.fill({ password: password } as any, false);
         await this.exitPage();
     }
     public async importAccount(seed: string, password = 'password1234') {
-        if (!this.termsAccepted) await this.acceptTerms();
+        if (!this.termsAccepted) await this.acceptTerms(false);
         else await this.navigateToPage();
         let locked = await Locked.WaitForPage<Locked>(Locked);
         await locked.init();
@@ -113,6 +114,7 @@ export class Metamask extends Extension {
     public async confirmTransaction(opts?: { gasLimit?: number, gas?: number }) {
         await this.navigateToPage();
         let page = await Transaction.WaitForPage<Transaction>(Transaction, { refreshOnNotFound: true });
+        await Transaction.RemoveCss();
         if (opts) await page.fill(opts as any, false);
         await page.next();
         await this.exitPage();

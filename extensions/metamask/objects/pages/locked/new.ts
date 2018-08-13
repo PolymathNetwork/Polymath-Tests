@@ -20,10 +20,6 @@ import { AbstractObjectInitOpts } from "framework/object/abstract";
             .then(() => lookForNext && Import.WaitForPage<Import>(Import));
     }
     public async afterInit(result: this, opts: AbstractObjectInitOpts) {
-        // Remove styles from html and body
-        await oh.browser.executeScript('arguments[0].style=""',
-            (await oh.by(By.xpath('.//body')) as ElementWrapper).getWebElement());
-        await oh.browser.executeScript('arguments[0].style=""',
-            (await oh.by(By.xpath('.//html')) as ElementWrapper).getWebElement());
+        await MetamaskPage.RemoveCss();
     }
 }

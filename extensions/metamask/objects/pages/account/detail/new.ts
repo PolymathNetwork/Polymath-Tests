@@ -8,7 +8,7 @@ import { LabelOptsMode, label, NumberParseMethod } from "framework/object/core/d
     protected featureSelector: Locator = By.xpath('self::*[.//*[contains(@class,"account-and-transaction-details")]]');
     @label<string>(By.xpath('.//*[@class="account-name"]'),
         null, { mode: LabelOptsMode.Text }) public name: string;
-    @label<number>(By.xpath('.//*[@class="token-amount"]'),
+    @label<number>(By.xpath('.//*[@class="wallet-balance"]//*[@class="token-amount"]'),
         null, {
             numberParseMethod: NumberParseMethod.ParseFloat,
             mode: LabelOptsMode.Text
