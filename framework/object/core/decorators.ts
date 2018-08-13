@@ -78,7 +78,7 @@ function parseNumber(value: string, parseMethod: NumberParseMethod): number {
     switch (parseMethod) {
         default:
         case NumberParseMethod.ParseInt:
-            return parseInt(value.replace('.', ''));
+            return parseInt(value.replace(/\./g, ''));
         case NumberParseMethod.ParseFloat:
             return parseFloat(value);
         case NumberParseMethod.Number:
@@ -219,9 +219,8 @@ async function parseText<T extends string | number | string[] | number[] | Date 
             let date = moment(text, opts.dateFormat);
             if (date) dates.push(date.toDate());
         }
-        let altText = text.replace(/[,\.]/g, '').trim();
-        let number = parseNumber(altText, opts.numberParseMethod);
-        if (!isNaN(number) && altText === number.toString()) numbers.push(number);
+        let number = parseNumber(text, opts.numberParseMethod);
+        if (!isNaN(number)) numbers.push(number);
     }
     let retArray = (texts.length === dates.length && opts.dateFormat) ? dates : (texts.length === numbers.length) ? numbers : texts;
     if (retArray.length === 1) return retArray[0] as T;

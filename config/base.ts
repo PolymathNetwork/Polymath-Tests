@@ -89,6 +89,7 @@ export = (opts = {}) => {
                 require: [
                     './config/cucumber-setup.ts',
                     //'./framework/**/*.ts',
+                    './extensions/**/*.ts',
                     './objects/**/*.ts',
                     './tests/**/*.ts',
                 ],

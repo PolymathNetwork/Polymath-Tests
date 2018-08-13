@@ -1,3 +1,5 @@
+import { ExtensionBrowser, ExtensionData, ExtensionConfig } from "./shared";
+
 export interface ExtensionInfo {
     extension: { new(...args): Extension };
     name: string;
@@ -12,36 +14,8 @@ export class ExtensionManager {
     public static GetExtensions(browser: ExtensionBrowser): ExtensionInfo[] {
         return this.extensions.filter(ex => ex.supportedBrowsers & browser);
     }
-    public static GetFileExtensionForBrowser(browser: ExtensionBrowser) {
-        switch (browser) {
-            case ExtensionBrowser.Brave:
-            case ExtensionBrowser.Opera:
-            case ExtensionBrowser.Chrome:
-                return 'crx';
-            case ExtensionBrowser.Firefox:
-                return 'xpi';
-            case ExtensionBrowser.Safari:
-                return 'xyz';
-            case ExtensionBrowser.Edge:
-                return 'appx';
-        }
-    }
 }
 
-export enum ExtensionBrowser {
-    None = 0, Chrome, Firefox, Edge, Safari, Brave, Opera
-}
-
-export interface ExtensionData {
-    file: string;
-    uncompressed: string;
-    afterExecution: (() => Promise<void> | void);
-}
-
-export interface ExtensionConfig {
-    key: string;
-    config: Object;
-}
 
 export abstract class Extension {
     public abstract async getExtension(browser: ExtensionBrowser): Promise<ExtensionData>;
