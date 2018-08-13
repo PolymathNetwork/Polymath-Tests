@@ -13,8 +13,4 @@ import { Locked } from "../locked";
         return oh.click(By.xpath('.//button'), this.element)
             .then(() => lookForNext && TermsAndConditions.WaitForPage<TermsAndConditions>([TermsAndConditions, Locked]))
     }
-    protected async scrollToEnd() {
-        await oh.browser.executeScript(`arguments[0].scroll(0, arguments[0].scrollHeight)`,
-            await (await oh.by(By.xpath('.//div[@class="markdown"]'), this.element)).getWebElement());
-    }
 }

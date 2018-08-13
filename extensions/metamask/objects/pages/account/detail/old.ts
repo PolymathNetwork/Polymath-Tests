@@ -9,7 +9,10 @@ import { label, NumberParseMethod, LabelOptsMode } from "framework/object/core/d
     @label<string>(By.xpath('.//*[@name="edit"]'),
         null, { mode: LabelOptsMode.Text }) public name: string;
     @label<number>(By.xpath('.//*[@class="flex-row"][./*[text()="ETH"]]/div[1]'),
-        null, { numberParseMethod: NumberParseMethod.ParseFloat, mode: LabelOptsMode.Text }) public ethAmount: number;
+        null, {
+            numberParseMethod: NumberParseMethod.ParseFloat,
+            mode: LabelOptsMode.Text
+        }) public ethAmount: number;
     @label<string>(By.xpath('.//div[@class="flex-row"][preceding-sibling::*[@class="name-label"]]/div'),
         null, { mode: LabelOptsMode.Text }) public ethAddress: string;
 }

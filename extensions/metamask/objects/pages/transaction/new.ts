@@ -5,7 +5,7 @@ import { MetamaskPage } from "..";
 
 
 @injectable export class NewTransaction extends Transaction {
-    protected featureSelector: Locator = By.xpath('.//body[@class="NOTIMPLEMENTED"]');
+    protected featureSelector: Locator = By.xpath('self::*[@class="NOTIMPLEMENTED"]');
     public gas: number;
     public gasLimit: number;
     public next(lookForNext: boolean = true): Promise<MetamaskPage> {

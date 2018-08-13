@@ -67,20 +67,21 @@ export class Metamask extends Extension {
         this.termsAccepted = true;
         await this.navigateToPage();
         let page = await TermsAndConditions.WaitForPage<TermsAndConditions>(TermsAndConditions);
-        while (page instanceof TermsAndConditions) page = await page.next() as TermsAndConditions;
-        await this.exitPage();
+        await page.skipTou();
+        //await this.exitPage();
     }
     public async createAccount(password: string = "password1234") {
         if (!this.termsAccepted) await this.acceptTerms();
-        await this.navigateToPage();
+        else await this.navigateToPage();
         let page = await Create.WaitForPage<Create>(Create);
         await page.fill({ password: password } as any, false);
         await this.exitPage();
     }
     public async importAccount(seed: string, password = 'password1234') {
         if (!this.termsAccepted) await this.acceptTerms();
-        await this.navigateToPage();
+        else await this.navigateToPage();
         let locked = await Locked.WaitForPage<Locked>(Locked);
+        await locked.init();
         let page = await locked.import();
         await page.fill({ password: password, seed: seed } as any, false);
         await page.next();
