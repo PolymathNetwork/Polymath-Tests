@@ -3,9 +3,7 @@ import { IssuerTest } from "tests/issuerTest";
 import { IssuerTestData } from "tests/issuerTestData";
 import { CreateToken } from "objects/pages/withToken/token/createToken";
 import { expect } from "framework/helpers";
-import { TransactionResult } from "objects/features/general/transaction";
 import { MintPage } from "objects/pages/withToken/token/mint";
-import { Modal } from "objects/features/general/modal";
 import { Providers } from "objects/pages/withToken/providers/providers";
 
 @binding([IssuerTestData])
@@ -13,7 +11,8 @@ class CreateTokenTest extends IssuerTest {
 
     @given(/The issuer creates a token/)
     public async startNewToken() {
-        let providers = await Providers.Get(Providers) as Providers;
+        let providers = await Providers.WaitForPage(Providers) as Providers;
+        expect(providers).to.be.instanceof(Providers);
         let modal = await providers.createToken.next();
         await modal.next(true); // I consulted with my advisors
         let page = await new CreateToken().navigation.navigate(CreateToken);
