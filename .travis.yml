@@ -1,9 +1,14 @@
 language: node_js
 dist: trusty
 node_js:
-  - v8
+  - v10
+cache:
+  yarn: true
+  directories:
+  - ~/.npm
 
 before_install:
+  - START_TIME=$(date +%s)
   - "export DISPLAY=:99.0"
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1920x1080x16"
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
@@ -13,32 +18,45 @@ install: yarn
 
 before_script:
   - |
-    if [ -z "${METAMASK_SECRET+x}" ]; then
-      METAMASK_SECRET="cotton trap squeeze wealth aunt fork hungry notice entry early combine chalk"
-    fi
     if [ -z "${METAMASK_NETWORK+x}" ]; then
-      METAMASK_NETWORK=l
+      export METAMASK_SECRET="cotton trap squeeze wealth aunt fork hungry notice entry early combine chalk"
+      export METAMASK_NETWORK=l
+      export GANACHE_NETWORK=100000015
     fi
   - |
     if [ "${METAMASK_NETWORK:0:1}" = "l" ]; then
       git clone --depth=1 --branch=master https://github.com/PolymathNetwork/polymath-core.git polymath-core
       cd polymath-core
+      nvm install v8
       npm install -g truffle
       npm install
-      ganache-cli -i 15 -l 9000000 -m "$METAMASK_SECRET" > ganache.log &
+      ganache-cli -i $GANACHE_NETWORK -l 9000000 -m "$METAMASK_SECRET" > ../ganache.log &
       GANACHE_PID=$!
-      sleep 5
-      truffle migrate
+      sh -c 'tail -n +0 -f ../ganache.log | { sed "/Listening on/ q" && kill $$ ;}'
+      export GANACHE_CONTRACTS="{"$(truffle migrate --reset --all --network development | tee migration.log | sed  -e "1,/^Using network \'.*\'.$/ d; /----- Polymath Core Contracts -----/,\$d; /^[^:]*$/ d; /^.*\.js$/ d; s/^ *\([^:]*\): *\([^ ]*\) *$/ \"\1\" : { \"$GANACHE_NETWORK\" : \"\2\" }/g" | tr '\n' ', ' | sed 's/,$//')" }"
+      cat migration.log
+      nvm use v10
       cd ..
     fi
 
-script: npm test
+script: npm test -- --env=production --params.tags=@status
 
 after_script:
   - |
     if [ "${GANACHE_PID+x}" ]; then
       kill -9 $GANACHE_PID
+      cat ganache.log
     fi
+  - |
+    END_TIME=$(date +%s)
+    ELAPSED=$(($END_TIME - $START_TIME))
+    JOB_EXPECTED_TIME=$((60 * 10))
+    # We can trigger scripts maximum 10 times per hour
+    if [[ $ELAPSED < $JOB_EXPECTED_TIME ]]; then
+      TIMELEFT=$((JOB_EXPECTED_TIME - $ELAPSED))
+      echo "Waiting $TIMELEFT seconds to trigger the next job..."
+      sleep $TIMELEFT
+    fi;
   - bash trigger.sh
 
 notifications:
