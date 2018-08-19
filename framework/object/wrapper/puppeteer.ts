@@ -83,13 +83,15 @@ export class PuppeteerHandle {
             ignoreDefaultArgs: true,
             defaultViewport: null
         };
+        let maxTries = 10;
         return deasync(callback => {
             let tries = 0;
             let fn = () => puppeteer.launch(opts).then(async res => {
+                console.log(`Puppeteer: Trying to start browser ${tries + 1}/${maxTries}`);
                 for (let page of await res.pages()) page.setViewport(this.size);
                 callback(null, res);
             }).catch(err => {
-                if (tries < 10) return fn();
+                if (++tries < maxTries) return fn();
                 else callback(err);
             });
             fn();
@@ -106,11 +108,14 @@ export class PuppeteerHandle {
                 '--enable-logging',
                 '--force-fieldtrials=SiteIsolationExtensions/Control',
                 '--log-level=0',
-                '--test-type=webdriver',
+                '--test-type=webdriver'
             ];
         if (!this.options.userDataDir) {
             this.tmpDirHandle = tmp.dirSync({ prefix: 'puppeteer' });
             this.options.userDataDir = this.tmpDirHandle.name;
+        }
+        if (!this.options.headless && !this.options.launchArgs.find(arg => arg.startsWith('--start-fullscreen'))) {
+            this.options.launchArgs.push('--start-fullscreen');
         }
         // if lighthouse && !headless ==> '--show-paint-rects'
         if (!PuppeteerHandle.tearDownRegistered) {
@@ -179,6 +184,6 @@ export class PuppeteerHandle {
             await this.configureDownload();
         }
         this.browser = this.createInstance(this.options);
-        console.log(`Chrome Headless - Restarted, available on ${this.address}`);
+        console.log(`Puppeteer: Restarted, available on ${this.address}`);
     }
 }

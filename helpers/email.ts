@@ -6,12 +6,18 @@ import { simpleParser } from 'mailparser';
 
 export class EmailHandler {
     private connection: ImapSimple;
+    private static instance: EmailHandler;
     constructor(protected opts: Config) {
         deasync(async callback => {
+            if (EmailHandler.instance) {
+                await EmailHandler.instance.connection.end();
+                EmailHandler.instance = null;
+            }
             this.connection = await connect({ imap: this.opts });
             await this.connection.openBox('INBOX');
             callback(null);
         })();
+        EmailHandler.instance = this;
     }
     public async fetchTo(to: string): Promise<string[]> {
         let searchCriteria = [
