@@ -85,11 +85,13 @@ export class PuppeteerHandle {
         };
         return deasync(callback => {
             let tries = 0;
+            console.log(`Pupeteer: Trying to start browser ${tries + 1}/${tries}`);
             let fn = () => puppeteer.launch(opts).then(async res => {
                 for (let page of await res.pages()) page.setViewport(this.size);
                 callback(null, res);
             }).catch(err => {
-                if (tries < 10) return fn();
+                console.log(`Pupeteer: Trying to start browser ${tries + 1}/${tries}`);
+                if (tries++ < 10) return fn();
                 else callback(err);
             });
             fn();
