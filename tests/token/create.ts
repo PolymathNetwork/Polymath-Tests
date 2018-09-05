@@ -1,5 +1,5 @@
 import { binding, given, then } from "cucumber-tsflow";
-import { IssuerTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/issuerTest";
 import { IssuerTestData } from "tests/issuerTestData";
 import { CreateToken } from "objects/pages/withToken/token/createToken";
 import { expect } from "framework/helpers";
@@ -7,7 +7,7 @@ import { MintPage } from "objects/pages/withToken/token/mint";
 import { Providers } from "objects/pages/withToken/providers/providers";
 
 @binding([IssuerTestData])
-class CreateTokenTest extends IssuerTest {
+class CreateTokenTest extends TransactionalTest {
 
     @given(/The issuer creates a token/)
     public async startNewToken() {
@@ -23,7 +23,7 @@ class CreateTokenTest extends IssuerTest {
 
     @then(/The issuer has the token created/)
     public async tokenIsCreated() {
-        let page = await MintPage.Get(MintPage);
+        let page = await MintPage.WaitForPage(MintPage);
         expect(page).to.be.instanceof(MintPage);
     }
 

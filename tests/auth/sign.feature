@@ -1,7 +1,8 @@
-@sign @sanity @full
+@issuer @sign
 Feature: Sign test
-    This is the test related to the sign Feature
+This is the test related to the sign Feature
 
+    @sanity @full
     Scenario: Sign Positive
         Given The issuer navigates to the issue url
         And The issuer verifies the identity
