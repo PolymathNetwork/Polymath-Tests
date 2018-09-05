@@ -1,6 +1,7 @@
 import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before } from 'cucumber';
-import { oh, WindowInfo } from 'framework/helpers';
+import { oh, WindowInfo, By } from 'framework/helpers';
 import { Metamask, Network } from 'extensions/metamask';
+import { stringify } from 'circular-json';
 const debugMode = process.env.IS_DEBUG;
 
 process.on('uncaughtException', function (err) {
@@ -11,7 +12,7 @@ process.on('uncaughtException', function (err) {
 // For process.exit file removal, when having a lot of files
 require('events').EventEmitter.defaultMaxListeners = 100;
 
-setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000);
+setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 8 * 60 * 1000);
 
 // TODO: Build nice reporting
 
@@ -55,10 +56,41 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
 });
 
 After(async function (this: World, scenario: HookScenarioResult) {
+    let world = this;
+    const report = async function () {
+        switch (process.env.FAIL_LOG) {
+            default:
+            case 'image':
+                let base64 = await oh.browser.takeScreenshot();
+                await world.attach(base64, 'image/png');
+                break;
+            case 'html':
+                console.log(await oh.html(By.xpath('//body')));
+                break;
+        }
+    }
     if (scenario.result.status === Status.FAILED) {
         // Take screenshot and attach it to the test
-        let base64 = await oh.browser.takeScreenshot();
-        //this.attach(base64, 'image/png');
+        try {
+            console.log('DEBUG: Logging main page...');
+            await report();
+            let def = await oh.browser.currentFrame();
+            let all = await oh.browser.getAllWindowHandles();
+            let handles = all.filter(h => def.windowHandle != h);
+            if (all.length == handles.length) handles = handles.splice(0, 1);
+            for (let i = 0; i < handles.length; ++i) {
+                console.log(`DEBUG: Logging page ${i + 1} of ${handles.length}...`);
+                try {
+                    await oh.browser.switchToFrame(new WindowInfo(handles[i], [null]));
+                    await report();
+                } catch (error) {
+                    console.log(`Cucumber After - Attaching error: Can't take secondary screenshot.\n ${stringify(error)}`)
+                }
+            }
+        }
+        catch (error) {
+            console.error(`Cucumber After - Attaching error: Can't take primary screenshot.\n ${stringify(error)}`);
+        }
     }
     // If we restart here we risk a node instakill
 });

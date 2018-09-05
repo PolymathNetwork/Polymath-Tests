@@ -74,7 +74,9 @@ export class Metamask extends Extension {
     public async importAccount(seed: string, password = 'password1234') {
         await this.navigateToPage();
         let locked = await Locked.WaitForPage<Locked>([Locked, TermsAndConditions]);
-        if (locked instanceof TermsAndConditions) locked = await locked.skipTou() as Locked;
+        if (locked instanceof TermsAndConditions) {
+            locked = await locked.skipTou() as Locked;
+        }
         await locked.init();
         let page = await locked.import();
         await page.fill({ password: password, seed: seed } as any, false);
@@ -122,11 +124,17 @@ export class Metamask extends Extension {
         await this.exitPage();
     }
 
-    public async switchAccount(name?: string) {
+    public async switchAccount(name?: string | number) {
         await this.navigateToPage();
         let page = await MetamaskPage.WaitForPage<MetamaskPage>(MetamaskPage).then(p => p.init({ mode: InitMode.OnlyObjects }));
         if (!name) await page.account.create();
-        else await page.account.select(name);
+        else if (!isNaN(name as number)) {
+            await page.account.refresh('accounts');
+            for (let i = page.account.accounts.length; i < name; ++i) {
+                await page.account.create();
+            }
+        }
+        else await page.account.select(name as string);
         await this.exitPage();
     }
 
