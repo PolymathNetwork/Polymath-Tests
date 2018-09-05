@@ -2,6 +2,7 @@ import { recurseClass, isConstructor, classNameTree, internal, internalKey, clas
 import clone = require('clone');
 import { Locator, LocatorCompare, oh } from '../../helpers';
 import crypto = require('crypto');
+import { stringify } from 'circular-json';
 
 export class Container {
     [key: string]: { new(...els: any[]): IConstructor } | Container;
@@ -303,7 +304,7 @@ export abstract class IConstructor<I extends InitOpts = InitOpts> {
             }
             if (!localEqual) {
                 localDifferences[property] = Object.keys(tempObj).length ? tempObj : { expected: paramProperty, actual: thisProperty };
-                console.log(`Equals: ${property} was expected to be equals. Value 1: ${thisProperty}, Value 2: ${paramProperty}`);
+                console.log(`Equals: ${property} was expected to be equals. Value 1: ${stringify(thisProperty)}, Value 2: ${stringify(paramProperty)}`);
             }
         }
         if (opts.differenceArray) for (let idx of Object.keys(localDifferences)) opts.differenceArray[idx] = localDifferences[idx];

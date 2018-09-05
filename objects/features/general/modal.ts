@@ -7,8 +7,8 @@ import { injectable } from "framework/object/core/iConstructor";
 
 export abstract class Modal extends AbstractFeature {
     @present(By.xpath('.//*[@class="bx--modal-close"]')) public hasClose: boolean;
-    public close(): Promise<CorePage> {
-        return oh.click(By.xpath('.//button[@class="bx--modal-close"]'), this.element).then(() => CorePage.Get(CorePage) as Promise<CorePage>);
+    public close(lookForNext: boolean = true): Promise<CorePage> {
+        return oh.click(By.xpath('.//button[@class="bx--modal-close"]'), this.element).then(() => lookForNext && CorePage.WaitForPage(CorePage) as Promise<CorePage>);
     }
     public async confirm(noNext: boolean = false): Promise<Transaction | Modal> {
         await oh.click(By.xpath('.//button[contains(@class, "bx--btn--primary")]'), this.element);
@@ -20,8 +20,8 @@ export abstract class Modal extends AbstractFeature {
     public async next(noNext: boolean = false): Promise<Transaction | Modal> {
         return this.confirm(noNext);
     }
-    public cancel(): Promise<CorePage> {
-        return oh.click(By.xpath('.//button[contains(@class, "bx--btn--secondary")]'), this.element).then(() => CorePage.Get(CorePage) as Promise<CorePage>);
+    public cancel(lookForNext: boolean = true): Promise<CorePage> {
+        return oh.click(By.xpath('.//button[contains(@class, "bx--btn--secondary")]'), this.element).then(() => lookForNext && CorePage.WaitForPage(CorePage) as Promise<CorePage>);
     }
 }
 
