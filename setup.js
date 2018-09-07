@@ -59,7 +59,9 @@ let pids = {};
 let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || 'master';
 const setNodeVersion = () => {
     execSync(`unset npm_config_prefix; source $HOME/.bashrc; source $NVM_DIR/nvm.sh; nvm install v8`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
-    return execSync(`unset npm_config_prefix; source $HOME/.bashrc &> /dev/null; source $NVM_DIR/nvm.sh; nvm use v8 &> /dev/null; echo $PATH`, { cwd: checkoutDir, shell: '/bin/bash' }).toString();
+    let path = process.env.PATH.replace(/:?[^:]*node_modules[^:]*/g, '');
+    if (path.endsWith(':')) path = path.substr(0, path.length - 1);
+    return execSync(`unset npm_config_prefix; source $HOME/.bashrc &> /dev/null; source $NVM_DIR/nvm.sh; nvm use v8 &> /dev/null; echo $PATH`, { path: path, cwd: checkoutDir, shell: '/bin/bash' }).toString();
 }
 
 if (!process.env.GANACHE_PORT) process.env.GANACHE_PORT = 8545;
@@ -76,13 +78,16 @@ const setup = {
     git: async function (source, dir, useNpm) {
         if (!useNpm) {
             // Git mode
+            let branchExists = execSync(`git ls-remote --heads ${source.url} ${branch}`, { cwd: checkoutDir, shell: '/bin/bash' }).toString();
+            if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to master`);
+            else console.log(`Using branch ${branch} for ${source.url}, checking out to ${dir}`);
             if (!pathExistsSync(dir)) {
-                let branchExists = execSync(`git ls-remote --heads ${source.url} ${branch}`, { cwd: checkoutDir, shell: '/bin/bash' }).toString();
-                if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to master`);
-                else console.log(`Using branch ${branch} for ${source.url}, checking out to ${dir}`);
                 execSync(`git clone --depth=1 --branch=${branchExists ? branch : 'master'} "${source.url}" "${dir}"`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
             }
-            else execSync('git pull', { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
+            else {
+                execSync(`git checkout ${branchExists ? branch : 'master'}`, { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
+                execSync('git pull', { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
+            }
         } else {
             mkdirpSync(dir);
             execSync(`npm pack ${source.npm}`, { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
