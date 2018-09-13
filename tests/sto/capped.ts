@@ -2,7 +2,7 @@ import { binding, given, then } from "cucumber-tsflow";
 import { StoSelector } from "objects/pages/withToken/sto/selector";
 import { CappedSto, CappedStoConfig } from "objects/features/sto/capped";
 import { expect } from "framework/helpers";
-import { TransactionalTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { IssuerTestData } from "tests/issuerTestData";
 import { StoCountdown } from "objects/pages/withToken/sto/stoCountdown";
 import { CappedStoConfigModel } from "models/cappedStoConfig";

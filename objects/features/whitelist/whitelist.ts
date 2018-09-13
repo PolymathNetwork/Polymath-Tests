@@ -3,7 +3,7 @@ import { Locator, By, oh } from "framework/helpers";
 import { singleCheckbox, order, inputField } from "framework/object/core/decorators";
 import { WhitelistModel } from "models/whitelistModel";
 import { Modal } from "objects/features/general/modal";
-import { TransactionalTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { DownloadedFile } from "config/download/abstract";
 import { IssuerPage } from "objects/pages/base";
 

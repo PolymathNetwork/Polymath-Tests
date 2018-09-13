@@ -29,7 +29,7 @@ import { Modal } from "objects/features/general/modal";
     @inputField<number>(By.xpath('.//*[@id="cap"]')) public hardCap: number;
     @inputField<number>(By.xpath('.//*[@id="rate"]')) public rate: number;
     @inputField<string>(By.xpath('.//*[@id="fundsReceiver"]'), null, { numberParseMethod: NumberParseMethod.None }) public ethAddress: string;
-    @label<number>(By.xpath('.//fieldset'), /(\d+)/, { mode: LabelOptsMode.Text }) public fundsRaised: number;
+    @label<number>(By.xpath('.//fieldset'), /(\d+)/) public fundsRaised: number;
 
     public next(): Promise<Modal> {
         return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
@@ -38,8 +38,8 @@ import { Modal } from "objects/features/general/modal";
 
 @injectable export class CappedSto extends StoWidget {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "sto-factory")]');
-    @label<string>(By.xpath('.//p[starts-with(text(), "0x")]'), null, { mode: LabelOptsMode.Text }) public ethAddress: string;
-    @label<string>(By.xpath('.//*[@class="bx--form-item"][./label[text()="Description"]]/p'), null, { mode: LabelOptsMode.Text }) public description: string;
+    @label<string>(By.xpath('.//p[starts-with(text(), "0x")]')) public ethAddress: string;
+    @label<string>(By.xpath('.//*[@class="bx--form-item"][./label[text()="Description"]]/p')) public description: string;
     @present(By.xpath('.//*[@name="checkmark--glyph"]')) public verifiedOnEtherscan: boolean;
     @present(By.xpath('.//*[contains(@class, "bx--tag--ibm")]')) public allowsEth: boolean;
     @present(By.xpath('.//*[contains(@class, "bx--tag--custom")]')) public allowsPoly: boolean;

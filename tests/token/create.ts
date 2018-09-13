@@ -1,5 +1,5 @@
 import { binding, given, then } from "cucumber-tsflow";
-import { TransactionalTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { IssuerTestData } from "tests/issuerTestData";
 import { CreateToken } from "objects/pages/withToken/token/createToken";
 import { expect } from "framework/helpers";

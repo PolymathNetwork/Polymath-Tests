@@ -58,7 +58,7 @@ let logs = {
 let pids = {};
 let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || 'master';
 const setNodeVersion = () => {
-    execSync(`unset npm_config_prefix; source $HOME/.bashrc; source $NVM_DIR/nvm.sh; nvm install v8`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
+    execSync(`unset npm_config_prefix; source $HOME/.bashrc; source $NVM_DIR/nvm.sh; nvm install v8; npm i -g yarn`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
     let path = process.env.PATH.replace(/:?[^:]*node_modules[^:]*/g, '');
     if (path.endsWith(':')) path = path.substr(0, path.length - 1);
     return execSync(`unset npm_config_prefix; source $HOME/.bashrc &> /dev/null; source $NVM_DIR/nvm.sh; nvm use v8 &> /dev/null; echo $PATH`, { path: path, cwd: checkoutDir, shell: '/bin/bash' }).toString();
@@ -199,7 +199,7 @@ const setup = {
         }
         let path = setNodeVersion();
         execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        let pid = exec(`PORT=3000 yarn start | tee "${logs.offchain}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
+        let pid = exec(`PORT=3002 yarn start | tee "${logs.offchain}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
         pids.investor = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
         console.log(`Investor started with pid ${pid.pid}`);

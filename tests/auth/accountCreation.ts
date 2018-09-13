@@ -1,4 +1,4 @@
-import { TransactionalTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { given, binding } from "cucumber-tsflow";
 import { IssuerPage } from "objects/pages/base";
 import { EmailVerification } from "objects/pages/noToken/account/emailVerification";

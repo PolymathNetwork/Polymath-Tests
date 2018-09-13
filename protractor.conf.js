@@ -1,6 +1,8 @@
 let baseConfig = require('./config/register')({
     env: 'local',
-    browser: 'chrome'
+    params: {
+        browser: 'chrome'
+    }
 });
 
 exports.config = {
