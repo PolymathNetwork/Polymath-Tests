@@ -1,7 +1,9 @@
-import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before } from 'cucumber';
+import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before, AfterAll, BeforeAll } from 'cucumber';
 import { oh, WindowInfo, By } from 'framework/helpers';
 import { Metamask, Network } from 'extensions/metamask';
 import { stringify } from 'circular-json';
+import { Mongo } from 'helpers/mongo';
+import * as deasync from 'deasync';
 const debugMode = process.env.IS_DEBUG;
 
 process.on('uncaughtException', function (err) {
@@ -15,6 +17,12 @@ require('events').EventEmitter.defaultMaxListeners = 100;
 setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 8 * 60 * 1000);
 
 // TODO: Build nice reporting
+Before({ timeout: 1 * 60 * 1000 }, async function () {
+    await Mongo.resetDb();
+});
+AfterAll({ timeout: 1 * 60 * 1000 }, async function () {
+    await Mongo.disconnect();
+});
 
 let find = function (en: Object, name: string): string {
     for (let key of Object.keys(en)) if (isNaN(key as any) && key.toLowerCase().startsWith(name)) return key;

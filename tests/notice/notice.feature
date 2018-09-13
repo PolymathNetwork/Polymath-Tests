@@ -1,6 +1,6 @@
 @issuer
 Feature: Notice test
-This is the test related to the notice Feature
+    This is the test related to the notice Feature
 
     @notice @sign
     Scenario: Sign Positive with a notice
@@ -13,4 +13,3 @@ This is the test related to the notice Feature
         And The issuer activates his account
         Then The issuer is logged in
         And A previously added notice is present
-        And The notices added are cleaned up

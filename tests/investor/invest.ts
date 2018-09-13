@@ -1,6 +1,6 @@
-import { TransactionalTest } from "../issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { binding, given, then } from "cucumber-tsflow/dist";
-import { IssuerTestData } from "../issuerTestData";
+import { IssuerTestData } from "tests/issuerTestData";
 import { expect, oh } from "framework/helpers";
 import { WaitForSTO } from "objects/pages/investor/waitForSto";
 import { Metamask } from "extensions/metamask";
