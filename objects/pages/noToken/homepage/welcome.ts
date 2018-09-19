@@ -4,12 +4,12 @@ import { IssuerPage } from "objects/pages/base";
 import { SignPage } from "objects/pages/noToken/sign/sign";
 
 @injectable export class Welcome extends IssuerPage {
-    protected featureSelector: Locator = By.xpath('.//body[.//button[text()="CREATE YOUR SECURITY TOKEN"]]');
+    protected featureSelector: Locator = By.xpath('.//body[.//*[@id="create-token-btn"]]');
     constructor() {
         super(oh.browser.baseUrl);
     }
     public async next(): Promise<SignPage> {
-        await oh.click(By.xpath('.//button[text()="CREATE YOUR SECURITY TOKEN"]'));
+        await oh.click(By.xpath('.//*[@id="create-token-btn"]'));
         return await new SignPage().load();
     }
 }
