@@ -15,7 +15,7 @@ export class TickerFeature extends AbstractFeature implements TickerModel {
     @inputField<string>(By.xpath('.//*[@name="name"]')) public name: string;
     @label<string>(By.xpath('.//*[@name="owner"]'), null, { numberParseMethod: NumberParseMethod.None }) public ethAddress: string;
     public async next(): Promise<Modal | TickerError> {
-        await oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element);
+        await oh.click(By.xpath('.//button[@type="submit"]'), this.element);
         return await TickerError.WaitForPage([Modal, TickerError]) as Modal | TickerError;
     }
 }

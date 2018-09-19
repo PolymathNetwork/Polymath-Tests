@@ -17,7 +17,7 @@ import { present, photo, label, singleCheckbox } from "framework/object/core/dec
 }
 
 @injectable export class ProviderFeature extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[@role="button" and contains(@class, "provider")]');
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "providers-tab")]');
     @singleCheckbox(By.xpath('self::*'), { checkedSelector: By.xpath('self::*[contains(@class, "provider-selected")]') }) public selected: boolean;
     @photo(By.xpath('.//img')) public image: SimplePhoto;
     @label<string>(By.xpath('.//*[@class="pui-h3"]')) public title: string;
