@@ -12,6 +12,6 @@ export class AccountFeature extends AbstractFeature implements IssuerModel {
     @singleCheckbox(By.xpath('.//*[./*[@name="acceptPrivacy"]]/label'), { checkedSelector: By.xpath('//*[@name="acceptPrivacy" and @value="true"]') }) public marketingConsent: boolean;
     @singleCheckbox(By.xpath('.//*[./*[@name="acceptTerms"]]/label'), { checkedSelector: By.xpath('//*[@name="acceptTerms" and @value="true"]') }) public termsOfUse: boolean;
     public next(): Promise<IssuerPage> {
-        return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
+        return oh.click(By.xpath('.//button[@type="submit"]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
     }
 }

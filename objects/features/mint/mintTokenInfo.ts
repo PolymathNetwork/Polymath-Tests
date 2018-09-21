@@ -12,7 +12,7 @@ import { Modal } from "objects/features/general/modal";
     @order(2) @singleCheckbox(By.xpath('.//*[@for="investors-number-toggle"]'), { checkedSelector: By.xpath('//*[@id="maxHoldersCount"][not(ancestor::*[contains(@style,"display: none")])]') }) public allowMaxInvestors: boolean;
     @order(1) @optional @inputField<number>(By.xpath('.//*[@id="maxHoldersCount"]')) public maxInvestors?: number;
     public async download(acceptAndDownload: boolean = true): Promise<DownloadedFile> {
-        let modal = await oh.click(By.xpath('.//*[contains(@class, "bx--btn--secondary")]'), this.element).then(() => Modal.Get<Modal>(Modal));
+        let modal = await oh.click(By.xpath('.//*[contains(@class, "export-tokens-list-btn")]'), this.element).then(() => Modal.Get<Modal>(Modal));
         if (acceptAndDownload) {
             await modal.next(true);
             return await oh.browser.downloadManager.waitForDownload("*.csv");
