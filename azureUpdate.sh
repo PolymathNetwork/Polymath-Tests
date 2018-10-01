@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ -z $FILE || -z $PAT || -z $WORK_ITEM ]]; then
   echo "Usage: FILE=<feature file> PAT=<pat> WORK_ITEM=<work item> ./azureUpdate.sh"

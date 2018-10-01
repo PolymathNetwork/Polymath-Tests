@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ -z $PAT || -z $BUILD || -z $PROJECT ]]; then
   echo "Usage: PAT=<pat> BUILD=<build> PROJECT=<project> ./azureTriggerBuild.sh"
