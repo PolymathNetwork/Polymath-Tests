@@ -10,9 +10,9 @@ import { Modal } from "objects/features/general/modal";
     @inputField<string>(By.xpath('.//input[@type="file"]')) public file: string;
 
     public mint(): Promise<Modal> {
-        return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
+        return oh.click(By.xpath('.//button[@class="mint-token-btn"]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
     }
     public skip(): Promise<Modal> {
-        return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--secondary")]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
+        return oh.click(By.xpath('.//button[@type="skip-minting-btn"]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
     }
 }

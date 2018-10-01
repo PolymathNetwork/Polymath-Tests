@@ -189,6 +189,12 @@ export interface RestartOpts {
     DontCopyPosition?: boolean;
 }
 
+export interface WaitForOpts {
+    timeout?: number;
+    throwAfterTimeout?: boolean;
+    tryUntilTimeout?: boolean;
+}
+
 export class BrowserWrapper extends ProtractorBrowser implements OldMethods<ProtractorBrowser> {
     public oldMethods: ProtractorBrowser;
     protected constructor(browser: ProtractorBrowser) {
@@ -587,7 +593,7 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
         if (!openFn) debugger; // We shouldn't get here
         await openFn();
         ah = await this.waitFor(() => this.getAllWindowHandles()
-            .then(handles => handles.length > ah.length ? handles : null), `Timeout: Waiting for a new window to be opened`, timeout, timeout !== undefined);
+            .then(handles => handles.length > ah.length ? handles : null), `Timeout: Waiting for a new window to be opened`, { timeout: timeout, throwAfterTimeout: timeout !== undefined });
         if (!ah) return null;
         await this.switchTo().window(ah[ah.length - 1]);
         await this.waitFor(() => this.getWindowHandle()
@@ -603,7 +609,7 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
         await closeFn();
         await this.driver.switchTo().window(handleToChange.windowHandle);
         ah = await this.waitFor(() => this.getAllWindowHandles()
-            .then(handles => handles.length < ah.length ? handles : null), `Timeout: Waiting for a new window to be closed`, timeout, timeout !== undefined);
+            .then(handles => handles.length < ah.length ? handles : null), `Timeout: Waiting for a new window to be closed`, { timeout: timeout, throwAfterTimeout: timeout !== undefined });
         if (!ah) return null;
         await this.switchToFrame(handleToChange);
     }
@@ -613,11 +619,12 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
     }
 
     public async waitFor<T>(untilCondition: () => T | Promise<T> | ProtractorPromise.Promise<T> | WebdriverPromise.Promise<T> | Function,
-        text: string, timeout: number = this.allScriptsTimeout, throwAfterTimeout: boolean = true): Promise<T> {
-        if (timeout === undefined) timeout = this.allScriptsTimeout;
-        assert(timeout >= 0, `Wait<T>: Error! Timeout (${timeout}) must be bigger or equal than 0.`);
+        text: string, opts: WaitForOpts = { timeout: this.allScriptsTimeout, throwAfterTimeout: true }): Promise<T> {
+        if (!opts) opts = {};
+        if (opts.timeout === undefined) opts.timeout = this.allScriptsTimeout;
+        assert(opts.timeout >= 0, `Wait<T>: Error! Timeout (${opts.timeout}) must be bigger or equal than 0.`);
         // In order to force a return, seems browser.wait with timeout=0 never finishes
-        if (!timeout) {
+        if (!opts.timeout) {
             try {
                 return await untilCondition() as T;
             } catch (error) {
@@ -632,12 +639,12 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
         }, _ = this;
         let result = await this.wait(async () => {
             return await fn.call(_);
-        }, timeout, text).catch(async error => {
+        }, opts.timeout, text).catch(async error => {
             if (error.name = "NoSuchWindowError") {
                 await this.switchToFrame(await this.currentFrame());
                 return await fn.call(_);
             }
-            if (throwAfterTimeout) {
+            if (opts.throwAfterTimeout) {
                 let pre_error = error;
                 debugger;
                 assert(!error, `Wait - ObjectHelper: Timeout: ${error}`);
@@ -645,6 +652,7 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
                 if (pre_error) return await fn.call(_);
             }
         });
+        if (!result && opts.tryUntilTimeout) return await this.waitFor(untilCondition, text, opts);
         this.ignoreSynchronization = ignoreSynchronization;
         return result as T;
     }

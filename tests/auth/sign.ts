@@ -3,8 +3,8 @@ import { expect } from 'framework/helpers';
 import { Welcome } from 'objects/pages/noToken/homepage/welcome';
 import { SignPage } from 'objects/pages/noToken/sign/sign';
 import { Ticker } from 'objects/pages/noToken/ticker/ticker';
-import { IssuerTestData } from 'tests/issuerTestData';
 import { AccountCreation } from './accountCreation';
+import { IssuerTestData } from 'tests/issuerTestData';
 
 @binding([IssuerTestData])
 class SignTests extends AccountCreation {

@@ -23,7 +23,7 @@ import { CountdownFeature } from "objects/features/token/countdown";
 
     public countdown: CountdownFeature = new CountdownFeature(this);
     public async next(): Promise<Modal> {
-        await oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element);
+        await oh.click(By.xpath('.//button[@type="submit"]'), this.element);
         return Modal.WaitForPage<Modal>(Modal);
     }
 }

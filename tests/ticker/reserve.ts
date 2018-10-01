@@ -1,12 +1,11 @@
 import { binding, given, then } from "cucumber-tsflow";
 import { IssuerTestData } from "tests/issuerTestData";
-import { expect, TestConfig } from "framework/helpers";
+import { expect } from "framework/helpers";
 import { Ticker } from "objects/pages/noToken/ticker/ticker";
-import { IssuerPage } from "objects/pages/base";
 import { PageWithToken } from "objects/pages/withToken/base";
 import { Modal } from "objects/features/general/modal";
 import { TickerError } from "objects/features/ticker/ticker";
-import { AccountCreation } from "../auth/accountCreation";
+import { AccountCreation } from "tests/auth/accountCreation";
 
 @binding([IssuerTestData])
 class ReserveToken extends AccountCreation {

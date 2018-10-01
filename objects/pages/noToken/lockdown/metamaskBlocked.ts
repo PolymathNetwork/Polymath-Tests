@@ -4,5 +4,5 @@ import { CorePage } from "objects/pages/base";
 
 // TODO: Fix these locators
 @injectable export class MetamaskBlocked extends CorePage {
-    protected featureSelector: Locator = By.xpath('.//body[.//h1[text()="Your MetaMask Is Locked"]]');
+    protected featureSelector: Locator = By.xpath('.//body[.//*[@id="metamask-locked"]]');
 }

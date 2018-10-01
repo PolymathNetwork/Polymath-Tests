@@ -1,11 +1,12 @@
-import { TransactionalTest } from "tests/issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { given, binding } from "cucumber-tsflow";
 import { IssuerPage } from "objects/pages/base";
 import { EmailVerification } from "objects/pages/noToken/account/emailVerification";
 import { AccountPage } from "objects/pages/noToken/account/createAccount";
 import { expect } from "framework/helpers";
+import { IssuerTestData } from "tests/issuerTestData";
 
-@binding()
+@binding([IssuerTestData])
 export class AccountCreation extends TransactionalTest {
     @given(/The issuer creates an account/)
     public async createAnAccount() {

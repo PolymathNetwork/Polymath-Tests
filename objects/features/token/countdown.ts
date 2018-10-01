@@ -9,7 +9,7 @@ export abstract class AbstractCountdownFeature extends AbstractFeature { }
 
 @injectable export class CountdownFeature extends AbstractCountdownFeature {
     public featureSelector: Locator = By.xpath('.//*[contains(@class,"pui-countdown ") or @class="pui-countdown"]');
-    @order(5) @label<string>(By.xpath('.//*[@class="pui-countdown-days"]/*[@class="pui-countdown-number-column pui-countdown-number"]'), null, { mode: LabelOptsMode.Text }) public days: number;
+    @order(5) @label<string>(By.xpath('.//*[@class="pui-countdown-days"]/*[@class="pui-countdown-number-column pui-countdown-number"]')) public days: number;
     @order(4) @label<string>(By.xpath('.//*[@class="pui-countdown-hours"]'), null, { mode: LabelOptsMode.HtmlStripped }) public hours: number;
     @order(3) @label<string>(By.xpath('.//*[@class="pui-countdown-minutes"]'), null, { mode: LabelOptsMode.HtmlStripped }) public minutes: number;
     @order(2) @label<string>(By.xpath('.//*[@class="pui-countdown-seconds"]'), null, { mode: LabelOptsMode.HtmlStripped }) public seconds: number;

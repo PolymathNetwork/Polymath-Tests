@@ -6,9 +6,9 @@ import { VerificationEmail } from "objects/pages/emails/verification";
 import { IssuerPage } from "objects/pages/base";
 
 class EmailConfirmed extends AbstractFeature {
-    public featureSelector: Locator = By.xpath('//body[.//button[text()="CONTINUE WITH TOKEN CREATION"]]');
+    public featureSelector: Locator = By.xpath('.//*[@id="sign-up-success"]');
     public next(): Promise<IssuerPage> {
-        return oh.click(By.xpath('.//button[contains(@class, "bx--btn--primary")][text()="CONTINUE WITH TOKEN CREATION"]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
+        return oh.click(By.xpath('.//button[@type="submit"]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
     }
 }
 
@@ -45,6 +45,6 @@ export class EmailValidationFeature extends AbstractFeature {
     public featureSelector: Locator = By.xpath('.//*[contains(@class,"confirm-email-form")]');
     @inputField<string>(By.xpath('.//*[@name="email"]')) public email: string;
     public next(): Promise<PinFeature> {
-        return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element).then(() => new PinFeature(this.parent).load());
+        return oh.click(By.xpath('.//button[@type="submit"]'), this.element).then(() => new PinFeature(this.parent).load());
     }
 }

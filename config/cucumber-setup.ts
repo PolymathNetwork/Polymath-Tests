@@ -1,6 +1,13 @@
-import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before } from 'cucumber';
-import { oh, WindowInfo, By } from 'framework/helpers';
+import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before, AfterAll, BeforeAll } from 'cucumber';
+import { oh, WindowInfo, By, TestConfig } from 'framework/helpers';
 import { Metamask, Network } from 'extensions/metamask';
+import { stringify } from 'circular-json';
+import { Mongo } from 'helpers/mongo';
+import { createReporter } from 'istanbul-api';
+import * as istanbulCoverage from 'istanbul-lib-coverage';
+import { join } from 'path';
+import { writeFileSync, mkdirpSync, removeSync } from 'fs-extra';
+import { sync } from 'glob';
 const debugMode = process.env.IS_DEBUG;
 
 process.on('uncaughtException', function (err) {
@@ -11,9 +18,15 @@ process.on('uncaughtException', function (err) {
 // For process.exit file removal, when having a lot of files
 require('events').EventEmitter.defaultMaxListeners = 100;
 
-setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000);
+setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 8 * 60 * 1000);
 
 // TODO: Build nice reporting
+Before({ timeout: 1 * 60 * 1000 }, async function () {
+    await Mongo.resetDb();
+});
+AfterAll({ timeout: 1 * 60 * 1000 }, async function () {
+    await Mongo.disconnect();
+});
 
 let find = function (en: Object, name: string): string {
     for (let key of Object.keys(en)) if (isNaN(key as any) && key.toLowerCase().startsWith(name)) return key;
@@ -54,6 +67,7 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
     }
 });
 
+// Error reporting
 After(async function (this: World, scenario: HookScenarioResult) {
     let world = this;
     const report = async function () {
@@ -64,7 +78,7 @@ After(async function (this: World, scenario: HookScenarioResult) {
                 await world.attach(base64, 'image/png');
                 break;
             case 'html':
-                console.log(await oh.browser.html(By.xpath('//body')));
+                console.log(await oh.html(By.xpath('//body')));
                 break;
         }
     }
@@ -83,14 +97,36 @@ After(async function (this: World, scenario: HookScenarioResult) {
                     await oh.browser.switchToFrame(new WindowInfo(handles[i], [null]));
                     await report();
                 } catch (error) {
-                    console.log(`Error attach: Can't take secondary screenshot. Error: ${JSON.stringify(error)})`)
+                    console.log(`Cucumber After - Attaching error: Can't take secondary screenshot.\n ${stringify(error)}`)
                 }
             }
         }
         catch (error) {
-            console.error(`Error attach: Can't take screenshot. Error: ${JSON.stringify(error)})`);
+            console.error(`Cucumber After - Attaching error: Can't take primary screenshot.\n ${stringify(error)}`);
         }
     }
     // If we restart here we risk a node instakill
+});
+
+let covDir = join(TestConfig.reportPath, 'coverage');
+removeSync(covDir);
+mkdirpSync(covDir);
+// Code coverage
+After(async function (this: World, scenario: HookScenarioResult) {
+    let cov = await oh.browser.executeScript('return window.__coverage__;');
+    if (cov) {
+        console.log(`Adding coverage results for ${scenario.sourceLocation}`);
+        writeFileSync(join(covDir, scenario.pickle.name, '.json'), cov);
+    }
+});
+
+TestConfig.registerShutdownProcedure(async function () {
+    // Inspired on https://github.com/facebook/jest/blob/master/scripts/mapCoverage.js
+    console.log('Creating coverage...')
+    const map = istanbulCoverage.createCoverageMap();
+    const reporter = createReporter();
+    sync('*.json', { cwd: covDir }).forEach(map.addFileCoverage);
+    reporter.addAll(['cobertura', 'html']);
+    reporter.write(map);
 });
 

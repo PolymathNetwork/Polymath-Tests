@@ -13,7 +13,7 @@ export class TestConfig {
     }
 
     public static get reportPath(): string {
-        return path.join(__dirname, '..', 'reports');
+        return this.instance.protractorConfig.params.reportPath;
     }
 
     public static get instance(): TestConfig {

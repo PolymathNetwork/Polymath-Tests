@@ -1,5 +1,5 @@
 const { join } = require('path');
-const { mkdirpSync, removeSync, createWriteStream, readFileSync, pathExistsSync, writeFileSync, existsSync } = require('fs-extra');
+const { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream } = require('fs-extra');
 const { argv } = require('yargs');
 const { execSync, exec } = require('child_process');
 const deasync = require('deasync');
@@ -24,25 +24,10 @@ if (!process.env.NO_DELETE_ENV) removeSync(checkoutDir);
 mkdirpSync(checkoutDir);
 let logDir = process.env.LOG_DIR || join(currentDir, 'logs');
 mkdirpSync(logDir);
-let ganacheDb = "/tmp/ganache.db";
-execSync("unset npm_config_prefix; curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash", { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
 
 let sources = {
-    ganache: {
-        url: "https://github.com/PolymathNetwork/polymath-core.git",
-        npm: 'polymath-core'
-    },
-    issuer: {
-        url: "https://github.com/PolymathNetwork/polymath-issuer.git",
-        npm: 'polymath-issuer'
-    },
-    investor: {
-        url: "https://github.com/PolymathNetwork/polymath-investor.git",
-        npm: 'polymath-investor'
-    },
-    offchain: {
-        url: "https://github.com/PolymathNetwork/polymath-offchain.git",
-        npm: 'polymath-offchain'
+    apps: {
+        url: "https://github.com/PolymathNetwork/polymath-apps.git",
     },
 };
 
@@ -50,153 +35,113 @@ let logs = {
     issuer: join(logDir, "issuer.log"),
     investor: join(logDir, "investor.log"),
     offchain: join(logDir, "offchain.log"),
-    migration: join(logDir, "migration.log"),
     ganache: join(logDir, "ganache.log"),
 };
 
 let pids = {};
 let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || 'master';
 const setNodeVersion = () => {
-    execSync(`unset npm_config_prefix; source $HOME/.bashrc; source $NVM_DIR/nvm.sh; nvm install v8`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
-    return execSync(`unset npm_config_prefix; source $HOME/.bashrc &> /dev/null; source $NVM_DIR/nvm.sh; nvm use v8 &> /dev/null; echo $PATH`, { cwd: checkoutDir, shell: '/bin/bash' }).toString();
+    let path = process.env.PATH.replace(/:?[^:]*node_modules[^:]*/g, '');
+    if (path.endsWith(':')) path = path.substr(0, path.length - 1);
+    return `${join(__dirname, 'node_modules', '.bin')}:${path}`;
 }
 
+if (!process.env.METAMASK_NETWORK || !process.env.METAMASK_SECRET) {
+    console.log(`Metamask network or secret is not set, using defaults`);
+    process.env.METAMASK_SECRET = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+    process.env.METAMASK_NETWORK = "l";
+}
+if (process.env.METAMASK_NETWORK.startsWith('l')) process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:${process.env.GANACHE_PORT}`;
+
 const setup = {
-    git: async function (source, dir, useNpm) {
-        if (!useNpm) {
-            // Git mode
-            if (!pathExistsSync(dir)) {
-                let branchExists = execSync(`git ls-remote --heads ${source.url} ${branch}`, { cwd: checkoutDir, shell: '/bin/bash' }).toString();
-                if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to master`);
-                execSync(`git clone --depth=1 --branch=${branchExists ? branch : 'master'} "${source.url}" "${dir}"`, { cwd: checkoutDir, stdio: 'inherit', shell: '/bin/bash' });
-            }
-            else execSync('git pull', { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
-        } else {
-            mkdirpSync(dir);
-            execSync(`npm pack ${source.npm}`, { cwd: dir, stdio: 'inherit', shell: '/bin/bash' });
-            execSync('tar xvf *.tgz --strip-components=1', { cwd: dir, stdio: 'inherit', shell: '/bin/bash' })
+    git: async function (source, dir) {
+        // Git mode
+        let branchExists = execSync(`git ls-remote --heads ${source.url} ${branch}`, { cwd: checkoutDir }).toString();
+        if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to master`);
+        else console.log(`Using branch ${branch} for ${source.url}, checking out to ${dir}`);
+        if (!pathExistsSync(dir)) {
+            execSync(`git clone --depth=1 --branch=${branchExists ? branch : 'master'} "${source.url}" "${dir}"`, { cwd: checkoutDir, stdio: 'inherit' });
+        }
+        else {
+            execSync(`git checkout ${branchExists ? branch : 'master'}`, { cwd: dir, stdio: 'inherit' });
+            execSync('git pull', { cwd: dir, stdio: 'inherit' });
         }
     },
     ganache: async function (baseOpts) {
-        let opts = baseOpts;
-        if (!opts || !opts.ganache) opts = {
-            ...opts,
-            ganache: { fromDir: false, useNpm: true }
-        };
         console.log('Starting ganache...');
-        let folder = join(checkoutDir, 'ganache');
-        if (!opts.ganache.fromDir) this.git(sources.ganache, folder, opts.ganache.useNpm);
-        else folder = sources.ganache.url;
-        if (!process.env.METAMASK_NETWORK) {
-            process.env.METAMASK_SECRET = "cotton trap squeeze wealth aunt fork hungry notice entry early combine chalk";
-            process.env.METAMASK_NETWORK = "l";
-            process.env.GANACHE_NETWORK = 100000015;
-            process.env.GANACHE_GAS = 9000000;
+        if (baseOpts === undefined) {
+            baseOpts = await setup.apps();
         }
-        if (!process.env.GANACHE_PORT) process.env.GANACHE_PORT = 8545;
+        let folder = join(baseOpts, 'packages', 'polymath-shared');
+        if (!existsSync(folder))
+            throw `Can't find polymath-shared`;
         let path = setNodeVersion();
-        execSync('npm install', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        removeSync(ganacheDb);
-        mkdirpSync(ganacheDb);
-        execSync(`perl -0777 -pe "s/(development: {[^}]*})/development: { host: 'localhost', network_id: '${process.env.GANACHE_NETWORK}', port: ${process.env.GANACHE_PORT}, gas: ${process.env.GANACHE_GAS} }/" -i truffle.js`, { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path }, shell: '/bin/bash' });
-        console.log('Waiting for ganache to be available...');
-        let pid = exec(`node_modules/.bin/ganache-cli -e 100000 -i ${process.env.GANACHE_NETWORK} -l ${process.env.GANACHE_GAS} --db "${ganacheDb}" -p ${process.env.GANACHE_PORT} -m "${process.env.METAMASK_SECRET}" | tee "${logs.ganache}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        await new Promise((r, e) => {
-            let waitForInput = function (data) {
-                console.log(data);
-                if (data.indexOf('Listening on') !== -1) {
-                    pid.stdout.removeListener('data', waitForInput);
-                    r();
-                }
-                if (data.indexOf('Error') !== -1) {
-                    e(data);
-                }
-            }
-            pid.stdout.on('data', waitForInput);
-        });
+        execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path } });
+        let pid = exec(`yarn local-blockchain:start`, { cwd: folder, env: { ...process.env, PATH: path } });
+        file = createWriteStream(logs.ganache);
+        pid.stdout.pipe(file, { end: true });
+        pid.stderr.pipe(file);
         pids.ganache = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
-        console.log(`Migrating contracts...`);
-        let contracts = "{" + execSync(`node_modules/.bin/truffle migrate --reset --all --network development | tee "${logs.migration}" | sed  -e "1,/^Using network \\'.*\\'.$/ d; /----- Polymath Core Contracts -----/,\\$d; /^[^:]*$/ d; /^.*\\.js$/ d; s/^ *\\([^:]*\\): *\\([^ ]*\\) *$/ \\"\\1\\" : { \\"${process.env.GANACHE_NETWORK}\\" : \\"\\2\\" }/g" | tr '\\n' ', ' | sed 's/,$//'`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' }).toString() + " }";
-        process.env.GANACHE_CONTRACTS = contracts;
-        process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:${process.env.GANACHE_PORT}`;
-        console.log(readFileSync(logs.migration, 'utf8'));
-        console.log(`Contracts identified as:\n${process.env.GANACHE_CONTRACTS}`);
         console.log(`Ganache started with pid ${pid.pid}`);
     },
     offchain: async function (baseOpts) {
-        let opts = baseOpts;
-        if (!opts || !opts.offchain) opts = {
-            ...opts,
-            offchain: { fromDir: false, useNpm: false }
-        };
         console.log('Starting offchain...');
-        let folder = join(checkoutDir, 'offchain');
-        if (!opts.offchain.fromDir) this.git(sources.offchain, folder, opts.offchain.useNpm);
-        else folder = sources.offchain.url;
-        let path = setNodeVersion();
-        execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        let pid = exec(`PORT=3001 yarn start | tee "${logs.offchain}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
+        // TODO: Reset offchain on test end
+        let folder = `${baseOpts}/packages/polymath-offchain`;
+        execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path } });
+        let pid = exec(`yarn start:dist`, { cwd: folder, env: { ...process.env, PORT: 3001 } });
+        let file = createWriteStream(logs.offchain);
+        pid.stdout.pipe(file, { end: true });
+        pid.stderr.pipe(file);
         pids.offchain = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
         console.log(`Offchain started with pid ${pid.pid}`);
-        process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
     },
     issuer: async function (baseOpts) {
-        let opts = baseOpts;
-        if (!opts || !opts.issuer) opts = {
-            ...opts,
-            issuer: { fromDir: false, useNpm: false }
-        };
         console.log('Starting issuer...');
-        let folder = join(checkoutDir, 'issuer');
-        if (!opts.issuer.fromDir) this.git(sources.issuer, folder, opts.issuer.useNpm);
-        else {
-            folder = sources.issuer.url;
-            sources.ganache.url = join(folder, 'node_modules', 'polymath-core');
-            if (!baseOpts) {
-                console.warn("Won't be able to initialize ganache, baseOpts is empty");
-            } else if (!baseOpts.ganache) baseOpts.ganache = {};
-            baseOpts.ganache.fromDir = true;
-        }
-        let path = setNodeVersion();
-        execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        let pid = exec(`PORT=3000 yarn start | tee "${logs.offchain}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
+        let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-issuer/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3000 } });
+        let file = createWriteStream(logs.issuer);
+        pid.stdout.pipe(file, { end: true });
+        pid.stderr.pipe(file);
         pids.issuer = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
         console.log(`Issuer started with pid ${pid.pid}`);
     },
     investor: async function (baseOpts) {
-        let opts = baseOpts;
-        if (!opts || !opts.investor) opts = {
-            ...opts,
-            investor: { fromDir: false, useNpm: false }
-        };
         console.log('Starting investor...');
-        let folder = join(checkoutDir, 'investor');
-        if (!opts.investor.fromDir) this.git(sources.investor, folder, opts.investor.useNpm);
-        else {
-            folder = sources.investor.url;
-            sources.ganache.url = join(folder, 'node_modules', 'polymath-core');
-            if (!baseOpts) {
-                console.warn("Won't be able to initialize ganache, baseOpts is empty");
-            } else if (!baseOpts.ganache) baseOpts.ganache = {};
-            baseOpts.ganache.fromDir = true;
-        }
-        let path = setNodeVersion();
-        execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
-        let pid = exec(`PORT=3000 yarn start | tee "${logs.offchain}"`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' }, shell: '/bin/bash' });
+        let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-investor/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3002 } });
+        let file = createWriteStream(logs.investor);
+        pid.stdout.pipe(file, { end: true });
+        pid.stderr.pipe(file);
         pids.investor = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
         console.log(`Investor started with pid ${pid.pid}`);
     },
-    all: function (setupOpts = {}) {
+    apps: async function (baseOpts) {
+        let folder = join(checkoutDir, 'apps');
+        if (!baseOpts) this.git(sources.apps, folder, false);
+        else folder = baseOpts;
+        /*if (existsSync(join(folder, 'package.json'))) {
+            console.log('Installing apps...');
+            let path = setNodeVersion();
+            execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
+            process.env.REACT_APP_NETWORK_LOCAL_WS = `http://${process.env.LOCALHOST}:8545`
+            // This should be removed in the near future
+            process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
+            execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        }*/
+        return folder;
+    },
+    all: function (folder) {
         deasync(async function (callback) {
             try {
-                await setup.offchain(setupOpts);
-                await setup.issuer(setupOpts);
-                await setup.investor(setupOpts);
-                await setup.ganache(setupOpts);
+                folder = await setup.apps(folder);
+                await setup.offchain(folder);
+                await setup.issuer(folder);
+                await setup.investor(folder);
+                await setup.ganache(folder);
                 callback(null);
             } catch (error) {
                 callback(error);
@@ -208,25 +153,16 @@ const setup = {
 if (argv.params.setup.ganache) {
     deasync(async function (callback) {
         try {
-            await setup.ganache();
+            await setup.ganache(argv.params.setup.ganache);
             callback(null);
         } catch (error) {
             callback(error);
         }
     })();
+} else if (argv.params.setup.apps) {
+    setup.all(argv.params.setup.apps);
 } else {
-    let found = false;
-    for (let el in sources) {
-        if (argv.params.setup[el]) {
-            found = true;
-            sources[el].url = argv.params.setup[el];
-            let opts = {};
-            opts[el] = { fromDir: true, useNpm: false };
-            setup.all(opts);
-            break;
-        }
-    }
-    if (!found) setup.all();
+    throw `Unknown parameter for setup ${JSON.stringify(argv.params.setup)}`;
 }
 console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid)}
 Press Ctrl+C to terminate them.`);

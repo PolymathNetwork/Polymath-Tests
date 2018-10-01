@@ -16,6 +16,11 @@ export class GoogleSheets extends UploadProvider {
         super();
         assert(opts.email && opts.sheet && opts.token,
             `Google Sheets Upload provider can't be initialized - missing fields`);
+        let base64 = Buffer.from(opts.token, 'base64');
+        if (base64.toString('base64') === opts.token) {
+            console.log('Google Sheets token is base64-encoded.');
+            opts.token = base64.toString().replace(/\\n/g, '\n');
+        }
         this.spreadsheet = new gspread(opts.sheet);
     }
     public async init(): Promise<void> {

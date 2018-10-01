@@ -10,6 +10,11 @@ export interface RunnerConfig extends ProtractorConfig {
         extensions?: { [k: string]: Object };
         downloadManager?: DownloadConfig;
     };
+    params?: {
+        [k: string]: any;
+        reportDir?: string;
+        generatorSeed?: number;
+    }
     localhost?: string;
     apps?: {
         investor?: string;
