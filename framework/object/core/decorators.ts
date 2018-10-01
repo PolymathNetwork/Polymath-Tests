@@ -235,7 +235,7 @@ async function parseText<T extends string | number | string[] | number[] | Date 
 
 export function label<T extends string | number | string[] | number[] | Date | Date[]>(locator: Locator, regex: RegExp = null, opts: LabelOpts = {}) {
     opts.mainFieldLocator = opts.mainFieldLocator || locator;
-    opts.mode = opts.mode || LabelOptsMode.Html;
+    opts.mode = opts.mode || LabelOptsMode.Text;
     return customDecorator<T>(async function (): Promise<T> {
         // Field not present (optional)
         if (!await oh.present(locator, this.target.element)) return undefined;

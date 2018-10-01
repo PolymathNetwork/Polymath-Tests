@@ -1,4 +1,4 @@
-import { IssuerTestData } from "tests/issuerTestData";
+import { IssuerTestData } from "./issuerTestData";
 import { Modal, PolyModal } from "objects/features/general/modal";
 import { TransactionResult, Status } from "objects/features/general/transaction";
 import { AbstractPage } from "framework/object/abstract";

@@ -6,7 +6,7 @@ import { AbstractFeature } from "framework/object/abstract";
 
 export class NewDetailExtra extends AbstractFeature {
     public featureSelector: Locator = By.xpath('.//*[@class="account-modal-container"]');
-    @label<string>(By.xpath('.//*[@class="editable-label__value"]'), null, { mode: LabelOptsMode.Text }) public accountName;
+    @label<string>(By.xpath('.//*[@class="editable-label__value"]')) public accountName;
     @label<string>(By.xpath('.//*[@class="qr-ellip-address"]'), null, { mode: LabelOptsMode.Value, numberParseMethod: NumberParseMethod.None }) public ethAddress;
     public async close(): Promise<void> {
         // We can't click on an 'after' effect
@@ -16,12 +16,10 @@ export class NewDetailExtra extends AbstractFeature {
 
 @injectable export class NewDetail extends Detail {
     protected featureSelector: Locator = By.xpath('self::*[.//*[contains(@class,"account-and-transaction-details")]]');
-    @label<string>(By.xpath('.//*[@class="account-name"]'),
-        null, { mode: LabelOptsMode.Text }) public name: string;
+    @label<string>(By.xpath('.//*[@class="account-name"]')) public name: string;
     @label<number>(By.xpath('.//*[@class="wallet-balance"]//*[@class="token-amount"]'),
         null, {
-            numberParseMethod: NumberParseMethod.ParseFloat,
-            mode: LabelOptsMode.Text
+            numberParseMethod: NumberParseMethod.ParseFloat
         }) public ethAmount: number;
     @customDecorator<string>(async function () {
         let details: NewDetailExtra = await this.target.extraDetails();

@@ -133,4 +133,8 @@ export class ChanceGenerator extends DataGenerator {
     public integer(opts?: Chance.Options): number {
         return this.chance.integer(opts);
     }
+
+    public url(opts?: Chance.Options): string {
+        return this.chance.url(opts);
+    }
 }

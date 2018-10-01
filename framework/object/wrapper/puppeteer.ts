@@ -114,6 +114,9 @@ export class PuppeteerHandle {
             this.tmpDirHandle = tmpDir({ prefix: 'puppeteer' });
             this.options.userDataDir = this.tmpDirHandle;
         }
+        if (this.options.headless && !this.options.launchArgs.find(arg => arg.startsWith('--headless'))) {
+            this.options.launchArgs.push('--headless');
+        }
         if (!this.options.headless && !this.options.launchArgs.find(arg => arg.startsWith('--start-fullscreen'))) {
             this.options.launchArgs.push('--start-fullscreen');
         }

@@ -11,7 +11,7 @@ export enum Status {
 
 @injectable export class TransactionResult extends AbstractFeature {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "pui-tx-row")]');
-    @label<string>(By.xpath('.//*[@class="pui-h3"]'), null, { mode: LabelOptsMode.Text }) public name: string;
+    @label<string>(By.xpath('.//*[@class="pui-h3"]')) public name: string;
     @attribute('href', By.xpath('.//a')) public ethscan: string;
     @present(By.xpath('.//*[@class="pui-tx-icon"]'), {
         './/*[@name="checkmark"]': Status.Pass,

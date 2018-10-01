@@ -11,7 +11,7 @@ export abstract class InvestorPage extends PageWithHeader {
         super(uri, element);
     }
     public navigateToPage(token?: string): Promise<this> {
-        return super.navigateToPage(`${this.defaultPageUri}/${token}`);
+        return super.navigateToPage(`${this.defaultPageUri}/${token || ''}`);
     }
 }
 

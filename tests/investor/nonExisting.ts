@@ -1,6 +1,6 @@
-import { TransactionalTest } from "../issuerTest";
+import { TransactionalTest } from "tests/transactionalTest";
 import { binding, given, then } from "cucumber-tsflow/dist";
-import { IssuerTestData } from "../issuerTestData";
+import { IssuerTestData } from "tests/issuerTestData";
 import { InvestorSTONotFound } from "objects/pages/investor/notFound";
 import { expect } from "framework/helpers";
 

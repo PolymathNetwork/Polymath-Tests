@@ -70,6 +70,7 @@ const environments = function (): { [k: string]: RunnerConfig } {
     }
 }
 
+// TODO: Migrate to TestConfig
 let shutdownFns: (() => Promise<void> | void)[] = [];
 let shutdownDone: boolean = false;
 const shutdown = async function () {
@@ -133,7 +134,7 @@ export = (opts = { params: {} }) => {
         };
         currentEnv.config = {
             allScriptsTimeout: debugMode ? 60 * 60 * 1000 : 4 * 60 * 1000,
-            specs: ['tests/**/*.feature'],
+            specs: process.env.SPECS || currentEnv.argv.specs || ['tests/**/*.feature'],
             SELENIUM_PROMISE_MANAGER: false,
             disableChecks: true,
             noGlobals: true,
@@ -167,6 +168,7 @@ export = (opts = { params: {} }) => {
             },
             params: {
                 ...currentEnv.argv.params,
+                reportPath: reportsDir,
                 generatorSeed: currentEnv.argv.seed || (Math.random() * Number.MAX_SAFE_INTEGER),
             },
             ...environments()[process.env.ENV || currentEnv.argv.env || 'local']

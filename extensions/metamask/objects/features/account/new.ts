@@ -22,7 +22,6 @@ import { MetamaskPage } from "../../pages";
     @label<string[]>(By.xpath('//*[contains(@class, "account-menu__name")]'),
         null,
         {
-            mode: LabelOptsMode.Text,
             alwaysArray: true,
             preGet: async function () { await this.target.waitForMenu(); },
             postGet: async function () { await oh.click(By.xpath('.//*[@class="menu__close-area"]')); }
