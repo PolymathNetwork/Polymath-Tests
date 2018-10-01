@@ -70,6 +70,7 @@ const environments = function (): { [k: string]: RunnerConfig } {
     }
 }
 
+// TODO: Migrate to TestConfig
 let shutdownFns: (() => Promise<void> | void)[] = [];
 let shutdownDone: boolean = false;
 const shutdown = async function () {
@@ -167,6 +168,7 @@ export = (opts = { params: {} }) => {
             },
             params: {
                 ...currentEnv.argv.params,
+                reportPath: reportsDir,
                 generatorSeed: currentEnv.argv.seed || (Math.random() * Number.MAX_SAFE_INTEGER),
             },
             ...environments()[process.env.ENV || currentEnv.argv.env || 'local']
@@ -200,7 +202,7 @@ export = (opts = { params: {} }) => {
                 }
                 break;
             }
-            case 'chrome': {
+            case 'chromium': {
                 setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
@@ -229,7 +231,7 @@ export = (opts = { params: {} }) => {
                 }
                 break;
             }
-            case 'chromium': {
+            case 'chrome': {
                 setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
