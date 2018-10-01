@@ -134,7 +134,7 @@ export = (opts = { params: {} }) => {
         };
         currentEnv.config = {
             allScriptsTimeout: debugMode ? 60 * 60 * 1000 : 4 * 60 * 1000,
-            specs: ['tests/**/*.feature'],
+            specs: process.env.SPECS || currentEnv.argv.specs || ['tests/**/*.feature'],
             SELENIUM_PROMISE_MANAGER: false,
             disableChecks: true,
             noGlobals: true,
@@ -202,7 +202,7 @@ export = (opts = { params: {} }) => {
                 }
                 break;
             }
-            case 'chromium': {
+            case 'chrome': {
                 setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
@@ -231,7 +231,7 @@ export = (opts = { params: {} }) => {
                 }
                 break;
             }
-            case 'chrome': {
+            case 'chromium': {
                 setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();

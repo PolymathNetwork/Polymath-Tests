@@ -15,4 +15,4 @@ import { Modal } from "objects/features/general/modal";
     public skip(): Promise<Modal> {
         return oh.click(By.xpath('.//button[@type="skip-minting-btn"]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
     }
-}è
+}

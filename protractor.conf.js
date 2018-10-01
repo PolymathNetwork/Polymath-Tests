@@ -10,7 +10,8 @@ exports.config = {
     specs: [
         //'tests/notice/notice.feature',
         //'tests/investor/nonExisting.feature',
-        'tests/investor/invest.feature',
+        //'tests/investor/invest.feature',
+        'tests/auth/sign.feature'
         //'tests/ticker/reserve.feature',
         //'tests/compliance/complianceSanity.feature'
     ],

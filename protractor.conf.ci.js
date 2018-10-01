@@ -3,6 +3,5 @@ exports.config = require('./config/register')({
     params: {
         browser: 'puppeteer',
         extensions: 'metamask',
-        tags: '@sanity or @status'
     }
 }).config;

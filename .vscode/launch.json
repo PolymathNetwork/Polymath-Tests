@@ -16,7 +16,7 @@
                 //"--params.tags=@sanity",
                 "--params.browser=puppeteer",
                 //"--params.setup.ganache",
-                //"--params.setup.issuer='polymath-issuer'",
+                "--params.setup.apps='../polymath-apps'",
                 //"--params.browser=cloud",
                 //"--params.browser=chrome",
                 //"--params.extensions=metamask"

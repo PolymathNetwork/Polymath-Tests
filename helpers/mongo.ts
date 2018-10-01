@@ -59,7 +59,13 @@ export class Mongo {
         return !!(db && db.mongo);
     }
     public async resetDb(): Promise<this> {
-        await this.connection.connection.dropDatabase();
+        for (let collection in this.connection.connection.collections) {
+            try {
+                await this.connection.connection.collection(collection).drop();
+            } catch (error) { }
+        }
+        // We can't drop admin
+        //await this.connection.connection.dropDatabase();
         return this;
     }
     public static async resetDb(instance: Mongo = Mongo._instance): Promise<Mongo> {
