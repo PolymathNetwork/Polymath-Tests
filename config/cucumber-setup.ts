@@ -1,9 +1,13 @@
 import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before, AfterAll, BeforeAll } from 'cucumber';
-import { oh, WindowInfo, By } from 'framework/helpers';
+import { oh, WindowInfo, By, TestConfig } from 'framework/helpers';
 import { Metamask, Network } from 'extensions/metamask';
 import { stringify } from 'circular-json';
 import { Mongo } from 'helpers/mongo';
-import * as deasync from 'deasync';
+import { createReporter } from 'istanbul-api';
+import * as istanbulCoverage from 'istanbul-lib-coverage';
+import { join } from 'path';
+import { writeFileSync, mkdirpSync, removeSync } from 'fs-extra';
+import { sync } from 'glob';
 const debugMode = process.env.IS_DEBUG;
 
 process.on('uncaughtException', function (err) {
@@ -63,6 +67,7 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
     }
 });
 
+// Error reporting
 After(async function (this: World, scenario: HookScenarioResult) {
     let world = this;
     const report = async function () {
@@ -101,5 +106,27 @@ After(async function (this: World, scenario: HookScenarioResult) {
         }
     }
     // If we restart here we risk a node instakill
+});
+
+let covDir = join(TestConfig.reportPath, 'coverage');
+removeSync(covDir);
+mkdirpSync(covDir);
+// Code coverage
+After(async function (this: World, scenario: HookScenarioResult) {
+    let cov = await oh.browser.executeScript('return window.__coverage__;');
+    if (cov) {
+        console.log(`Adding coverage results for ${scenario.sourceLocation}`);
+        writeFileSync(join(covDir, scenario.pickle.name, '.json'), cov);
+    }
+});
+
+TestConfig.registerShutdownProcedure(async function () {
+    // Inspired on https://github.com/facebook/jest/blob/master/scripts/mapCoverage.js
+    console.log('Creating coverage...')
+    const map = istanbulCoverage.createCoverageMap();
+    const reporter = createReporter();
+    sync('*.json', { cwd: covDir }).forEach(map.addFileCoverage);
+    reporter.addAll(['cobertura', 'html']);
+    reporter.write(map);
 });
 
