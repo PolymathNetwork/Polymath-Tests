@@ -12,14 +12,16 @@
             "args": [
                 "${workspaceFolder}/protractor.conf.js",
                 "--troubleshoot",
+                "--params.extensions=metamask",
+                "--params.browser=puppeteer"
                 //"--params.tags=@sanity or @status",
                 //"--params.tags=@sanity",
-                "--params.browser=puppeteer",
+                //"--params.browser=puppeteer",
                 //"--params.setup.ganache",
-                "--params.setup.apps='../polymath-apps'",
+                //"--params.setup.apps='../polymath-apps'",
                 //"--params.browser=cloud",
-                //"--params.browser=chrome",
-                //"--params.extensions=metamask"
+                //"--params.bsbrowser='Windows 10:chrome:68.0;Windows 10:chrome:67.0'",
+                //"--params.browser=chrome"
             ],
             // Define here your environment variables (e.g. metamask secret & password)
             "envFile": "${workspaceFolder}/.env",

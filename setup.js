@@ -89,8 +89,9 @@ const setup = {
         console.log('Starting offchain...');
         // TODO: Reset offchain on test end
         let folder = `${baseOpts}/packages/polymath-offchain`;
+        let path = setNodeVersion();
         execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path } });
-        let pid = exec(`yarn start:dist`, { cwd: folder, env: { ...process.env, PORT: 3001 } });
+        let pid = exec(`yarn start:dist`, { cwd: folder, env: { ...process.env, PATH: path, PORT: 3001 } });
         let file = createWriteStream(logs.offchain);
         pid.stdout.pipe(file, { end: true });
         pid.stderr.pipe(file);
@@ -122,7 +123,7 @@ const setup = {
         let folder = join(checkoutDir, 'apps');
         if (!baseOpts) this.git(sources.apps, folder, false);
         else folder = baseOpts;
-        /*if (existsSync(join(folder, 'package.json'))) {
+        if (existsSync(join(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = setNodeVersion();
             execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
@@ -131,7 +132,7 @@ const setup = {
             // This should be removed in the near future
             process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
             execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-        }*/
+        }
         return folder;
     },
     all: function (folder) {

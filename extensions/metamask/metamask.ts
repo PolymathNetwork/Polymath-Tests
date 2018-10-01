@@ -103,7 +103,7 @@ export class Metamask extends Extension {
         let port = process.env.GANACHE_PORT;
         if ((local || port) && network === Network.Localhost) {
             local = local || 'localhost';
-            port = port || '8584';
+            port = port || '8545';
             let settings = await page.settings.settings();
             settings.customRpc = `http://${local}:${port}`;
             await settings.apply();
