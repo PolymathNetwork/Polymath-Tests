@@ -5,8 +5,8 @@ import { nav, PageWithToken } from "objects/pages/withToken/base";
 import { CreateTokenCountdown } from "../../../features/token/countdown";
 import { optional } from "framework/object/abstract";
 
-@injectable @nav(By.xpath('.//li[./p[text()="Providers"]]')) export class Providers extends PageWithToken {
-    protected featureSelector: Locator = By.xpath('self::*[.//li[@class="active"][./p[text()="Providers"]]]');
+@injectable @nav(By.xpath('//*[@id="provider-nav-link"]')) export class Providers extends PageWithToken {
+    protected featureSelector: Locator = By.xpath('self::*[.//li[@class="active"]]');
     @inject(ProviderFeature, { multiInstance: true }) public providers: ProviderFeature[];
     @optional public createToken: CreateTokenCountdown = new CreateTokenCountdown(this);
 }

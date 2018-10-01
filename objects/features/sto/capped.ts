@@ -32,7 +32,7 @@ import { Modal } from "objects/features/general/modal";
     @label<number>(By.xpath('.//fieldset'), /(\d+)/, { mode: LabelOptsMode.Text }) public fundsRaised: number;
 
     public next(): Promise<Modal> {
-        return oh.click(By.xpath('.//button[@type="submit" and contains(@class, "bx--btn--primary")]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
+        return oh.click(By.xpath('.//button[@type="submit"]'), this.element).then(() => Modal.WaitForPage<Modal>(Modal));
     }
 }
 
@@ -46,7 +46,7 @@ import { Modal } from "objects/features/general/modal";
     @present(By.xpath('.//button[contains(@class, "bx--btn--primary")]')) public hasNext: boolean;
     public seeOnEtherscan() {
         // TODO: Implement Etherscan parser
-        return oh.click(By.xpath('.//button[contains(@class, "bx--btn--secondary")]'), this.element);
+        return oh.click(By.xpath('.//button[contains(@class, "see-on-etherscan-link")]'), this.element);
     }
     public next(): Promise<CappedStoConfig> {
         if (this.hasNext === false) throw `This widget doesn't support the next() function`;

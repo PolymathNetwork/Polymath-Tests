@@ -4,5 +4,5 @@ import { AbstractFeature } from "framework/object/abstract";
 
 
 @injectable export class ProviderFeature extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[@class="bx--tabs__nav-item"]');
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "providers-tab")]');
 }

@@ -17,7 +17,7 @@ export function nav<T extends PageWithToken>(navigationKey: Locator) {
 
 // Sadly this is a circular dependency
 export class NavigationFeature extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[@class="pui-sidebar"]');
+    protected featureSelector: Locator = By.xpath('.//*[@id="primary-nav"]');
     public async navigate<T extends PageWithToken>(toClass: { new(...args): T }): Promise<T> {
         let key: Locator;
         recurseClass(toClass, obj => {

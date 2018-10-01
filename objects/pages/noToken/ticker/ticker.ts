@@ -5,6 +5,6 @@ import { TickerFeature } from "objects/features/ticker/ticker";
 import { PageWithHeader } from "objects/pages/base";
 
 @injectable export class Ticker extends PageWithHeader {
-    protected featureSelector: Locator = By.xpath('.//body[.//*[@name="ticker"]]');
+    protected featureSelector: Locator = By.xpath('.//body[.//*[@id="ticker-reservation"]]');
     public ticker: TickerFeature = new TickerFeature(this);
 }
