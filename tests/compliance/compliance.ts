@@ -70,6 +70,7 @@ class ComplianceTest extends TransactionalTest {
         this.data.whitelist.data.addresses = combined as any;
         let eq = await data.equals(this.data.whitelist.data);
         this.data.whitelist.data.addresses = old;
+        if (!eq) debugger;
         expect(eq, 'Investors data is not the same as uploaded').to.be.true;
     }
 
