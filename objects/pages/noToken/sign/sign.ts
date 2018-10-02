@@ -1,4 +1,4 @@
-import { Locator, By, oh } from "framework/helpers";
+import { Locator, By } from "framework/helpers";
 import { injectable } from "framework/object/core/iConstructor";
 import { PageWithHeader } from "objects/pages/base";
 import { Metamask } from "extensions/metamask";
