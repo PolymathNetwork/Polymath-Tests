@@ -44,8 +44,10 @@ let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || defaultBranch;
 const setNodeVersion = () => {
     let charSep = process.platform === "win32" ? ';' : ':';
     let path = process.env.PATH.replace(/[:;]?[^:;]*node_modules[^:;]*/g, '');
-    if (path.endsWith(':')) path = path.substr(0, path.length - 1);
-    return `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${join(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
+    if (path.endsWith(charSep)) path = path.substr(0, path.length - 1);
+    path = `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${join(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
+    console.log(`Using path: ${path}`);
+    return path;
 }
 
 if (!process.env.METAMASK_NETWORK || !process.env.METAMASK_SECRET) {
