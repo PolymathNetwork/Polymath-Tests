@@ -37,7 +37,7 @@ read -r -d '' body <<EOM
 ]
 EOM
 
-curl -s -v -X PATCH \
+curl -s -f -v -X PATCH \
     -H "Content-Type: application/json-patch+json" \
     -u "xxx:$PAT" \
     -d "$body" \

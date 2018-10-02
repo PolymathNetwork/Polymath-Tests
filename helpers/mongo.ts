@@ -52,7 +52,14 @@ export class Mongo {
     };
     private constructor() {
         let self = this;
-        deasync(callback => self.connect(true).then(() => callback(null)))();
+        deasync(async callback => {
+            try {
+                await self.connect(true);
+            } catch (error) {
+                console.log(`An error ocurred while connecting to mongodb, dependant tests will fail ${error}`);
+            }
+            callback(null);
+        })();
     }
     public static get hasDb(): boolean {
         let db = TestConfig.instance.protractorConfig.dbConfig;

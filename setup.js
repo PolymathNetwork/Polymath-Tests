@@ -39,11 +39,15 @@ let logs = {
 };
 
 let pids = {};
-let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || 'master';
+let defaultBranch = 'develop';
+let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || defaultBranch;
 const setNodeVersion = () => {
-    let path = process.env.PATH.replace(/:?[^:]*node_modules[^:]*/g, '');
-    if (path.endsWith(':')) path = path.substr(0, path.length - 1);
-    return `${join(__dirname, 'node_modules', '.bin')}:${path}`;
+    let charSep = process.platform === "win32" ? ';' : ':';
+    let path = process.env.PATH.replace(/[:;]?[^:;]*node_modules[^:;]*/g, '');
+    if (path.endsWith(charSep)) path = path.substr(0, path.length - 1);
+    path = `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${join(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
+    console.log(`Using path: ${path}`);
+    return path;
 }
 
 if (!process.env.METAMASK_NETWORK || !process.env.METAMASK_SECRET) {
@@ -57,13 +61,13 @@ const setup = {
     git: async function (source, dir) {
         // Git mode
         let branchExists = execSync(`git ls-remote --heads ${source.url} ${branch}`, { cwd: checkoutDir }).toString();
-        if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to master`);
+        if (!branchExists) console.log(`Warning! Branch ${branch} doesn't exist in remote repository ${source.url}, defaulting to ${defaultBranch}`);
         else console.log(`Using branch ${branch} for ${source.url}, checking out to ${dir}`);
         if (!pathExistsSync(dir)) {
-            execSync(`git clone --depth=1 --branch=${branchExists ? branch : 'master'} "${source.url}" "${dir}"`, { cwd: checkoutDir, stdio: 'inherit' });
+            execSync(`git clone --depth=1 --branch=${branchExists ? branch : defaultBranch} "${source.url}" "${dir}"`, { cwd: checkoutDir, stdio: 'inherit' });
         }
         else {
-            execSync(`git checkout ${branchExists ? branch : 'master'}`, { cwd: dir, stdio: 'inherit' });
+            execSync(`git checkout ${branchExists ? branch : defaultBranch}`, { cwd: dir, stdio: 'inherit' });
             execSync('git pull', { cwd: dir, stdio: 'inherit' });
         }
     },
@@ -121,16 +125,16 @@ const setup = {
     },
     apps: async function (baseOpts) {
         let folder = join(checkoutDir, 'apps');
-        if (!baseOpts) this.git(sources.apps, folder, false);
+        if (baseOpts === true) await this.git(sources.apps, folder);
         else folder = baseOpts;
         if (existsSync(join(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = setNodeVersion();
             execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-            process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
+            if (!process.env.SKIP_OFFCHAIN) process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
             process.env.REACT_APP_NETWORK_LOCAL_WS = `http://${process.env.LOCALHOST}:8545`
             // This should be removed in the near future
-            process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
+            //process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
             execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
@@ -139,7 +143,7 @@ const setup = {
         deasync(async function (callback) {
             try {
                 folder = await setup.apps(folder);
-                await setup.offchain(folder);
+                if (!process.env.SKIP_OFFCHAIN) await setup.offchain(folder);
                 await setup.issuer(folder);
                 await setup.investor(folder);
                 await setup.ganache(folder);

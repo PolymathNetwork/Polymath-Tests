@@ -13,7 +13,7 @@ read -r -d '' body <<EOM
 }
 EOM
 
-curl -s -v -X POST \
+curl -s -f -v -X POST \
     -H "Content-Type: application/json" \
     -u "xxx:$PAT" \
     -d "$body" \

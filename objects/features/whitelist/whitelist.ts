@@ -33,15 +33,15 @@ export class WhitelistFeature extends AbstractFeature implements WhitelistModel 
     public async next(): Promise<Modal> {
         // This is more of an 'apply', but we're setting a custom method here
         if (!this.enableOwnershipPermissions) return null;
-        await oh.click(By.xpath('.//*[@class="apply-percentage-btn"]'), this.element);
+        await oh.click(By.xpath('.//*[contains(@class, "apply-percentage-btn")]'), this.element);
         return Modal.WaitForPage<Modal>(Modal);
     }
     public async import(): Promise<WhitelistModal> {
-        await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn")]'), this.element);
+        await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn") and contains(@class, "bx--btn--primary")]'), this.element);
         return new WhitelistModal().load();
     }
     public async download(acceptAndDownload: boolean = true): Promise<DownloadedFile> {
-        let modal = await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn")]'), this.element).then(() => Modal.Get<Modal>(Modal));
+        let modal = await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn") and contains(@class, "bx--btn--secondary")]'), this.element).then(() => Modal.Get<Modal>(Modal));
         if (acceptAndDownload) {
             await modal.next(true);
             return await oh.browser.downloadManager.waitForDownload("*.csv");
