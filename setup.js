@@ -127,10 +127,10 @@ const setup = {
             console.log('Installing apps...');
             let path = setNodeVersion();
             execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-            process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
+            if (!process.env.SKIP_OFFCHAIN) process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
             process.env.REACT_APP_NETWORK_LOCAL_WS = `http://${process.env.LOCALHOST}:8545`
             // This should be removed in the near future
-            process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
+            //process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
             execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
@@ -139,7 +139,7 @@ const setup = {
         deasync(async function (callback) {
             try {
                 folder = await setup.apps(folder);
-                await setup.offchain(folder);
+                if (!process.env.SKIP_OFFCHAIN) await setup.offchain(folder);
                 await setup.issuer(folder);
                 await setup.investor(folder);
                 await setup.ganache(folder);
