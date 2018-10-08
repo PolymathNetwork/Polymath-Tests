@@ -51,7 +51,7 @@ const environments = function (): { [k: string]: RunnerConfig } {
                 tls: true
             },
             dbConfig: {
-                mongo: process.env.mongo || `mongodb://${localhost}:27017/`
+                mongo: process.env.mongo || `mongodb://localhost:27017/`
             }
         },
         production: {

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { join } = require('path');
 const { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream } = require('fs-extra');
 const { argv } = require('yargs');
@@ -6,7 +7,7 @@ const deasync = require('deasync');
 const treeKill = require('tree-kill');
 
 if (!argv.params || !argv.params.setup || !(argv.params.setup === true || argv.params.setup instanceof Object)) {
-    throw `Usage: setup.js [--ganache] [--issuer <path>] [--investor <path>] [--offchain <path>]
+    throw `Usage: setup.js [--params.setup.apps=[apps directory]] [--params.setup.ganache]
     All parameters are mutually exclusive`;
 }
 
@@ -132,9 +133,9 @@ const setup = {
             let path = setNodeVersion();
             execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
             if (!process.env.SKIP_OFFCHAIN) process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`
-            process.env.REACT_APP_NETWORK_LOCAL_WS = `http://${process.env.LOCALHOST}:8545`
+            process.env.REACT_APP_NETWORK_LOCAL_WS = `ws://${process.env.LOCALHOST}:8545`
             // This should be removed in the near future
-            //process.env.REACT_APP_NODE_WS = `http://${process.env.LOCALHOST}:8545`
+            //process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:8545`
             execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
@@ -169,8 +170,6 @@ if (argv.params.setup.ganache) {
 } else {
     throw `Unknown parameter for setup ${JSON.stringify(argv.params.setup)}`;
 }
-console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid)}
-Press Ctrl+C to terminate them.`);
 
 const kill = () => {
     if (!pids) return;
@@ -192,3 +191,5 @@ process.on('exit', function () {
     kill();
 });
 module.exports = kill;
+console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid)}
+Press Ctrl+C to terminate them.`);

@@ -22,10 +22,18 @@ setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 8 * 60 * 1000);
 
 // TODO: Build nice reporting
 Before({ timeout: 1 * 60 * 1000 }, async function () {
-    await Mongo.resetDb();
+    try {
+        await Mongo.resetDb();
+    } catch (error) {
+        console.log(`An error ocurred while resetting the db: ${error}`);
+    }
 });
 AfterAll({ timeout: 1 * 60 * 1000 }, async function () {
-    await Mongo.disconnect();
+    try {
+        await Mongo.disconnect();
+    } catch (error) {
+        console.log(`An error ocurred while disconnecting from the db: ${error}`);
+    }
 });
 
 let find = function (en: Object, name: string): string {
