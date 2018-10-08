@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 /** Convert a VSTest run into a docker run */
-const argv = require('yargs').argv;
 const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -15,7 +14,7 @@ const dockerFolder = 'docker-content';
 fs.mkdirpSync(dockerFolder);
 const map = [];
 const newArgv = [];
-for (let arg of argv) {
+for (let arg of process.argv) {
     if (fs.existsSync(arg) && !isChildOf(arg, __dirname)) {
         let alias = path.join(dockerFolder, Buffer.from(argv).toString('base64'));
         console.log(`Storing ${arg} in ${alias}`);
