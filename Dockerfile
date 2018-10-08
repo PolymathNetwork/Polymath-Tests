@@ -12,6 +12,7 @@ RUN apt-get update && \
 RUN npm i -g yarn
 ENV DISPLAY :99
 ARG startApps=true
+RUN mkdir -p /mongodb_data
 RUN printf \
 "[supervisord]\n\
 nodaemon=true\n\
@@ -25,7 +26,7 @@ command=node setup.js --params.setup.apps\n\
 directory=/tests\n\
 autostart=${startApps}\n\
 [program:mongodb]\n\
-command=/opt/mongodb/bin/mongod --dbpath /storage/mongodb_data --rest\n\
+command=/opt/mongodb/bin/mongod --dbpath /mongodb_data --rest\n\
 directory=/opt/mongodb\n\
 user=root"\
 > /etc/supervisor/conf.d/supervisord.conf
