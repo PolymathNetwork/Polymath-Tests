@@ -8,7 +8,7 @@ RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' |
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get update && \
     apt-get install -y nodejs xvfb supervisor openjdk-11-jdk \
-    build-essential git firefox-esr google-chrome-stable
+    build-essential git firefox-esr google-chrome-stable ffmpeg
 RUN npm i -g yarn
 ENV DISPLAY :99
 ARG startApps=true
