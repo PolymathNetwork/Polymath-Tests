@@ -21,6 +21,7 @@ if (existsSync(pidsFile)) {
     }
     removeSync(pidsFile);
 }
+if(process.env.COVERAGE !== false) process.env.COVERAGE = true;
 if (!process.env.NO_DELETE_ENV) removeSync(checkoutDir);
 mkdirpSync(checkoutDir);
 let logDir = process.env.LOG_DIR || join(currentDir, 'logs');

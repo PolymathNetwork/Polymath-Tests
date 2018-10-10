@@ -10,6 +10,18 @@ const isChildOf = (child, parent) => {
     return parentTokens.every((t, i) => child.split(path.sep)[i] === t);
 }
 
+const envVars = ['METAMASK_NETWORK', 'METAMASK_SECRET', 'METAMASK_ACCOUNT_NUMBER',
+    // Tests config
+    'GMAIL_USER', 'GMAIL_PASSWORD', 'CBT_KEY', 'CBT_USER', 'FAIL_LOG', 'UPLOAD_PROVIDERS',
+    'GANACHE_PORT', 'BRANCH', 'EXTRA_PATH', 'SKIP_OFFCHAIN', 'PRINT_LOGS',
+    'REACT_APP_NETWORK_KOVAN', 'REACT_APP_NETWORK_MAIN', 'SENDGRID_API_KEY',
+    // DIRS
+    'TMP_DIR', 'REPORTS_DIR', 'LOG_DIR', 'CHECKOUT_DIR', 'NO_DELETE_ENV',
+    // Browser config
+    'BROWSER', 'mongo', 'SPECS', 'TAGS', 'EXTENSIONS',
+    'ENV', 'SEED', 'BSBROWSER']
+fs.writeFileSync('.env.docker', envVars.map(v => process.env[v] ? `${v}=${process.env[v]}` : '').filter(e => e).join('\n'));
+
 const dockerFolder = 'docker-content';
 fs.mkdirpSync(dockerFolder);
 const map = [];
@@ -24,13 +36,13 @@ for (let arg of process.argv.splice(2)) {
     newArgv.push(arg);
 }
 console.log(`Building docker image...`);
-//execSync('docker build --build-arg startApps=false -t tests .', { stdio: 'inherit' });
+execSync('docker build --build-arg startApps=false -t tests .', { stdio: 'inherit' });
 
 console.log(`Running '${newArgv.join(' ')}'`);
 
 execSync('docker stop test_run || true && docker rm test_run || true');
 execSync(`docker run -d --name test_run -it --rm -v ${__dirname}:/tests tests`, { stdio: 'inherit' });
-execSync(`docker exec test_run sh -c "yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
+execSync(`docker exec test_run sh -c "source .env.docker && yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
 execSync(`docker stop test_run`, { stdio: 'inherit' });
 
 console.log('Run complete');
