@@ -3,16 +3,17 @@ LABEL maintainer="josepmc <jmateu.clemente@gmail.com>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
+RUN apt-get update && apt-get install -y wget curl
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
 RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get update && \
-    apt-get install -y nodejs xvfb supervisor openjdk-11-jdk \
-    build-essential git firefox-esr google-chrome-stable ffmpeg
+    apt-get install -y nodejs xvfb supervisor default-jdk \
+    build-essential git firefox google-chrome-stable ffmpeg x11vnc
 RUN npm i -g yarn
 ENV DISPLAY :99
 ARG startApps=true
-RUN mkdir -p /mongodb_data
+RUN mkdir -p /mongodb_data && mkdir -p /var/log/supervisord
 RUN printf \
 "[supervisord]\n\
 nodaemon=true\n\
@@ -26,8 +27,7 @@ command=node setup.js --params.setup.apps\n\
 directory=/tests\n\
 autostart=${startApps}\n\
 [program:mongodb]\n\
-command=/opt/mongodb/bin/mongod --dbpath /mongodb_data --rest\n\
-directory=/opt/mongodb\n\
+command=/usr/bin/mongod\n\
 user=root"\
 > /etc/supervisor/conf.d/supervisord.conf
 

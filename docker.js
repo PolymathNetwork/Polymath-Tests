@@ -14,9 +14,9 @@ const dockerFolder = 'docker-content';
 fs.mkdirpSync(dockerFolder);
 const map = [];
 const newArgv = [];
-for (let arg of process.argv) {
+for (let arg of process.argv.splice(2)) {
     if (fs.existsSync(arg) && !isChildOf(arg, __dirname)) {
-        let alias = path.join(dockerFolder, Buffer.from(argv).toString('base64'));
+        let alias = path.join(dockerFolder, Buffer.from(arg).toString('base64'));
         console.log(`Storing ${arg} in ${alias}`);
         map.push({ original: arg, alias: alias });
         arg = alias;
@@ -24,13 +24,14 @@ for (let arg of process.argv) {
     newArgv.push(arg);
 }
 console.log(`Building docker image...`);
-execSync('docker build -t tests . --build-args startApps=false', { stdio: 'inherit' });
+//execSync('docker build --build-arg startApps=false -t tests .', { stdio: 'inherit' });
 
 console.log(`Running '${newArgv.join(' ')}'`);
 
-execSync(`docker run -it --rm -v ${__dirname}:/tests tests --name test_run`, { stdio: 'inherit' });
-execSync(`docker exec --name test_run "yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
-execSync(`docker stop --name test_run`, { stdio: 'inherit' });
+execSync('docker stop test_run || true && docker rm test_run || true');
+execSync(`docker run -d --name test_run -it --rm -v ${__dirname}:/tests tests`, { stdio: 'inherit' });
+execSync(`docker exec test_run sh -c "yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
+execSync(`docker stop test_run`, { stdio: 'inherit' });
 
 console.log('Run complete');
 for (let { original, alias } of map) {
