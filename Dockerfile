@@ -31,6 +31,7 @@ command=/usr/bin/mongod\n\
 user=root"\
 > /etc/supervisor/conf.d/supervisord.conf
 
+RUN echo '127.0.0.1 local' >> /etc/hosts
 # Tests directory, app should be inside
 VOLUME /tests
 WORKDIR /tests

@@ -8,3 +8,5 @@ polymath2.png
 tmp
 reports
 git-checkout
+apps
+.env.docker

@@ -21,7 +21,7 @@ if (existsSync(pidsFile)) {
     }
     removeSync(pidsFile);
 }
-if(process.env.COVERAGE !== false) process.env.COVERAGE = true;
+if (process.env.COVERAGE !== false) process.env.COVERAGE = true;
 if (!process.env.NO_DELETE_ENV) removeSync(checkoutDir);
 mkdirpSync(checkoutDir);
 let logDir = process.env.LOG_DIR || join(currentDir, 'logs');
@@ -129,7 +129,7 @@ const setup = {
         let folder = join(checkoutDir, 'apps');
         if (baseOpts === true) await this.git(sources.apps, folder);
         else folder = baseOpts;
-        if (existsSync(join(folder, 'package.json'))) {
+        if (!process.env.NO_STARTUP && existsSync(join(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = setNodeVersion();
             execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
@@ -192,5 +192,5 @@ process.on('exit', function () {
     kill();
 });
 module.exports = kill;
-console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid)}
+console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid).join(' ')}
 Press Ctrl+C to terminate them.`);

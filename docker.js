@@ -16,7 +16,7 @@ const envVars = ['METAMASK_NETWORK', 'METAMASK_SECRET', 'METAMASK_ACCOUNT_NUMBER
     'GANACHE_PORT', 'BRANCH', 'EXTRA_PATH', 'SKIP_OFFCHAIN', 'PRINT_LOGS',
     'REACT_APP_NETWORK_KOVAN', 'REACT_APP_NETWORK_MAIN', 'SENDGRID_API_KEY',
     // DIRS
-    'TMP_DIR', 'REPORTS_DIR', 'LOG_DIR', 'CHECKOUT_DIR', 'NO_DELETE_ENV',
+    'TMP_DIR', 'REPORTS_DIR', 'LOG_DIR', 'CHECKOUT_DIR', 'NO_DELETE_ENV', 'NO_STARTUP',
     // Browser config
     'BROWSER', 'mongo', 'SPECS', 'TAGS', 'EXTENSIONS',
     'ENV', 'SEED', 'BSBROWSER']
@@ -39,11 +39,11 @@ console.log(`Building docker image...`);
 execSync('docker build --build-arg startApps=false -t tests .', { stdio: 'inherit' });
 
 console.log(`Running '${newArgv.join(' ')}'`);
-
+let dir = __dirname;
 execSync('docker stop test_run || true && docker rm test_run || true');
-execSync(`docker run -d --name test_run -it --rm -v ${__dirname}:/tests tests`, { stdio: 'inherit' });
-execSync(`docker exec test_run sh -c "source .env.docker && yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
-execSync(`docker stop test_run`, { stdio: 'inherit' });
+execSync(`docker run -d --name test_run -it --rm -v ${dir}:/tests tests`, { stdio: 'inherit' });
+execSync(`docker exec test_run bash -c "source .env.docker && yarn install && yarn test ${newArgv.join(' ')}" || true`, { stdio: 'inherit' });
+execSync(`docker stop test_run || true`, { stdio: 'inherit' });
 
 console.log('Run complete');
 for (let { original, alias } of map) {
