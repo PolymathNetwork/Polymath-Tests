@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-let fs = require('fs');
+const fs = require('fs');
 
 const parse = function (inputToRegex = process.argv[2]) {
     if (fs.existsSync(inputToRegex)) {

@@ -13,6 +13,7 @@ const debugMode = process.env.IS_DEBUG;
 process.on('uncaughtException', function (err) {
     console.error((err && err.stack) ? err.stack : err);
     debugger;
+    if (err) throw err;
 });
 
 // For process.exit file removal, when having a lot of files
@@ -22,10 +23,18 @@ setDefaultTimeout(debugMode ? 60 * 60 * 1000 : 8 * 60 * 1000);
 
 // TODO: Build nice reporting
 Before({ timeout: 1 * 60 * 1000 }, async function () {
-    await Mongo.resetDb();
+    try {
+        await Mongo.resetDb();
+    } catch (error) {
+        console.log(`An error ocurred while resetting the db: ${error}`);
+    }
 });
 AfterAll({ timeout: 1 * 60 * 1000 }, async function () {
-    await Mongo.disconnect();
+    try {
+        await Mongo.disconnect();
+    } catch (error) {
+        console.log(`An error ocurred while disconnecting from the db: ${error}`);
+    }
 });
 
 let find = function (en: Object, name: string): string {
@@ -108,15 +117,16 @@ After(async function (this: World, scenario: HookScenarioResult) {
     // If we restart here we risk a node instakill
 });
 
-let covDir = join(TestConfig.reportPath, 'coverage');
-removeSync(covDir);
-mkdirpSync(covDir);
+let coverageDir = join(TestConfig.reportPath, 'coverage');
+let istanbulDir = join(coverageDir, 'istanbul');
+removeSync(coverageDir);
+mkdirpSync(coverageDir);
 // Code coverage
 After(async function (this: World, scenario: HookScenarioResult) {
     let cov = await oh.browser.executeScript('return window.__coverage__;');
     if (cov) {
         console.log(`Adding coverage results for ${scenario.sourceLocation}`);
-        writeFileSync(join(covDir, scenario.pickle.name, '.json'), cov);
+        writeFileSync(join(coverageDir, `${scenario.pickle.name.replace(' ', '_').toLowerCase()}.json`), stringify(cov));
     }
 });
 
@@ -125,7 +135,8 @@ TestConfig.registerShutdownProcedure(async function () {
     console.log('Creating coverage...')
     const map = istanbulCoverage.createCoverageMap();
     const reporter = createReporter();
-    sync('*.json', { cwd: covDir }).forEach(map.addFileCoverage);
+    reporter.dir = istanbulDir;
+    sync('*.json', { cwd: coverageDir, absolute: true }).forEach(m => map.addFileCoverage(m));
     reporter.addAll(['cobertura', 'html']);
     reporter.write(map);
 });

@@ -2,6 +2,7 @@ import { oh, TestConfig, assert } from 'framework/helpers';
 import * as mongoose from 'mongoose';
 import * as deasync from 'deasync';
 import { IDataModelObject } from 'framework/object/core';
+import { stringify } from 'circular-json';
 
 export enum NoticeType {
     error, warning, info
@@ -86,7 +87,7 @@ export class Mongo {
     public async connect(dropDb: boolean = true): Promise<this> {
         if (this.connection) return this;
         let db = TestConfig.instance.protractorConfig.dbConfig;
-        assert(db && db.mongo, `Can't initialize Mongo Connector with ${JSON.stringify(db)}`)
+        assert(db && db.mongo, `Can't initialize Mongo Connector with ${stringify(db)}`)
         this.connection = await mongoose.connect(db.mongo);
         if (dropDb) this.resetDb();
         this.notice = this.connection.model('Notice', new mongoose.Schema(NoticeSchema, { timestamps: true }));

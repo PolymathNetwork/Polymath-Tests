@@ -28,8 +28,10 @@ The following environment variables are required for the tests to work:
 
 The following are required for the email-related tests to work:
 
-- GMAIL_USER: Your gmail user
-- GMAIL_PASSWORD=: Your gmail password (you need to activate the set your account to allow weak security applications) or an application password
+- EMAIL_USER: Your email user
+- EMAIL_PASSWORD=: Your email password (you need to activate the set your account to allow weak security applications) or an application password
+
+Supported domains are gmail.com and outlook.com.
 
 You can set all these variables in a .env file if you're debugging, and VS Code will load them on runtime
 

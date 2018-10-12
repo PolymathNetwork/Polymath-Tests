@@ -5,7 +5,7 @@ require('ts-node').register({
     transpileOnly: true,
     compilerOptions: tsconfig.compilerOptions
 });
-require("tsconfig-paths").register({
+require('tsconfig-paths').register({
     baseUrl: tsconfig.compilerOptions.baseUrl,
     paths: tsconfig.compilerOptions.paths
 });

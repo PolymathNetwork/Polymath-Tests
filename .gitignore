@@ -8,3 +8,15 @@ polymath2.png
 tmp
 reports
 git-checkout
+apps
+.env.docker
+docker-content
+bin
+obj
+*.dll
+*.deps.json
+*.runtimeconfig.json
+*.runtimeconfig.dev.json
+packages
+mongo
+.webdriver
