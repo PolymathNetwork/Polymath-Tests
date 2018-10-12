@@ -10,3 +10,4 @@ reports
 git-checkout
 apps
 .env.docker
+docker-content

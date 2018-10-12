@@ -5,9 +5,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const isChildOf = (child, parent) => {
-    if (child === parent) return false;
-    const parentTokens = parent.split(path.sep).filter(i => i.length)
-    return parentTokens.every((t, i) => child.split(path.sep)[i] === t);
+    const relative = path.relative(parent, child);
+    return !!relative && relative.split(path.sep)[0] !== '..';
 }
 
 const envVars = ['METAMASK_NETWORK', 'METAMASK_SECRET', 'METAMASK_ACCOUNT_NUMBER',
@@ -27,26 +26,32 @@ fs.mkdirpSync(dockerFolder);
 const map = [];
 const newArgv = [];
 for (let arg of process.argv.splice(2)) {
-    if (fs.existsSync(arg) && !isChildOf(arg, __dirname)) {
+    let fullPath = path.resolve(arg);
+    if (!isChildOf(fullPath, __dirname)) {
         let alias = path.join(dockerFolder, Buffer.from(arg).toString('base64'));
+        if (fs.existsSync(fullPath)) fs.copySync(fullPath, alias);
         console.log(`Storing ${arg} in ${alias}`);
         map.push({ original: arg, alias: alias });
         arg = alias;
     }
     newArgv.push(arg);
 }
-console.log(`Building docker image...`);
-execSync('docker build --build-arg startApps=false -t tests .', { stdio: 'inherit' });
+
+let dockerBuild = process.env.DOCKER_BUILD || 'tests';
+let dir = __dirname;
+if (!process.env.DOCKER_BUILD) {
+    console.log(`Building docker image...`);
+    execSync(`docker build -t ${dockerBuild} .`, { stdio: 'inherit' });
+}
 
 console.log(`Running '${newArgv.join(' ')}'`);
-let dir = __dirname;
 execSync('docker stop test_run || true && docker rm test_run || true');
-execSync(`docker run -d --name test_run -it --rm -v ${dir}:/tests tests`, { stdio: 'inherit' });
+execSync(`docker run -d --name test_run -it -e NO_APP=true --rm -v ${dir}:/tests ${dockerBuild}`, { stdio: 'inherit' });
 execSync(`docker exec test_run bash -c "source .env.docker && yarn install && yarn test ${newArgv.join(' ')}" || true`, { stdio: 'inherit' });
 execSync(`docker stop test_run || true`, { stdio: 'inherit' });
 
 console.log('Run complete');
 for (let { original, alias } of map) {
-    fs.copyFileSync(alias, original);
+    fs.copySync(alias, original);
 }
 console.log('Finished');

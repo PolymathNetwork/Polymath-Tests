@@ -12,7 +12,6 @@ RUN apt-get update && \
     build-essential git firefox google-chrome-stable ffmpeg x11vnc
 RUN npm i -g yarn
 ENV DISPLAY :99
-ARG startApps=true
 RUN mkdir -p /mongodb_data && mkdir -p /var/log/supervisord
 RUN printf \
 "[supervisord]\n\
@@ -23,9 +22,9 @@ command=Xvfb :99 -screen 0 1920x1080x24+32\n\
 [program:x11vnc]\n\
 command=x11vnc -display :99\n\
 [program:apps]\n\
-command=node setup.js --params.setup.apps\n\
+command=bash -c 'if [ -z ${NO_APP+x} ]; then node setup.js --params.setup.apps; fi'\n\
 directory=/tests\n\
-autostart=${startApps}\n\
+autostart=true\n\
 [program:mongodb]\n\
 command=/usr/bin/mongod\n\
 user=root"\
@@ -41,4 +40,4 @@ EXPOSE 5900
 EXPOSE 3000-3002
 # Ganache
 EXPOSE 8545
-CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf" ]
+ENTRYPOINT [ "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf" ]
