@@ -54,6 +54,19 @@ const environments = function (): { [k: string]: RunnerConfig } {
                 mongo: process.env.mongo || `mongodb://localhost:27017/`
             }
         },
+        staging: {
+            baseUrl: `http://polymath-issuer-staging.netlify.com`,
+            apps: {
+                investor: `http://polymath-investor-staging.netlify.com`,
+            },
+            emailConfig: {
+                user: process.env.GMAIL_USER,
+                password: process.env.GMAIL_PASSWORD,
+                host: "imap.gmail.com",
+                port: 993,
+                tls: true
+            }
+        },
         production: {
             baseUrl: 'https://tokenstudio.polymath.network',
             apps: {
