@@ -13,8 +13,9 @@ RUN apt-get update && \
 RUN npm i -g yarn
 ENV DISPLAY :99
 RUN mkdir -p /mongodb_data && mkdir -p /var/log/supervisord
+ENV NO_APP false
 RUN printf \
-"[supervisord]\n\
+'[supervisord]\n\
 nodaemon=true\n\
 childlogdir=/var/log/supervisord\n\
 [program:xvfb]\n\
@@ -22,14 +23,17 @@ command=Xvfb :99 -screen 0 1920x1080x24+32\n\
 [program:x11vnc]\n\
 command=x11vnc -display :99\n\
 [program:apps]\n\
-command=bash -c 'if [ -z ${NO_APP+x} ]; then node setup.js --params.setup.apps; fi'\n\
+command=bash -c "if [ \"%%(ENV_NO_APP)s\" != \"true\" ]; then node setup.js --params.setup.apps; fi"\n\
 directory=/tests\n\
-redirect_stderr=true\n\
-stdout_logfile=/dev/fd/1\b\
+stdout_logfile=/dev/stdout\n\
 stdout_logfile_maxbytes=0\n\
+stderr_logfile=/dev/stderr\n\
+stderr_logfile_maxbytes=0\n\
+startretries=1\n\
+stopsignal=INT\n\
 [program:mongodb]\n\
 command=/usr/bin/mongod\n\
-user=root"\
+user=root'\
 > /etc/supervisor/conf.d/supervisord.conf
 
 RUN echo '127.0.0.1 local' >> /etc/hosts

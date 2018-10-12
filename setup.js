@@ -192,5 +192,5 @@ process.on('exit', function () {
     kill();
 });
 module.exports = kill;
-console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid).join(' ')}
+console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid).join(', ')}
 Press Ctrl+C to terminate them.`);

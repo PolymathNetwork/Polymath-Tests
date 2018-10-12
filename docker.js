@@ -37,10 +37,11 @@ for (let arg of process.argv.splice(2)) {
     newArgv.push(arg);
 }
 
-let dockerBuild = process.env.DOCKER_BUILD || 'tests';
+let dockerBuild = 'josepmc/tests';
 let dir = __dirname;
-if (!process.env.DOCKER_BUILD) {
+if (process.env.BUILD_DOCKER) {
     console.log(`Building docker image...`);
+    dockerBuild = 'tests';
     execSync(`docker build -t ${dockerBuild} .`, { stdio: 'inherit' });
 }
 
