@@ -24,7 +24,9 @@ command=x11vnc -display :99\n\
 [program:apps]\n\
 command=bash -c 'if [ -z ${NO_APP+x} ]; then node setup.js --params.setup.apps; fi'\n\
 directory=/tests\n\
-autostart=true\n\
+redirect_stderr=true\n\
+stdout_logfile=/dev/fd/1\b\
+stdout_logfile_maxbytes=0\n\
 [program:mongodb]\n\
 command=/usr/bin/mongod\n\
 user=root"\
