@@ -9,7 +9,10 @@ export class IssuerModel extends IDataModelObject {
     constructor(baseObject?: Object, nullable?: boolean) {
         super(baseObject, nullable);
         let email = /(.*)@(.*)/.exec(TestConfig.instance.protractorConfig.emailConfig.user);
-        if (!email || email.length != 3) throw `Invalid base email address ${TestConfig.instance.protractorConfig.emailConfig.user}, can't create a dynamic one`;
+        if (!email || email.length != 3) {
+            console.error(`Invalid base email address ${TestConfig.instance.protractorConfig.emailConfig.user}, can't create a dynamic one`);
+            return;
+        }
         this.email = `${email[1]}+${oh.chance.hash()}@${email[2]}`;
     }
 }

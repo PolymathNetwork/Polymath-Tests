@@ -20,8 +20,8 @@ export abstract class MetamaskDownloader {
     }
     public abstract async getExtension(): Promise<MetmaskData>;
 
-    protected async getRelease(browser: ExtensionBrowser, version: string = "4.9.2") {
-        let url = version ? `https://github.com/MetaMask/metamask-extension/releases/tag/v${version}`
+    protected async getRelease(browser: ExtensionBrowser, version: string = process.env.METAMASK_VERSION || "4.14.0") {
+        let url = version && version !== 'latest' ? `https://github.com/MetaMask/metamask-extension/releases/tag/v${version}`
             : 'https://github.com/MetaMask/metamask-extension/releases/latest';
         let html = await request.get(url, { followAllRedirects: true });
         let search = load(html);

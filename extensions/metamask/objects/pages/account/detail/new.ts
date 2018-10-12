@@ -28,6 +28,7 @@ export class NewDetailExtra extends AbstractFeature {
         return details.ethAddress;
     }) public ethAddress: string;
     public async extraDetails(lookForNext: boolean = true): Promise<NewDetailExtra> {
+        await oh.wait(async () => !(await oh.visible(By.xpath('.//*[@class="loading-overlay"]'))()), `Timeout waiting for the loading div to disappear`);
         return oh.click(By.xpath('.//*[contains(@class, "wallet-view__details-button")]'), this.element).
             then(() => lookForNext && new NewDetailExtra().load());
     }

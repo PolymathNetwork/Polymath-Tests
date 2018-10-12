@@ -8,7 +8,7 @@ import { IssuerPage } from "objects/pages/base";
 class EmailConfirmed extends AbstractFeature {
     public featureSelector: Locator = By.xpath('.//*[@id="sign-up-success"]');
     public next(): Promise<IssuerPage> {
-        return oh.click(By.xpath('.//button[@type="submit"]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
+        return oh.click(By.xpath('.//button[contains(@class, "bx--btn--primary")]'), this.element).then(() => IssuerPage.Get<IssuerPage>(IssuerPage));
     }
 }
 

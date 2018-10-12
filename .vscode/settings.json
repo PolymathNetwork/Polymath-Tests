@@ -4,5 +4,8 @@
   ],
   "cucumberautocomplete.syncfeatures": "tests/**/*.feature",
   "cucumberautocomplete.strictGherkinCompletion": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "[dockerfile]": {
+    "editor.formatOnSave": false
+  }
 }

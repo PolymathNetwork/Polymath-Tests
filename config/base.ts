@@ -4,13 +4,14 @@ import { RunnerConfig } from './definition';
 import { ExtensionManager, ExtensionBrowser, ExtensionData, ExtensionInfo, ExtensionConfig } from 'extensions';
 import * as deasync from 'deasync';
 import { readFileSync } from 'fs';
-import { assert } from 'framework/helpers';
+import { assert, TestConfig } from 'framework/helpers';
 import { CloudDownloadManager, LocalDownloadManager } from './download';
 import cbt = require('cbt_tunnels');
 import { join } from 'path';
 import { UploadProvider } from './uploadProviders';
 import { mkdirpSync, moveSync } from 'fs-extra';
-let localhost = 'localhost';
+import { Config } from 'imap';
+let localhost = process.env.LOCALHOST || 'localhost';
 const debugMode = process.env.IS_DEBUG;
 const reportsDir = process.env.REPORTS_DIR || join(__dirname, '..', 'reports');
 process.env.LOG_DIR = join(reportsDir, 'logs');
@@ -36,6 +37,32 @@ class Environment {
         }
     }
 }
+// email configuration
+let match = /.*@(.*)/.exec(process.env.EMAIL_USER);
+let emailServer = match && match.length === 2 ? match[1] : '';
+let emailConfig: Config = {
+    user: process.env.EMAIL_USER,
+    password: process.env.EMAIL_PASSWORD,
+    port: 993,
+    tls: true
+}
+switch (emailServer) {
+    case 'gmail.com':
+        emailConfig = {
+            ...emailConfig,
+            host: "imap.gmail.com",
+        };
+        break;
+    case 'outlook.com':
+        emailConfig = {
+            ...emailConfig,
+            host: "imap-mail.outlook.com",
+        };
+        break;
+    default:
+        console.warn(`Unknown email domain ${emailServer}, email fetching WON'T WORK`);
+}
+
 const environments = function (): { [k: string]: RunnerConfig } {
     return {
         local: {
@@ -43,29 +70,24 @@ const environments = function (): { [k: string]: RunnerConfig } {
             apps: {
                 investor: `http://${localhost}:3002`,
             },
-            emailConfig: {
-                user: process.env.GMAIL_USER,
-                password: process.env.GMAIL_PASSWORD,
-                host: "imap.gmail.com",
-                port: 993,
-                tls: true
-            },
+            emailConfig: emailConfig,
             dbConfig: {
-                mongo: process.env.mongo || `mongodb://${localhost}:27017/`
+                mongo: process.env.MONGODB_URI || `mongodb://localhost:27017/polymath`
             }
+        },
+        staging: {
+            baseUrl: `http://polymath-issuer-staging.netlify.com`,
+            apps: {
+                investor: `http://polymath-investor-staging.netlify.com`,
+            },
+            emailConfig: emailConfig
         },
         production: {
             baseUrl: 'https://tokenstudio.polymath.network',
             apps: {
                 investor: `http://`, // TODO: Fill this in
             },
-            emailConfig: {
-                user: process.env.GMAIL_USER,
-                password: process.env.GMAIL_PASSWORD,
-                host: "imap.gmail.com",
-                port: 993,
-                tls: true
-            }
+            emailConfig: emailConfig
         }
     }
 }
@@ -77,6 +99,7 @@ const shutdown = async function () {
     if (shutdownDone) return true;
     shutdownDone = true;
     let hasError = false;
+    await TestConfig.shutdown();
     for (let fn of shutdownFns) {
         try {
             await fn();
@@ -91,7 +114,7 @@ const shutdown = async function () {
 
 process.on('exit', () => {
     if (!shutdownDone) deasync(async function (callback) {
-        callback(!await shutdown());
+        callback(!(await shutdown()));
     })();
 });
 

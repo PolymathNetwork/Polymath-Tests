@@ -13,8 +13,10 @@ export abstract class TermsAndConditions extends MetamaskPage {
     }
     public async skipTou(): Promise<MetamaskPage> {
         let page: TermsAndConditions = this;
-        while (page instanceof TermsAndConditions)
+        while (page instanceof TermsAndConditions) {
+            await oh.wait(oh.invisible(By.xpath('.//*[@class="loading-overlay"]')), `Timeout waiting for the loading page to be hidden`);
             page = await page.next() as TermsAndConditions;
+        }
         return page;
     }
 }

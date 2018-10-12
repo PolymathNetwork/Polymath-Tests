@@ -24,10 +24,10 @@ import { inputField } from "framework/object/core/decorators";
 }
 
 @injectable export class NewSettingsPage extends SettingsPage {
-    protected featureSelector: Locator = By.xpath('.//*[@class="main-container settings"]');
-    @inputField(By.xpath('.//*[@class="settings__input"]')) public customRpc: string;
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "main-container") and contains(@class, "settings")]');
+    @inputField(By.xpath('.//*[@class="settings__input" or @id="new-rpc"]')) public customRpc: string;
     public async next(): Promise<MetamaskPage> {
-        await oh.click(By.xpath('.//*[@class="settings__rpc-save-button"]'), this.element);
+        await oh.click(By.xpath('.//*[@class="settings__rpc-save-button" or @class="settings-tab__rpc-save-button"]'));
         return MetamaskPage.Get<MetamaskPage>(MetamaskPage);
     }
 }

@@ -1,0 +1,3 @@
+<app>
+<arguments>run docker -- --params.setup.apps "apps"</arguments>
+</app>
