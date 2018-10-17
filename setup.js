@@ -87,6 +87,7 @@ const setup = {
             throw `Can't find polymath-shared`;
         let path = setNodeVersion();
         if (!process.env.NO_STARTUP) execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
         let pid = exec(`yarn local-blockchain:start`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         let file = createWriteStream(logs.ganache);
         await new Promise((r, e) => {
