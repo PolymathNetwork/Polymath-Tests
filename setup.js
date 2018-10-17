@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { join } = require('path');
+const { join, resolve } = require('path');
 const { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream } = require('fs-extra');
 const { argv } = require('yargs');
 const { execSync, exec } = require('child_process');
@@ -184,6 +184,7 @@ const setup = {
         let folder = join(checkoutDir, 'apps');
         if (baseOpts === true) await this.git(sources.apps, folder);
         else folder = baseOpts;
+        folder = resolve(folder);
         if (!process.env.SKIP_OFFCHAIN) {
             process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`;
             process.env.POLYMATH_OFFCHAIN_URL = `http://${process.env.LOCALHOST}:3001`;
