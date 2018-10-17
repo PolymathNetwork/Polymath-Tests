@@ -89,6 +89,7 @@ const setup = {
         if (!process.env.NO_STARTUP) execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
         path = `${join(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
+        console.log(`Using path: ${path}`);
         let pid = exec(`yarn local-blockchain:start`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         let file = createWriteStream(logs.ganache);
         await new Promise((r, e) => {
@@ -135,6 +136,7 @@ const setup = {
         if (!process.env.NO_STARTUP) execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
         path = `${join(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
+        console.log(`Using path: ${path}`);
         let pid = exec(`yarn start`, { cwd: folder, env: { ...process.env, PATH: path, PORT: 3001, NODE_ENV: 'development' } });
         let file = createWriteStream(logs.offchain);
         await new Promise((r, e) => {
