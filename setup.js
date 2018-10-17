@@ -101,7 +101,7 @@ const setup = {
                         file.write = oldWrite;
                         r();
                     }
-                    if (data.indexOf('Error') !== -1) {
+                    if (data.toLowerCase().indexOf('error') !== -1) {
                         file.write = oldWrite;
                         e(data);
                     }
@@ -147,7 +147,7 @@ const setup = {
                         file.write = oldWrite;
                         r();
                     }
-                    if (data.indexOf('Error') !== -1) {
+                    if (data.toLowerCase().indexOf('error') !== -1) {
                         file.write = oldWrite;
                         e(data);
                     }
