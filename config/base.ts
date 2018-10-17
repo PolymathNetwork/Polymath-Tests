@@ -363,7 +363,7 @@ export = (opts = { params: {} }) => {
                     },
                     afterLaunch: async function (exitCode: number) {
                         // We can't change the log dir in CBT yet
-                        moveSync(join(__dirname, '..', 'tunnel.log'), reportsDir, { overwrite: true });
+                        moveSync(join(__dirname, '..', 'tunnel.log'), join(reportsDir, 'tunnel.log'), { overwrite: true });
                         await cbt.stop();
                         await oldAfter(exitCode);
                     },

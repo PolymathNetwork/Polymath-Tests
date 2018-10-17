@@ -164,7 +164,7 @@ const setup = {
         console.log('Starting issuer...');
         let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-issuer/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3000 } });
         let file = createWriteStream(logs.issuer);
-        pid.stdout.pipe(file, { end: true });
+        pid.stdout.pipe(file);
         pid.stderr.pipe(file);
         pids.issuer = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
@@ -174,7 +174,7 @@ const setup = {
         console.log('Starting investor...');
         let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-investor/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3002 } });
         let file = createWriteStream(logs.investor);
-        pid.stdout.pipe(file, { end: true });
+        pid.stdout.pipe(file);
         pid.stderr.pipe(file);
         pids.investor = pid;
         writeFileSync(pidsFile, Object.values(pids).map(p => p.pid).join('\n'));
@@ -191,7 +191,7 @@ const setup = {
             process.env.POLYMATH_ISSUER_URL = `http://${process.env.LOCALHOST}:3000`;
             process.env.WEB3_NETWORK_LOCAL_WS = `ws://localhost:8545`;
             process.env.MONGODB_URI = `mongodb://localhost:27017/polymath`;
-            process.env.DEPLOYMENT_STAGE = `local`;
+            process.env.REACT_APP_DEPLOYMENT_STAGE = `local`;
         }
         process.env.REACT_APP_NETWORK_LOCAL_WS = `ws://${process.env.LOCALHOST}:8545`;
         if (!process.env.NO_STARTUP && existsSync(join(folder, 'package.json'))) {
