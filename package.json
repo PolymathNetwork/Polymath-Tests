@@ -9,14 +9,14 @@
     "author": "Josep Mateu Clemente <jmateu.clemente@gmail.com>",
     "scripts": {
         "webdriver-manager": "webdriver-manager",
-        "postinstall": "npm run webdriver-manager -- update --gecko=false && node_modules/.bin/mongodb-download --downloadDir=mongo",
+        "postinstall": "npm run webdriver-manager -- update --gecko=false --out_dir .webdriver --ignore_ssl --relativeFromCwd --relative && node_modules/.bin/mongodb-download --downloadDir=mongo",
         "protractor": "protractor",
         "test": "npm run protractor -- protractor.conf.ci.js",
         "docker": "node docker.js"
     },
     "dependencies": {
         "@josepmc/mongodb-prebuilt": "^6.3.5",
-        "@josepmc/protractor": "^5.4.0-1",
+        "@josepmc/protractor": "^5.4.0-5",
         "@types/chai": "^4.1.6",
         "@types/chai-as-promised": "7.1.0",
         "@types/chance": "^1.0.1",

@@ -115,12 +115,12 @@
     spawn-sync "1.0.15"
     yargs "^3.26.0"
 
-"@josepmc/protractor@^5.4.0-1":
-  version "5.4.0-1"
-  resolved "https://registry.yarnpkg.com/@josepmc/protractor/-/protractor-5.4.0-1.tgz#6bbec74116e2033cf27284559e9ba3b3481c5ba9"
-  integrity sha512-qMMeq6aNmXDLjHt8j3w5j214+IbZFksuK12cZyiasT6rEM28FK60UxJyIdxCmCIuwpZjdlp3eRzhlZlnGyCECA==
+"@josepmc/protractor@^5.4.0-5":
+  version "5.4.0-5"
+  resolved "https://registry.yarnpkg.com/@josepmc/protractor/-/protractor-5.4.0-5.tgz#c55371a91dcf11c8afe266f17f4e0f07c36291ca"
+  integrity sha512-bmyY6XonfEoMQ0ns4ttcfkL54vJJghrYkXapQlUHvDt0iJ76cHAbMn8ANGFucEIilCX1UfG6XBHIAJSiJfyCnw==
   dependencies:
-    "@josepmc/webdriver-manager" "^12.0.6-2"
+    "@josepmc/webdriver-manager" "^12.0.6-5"
     "@types/chance" "^0.7.35"
     "@types/node" "^6.0.46"
     "@types/q" "^0.0.32"
@@ -141,10 +141,10 @@
     webdriver-js-extender "2.0.0"
     webdriver-manager "^12.0.6"
 
-"@josepmc/webdriver-manager@^12.0.6-2":
-  version "12.0.6-2"
-  resolved "https://registry.yarnpkg.com/@josepmc/webdriver-manager/-/webdriver-manager-12.0.6-2.tgz#1c4b41e6946b21874f7e67b4185c139fcc11f9a6"
-  integrity sha512-jq5nE94l8ue4wiEn9lIrTASPTFYysTczjQH9FKTAnFv81O20zim1cs8HREKMa284vY6keNJb3UPcWqenL0XImA==
+"@josepmc/webdriver-manager@^12.0.6-5":
+  version "12.0.6-5"
+  resolved "https://registry.yarnpkg.com/@josepmc/webdriver-manager/-/webdriver-manager-12.0.6-5.tgz#f7b53bd3e75e2f9f7cba0b8953bda1b137c3a988"
+  integrity sha512-uYoigkpNjfrfZpkHat/kkHVS+4wIlkdOsGVAAfaGZU90dcaOaysDMda7dfkItV7HpxUeWeAaRnfnBTGBZxQD4A==
   dependencies:
     adm-zip "^0.4.7"
     chalk "^1.1.1"
@@ -1960,7 +1960,7 @@ debug@^3.1.0:
   dependencies:
     ms "^2.1.1"
 
-debuglog@*, debuglog@^1.0.1:
+debuglog@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/debuglog/-/debuglog-1.0.1.tgz#aa24ffb9ac3df9a2351837cfb2d279360cd78492"
   integrity sha1-qiT/uaw9+aI1GDfPstJ5NgzXhJI=
@@ -3470,7 +3470,7 @@ import-lazy@^2.1.0:
   resolved "https://registry.yarnpkg.com/import-lazy/-/import-lazy-2.1.0.tgz#05698e3d45c88e8d7e9d92cb0584e77f096f3e43"
   integrity sha1-BWmOPUXIjo1+nZLLBYTnfwlvPkM=
 
-imurmurhash@*, imurmurhash@^0.1.4:
+imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
   integrity sha1-khi5srkoojixPcT7a21XbyMUU+o=
@@ -4204,11 +4204,6 @@ lockfile@^1.0.4:
   dependencies:
     signal-exit "^3.0.2"
 
-lodash._baseindexof@*:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/lodash._baseindexof/-/lodash._baseindexof-3.1.0.tgz#fe52b53a1c6761e42618d654e4a25789ed61822c"
-  integrity sha1-/lK1OhxnYeQmGNZU5KJXie1hgiw=
-
 lodash._baseuniq@~4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash._baseuniq/-/lodash._baseuniq-4.6.0.tgz#0ebb44e456814af7905c6212fa2c9b2d51b841e8"
@@ -4217,32 +4212,10 @@ lodash._baseuniq@~4.6.0:
     lodash._createset "~4.0.0"
     lodash._root "~3.0.0"
 
-lodash._bindcallback@*:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/lodash._bindcallback/-/lodash._bindcallback-3.0.1.tgz#e531c27644cf8b57a99e17ed95b35c748789392e"
-  integrity sha1-5THCdkTPi1epnhftlbNcdIeJOS4=
-
-lodash._cacheindexof@*:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/lodash._cacheindexof/-/lodash._cacheindexof-3.0.2.tgz#3dc69ac82498d2ee5e3ce56091bafd2adc7bde92"
-  integrity sha1-PcaayCSY0u5ePOVgkbr9Ktx73pI=
-
-lodash._createcache@*:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/lodash._createcache/-/lodash._createcache-3.1.2.tgz#56d6a064017625e79ebca6b8018e17440bdcf093"
-  integrity sha1-VtagZAF2JeeevKa4AY4XRAvc8JM=
-  dependencies:
-    lodash._getnative "^3.0.0"
-
 lodash._createset@~4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/lodash._createset/-/lodash._createset-4.0.3.tgz#0f4659fbb09d75194fa9e2b88a6644d363c9fe26"
   integrity sha1-D0ZZ+7CddRlPqeK4imZE02PJ/iY=
-
-lodash._getnative@*, lodash._getnative@^3.0.0:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/lodash._getnative/-/lodash._getnative-3.9.1.tgz#570bc7dede46d61cdcde687d65d3eecbaa3aaff5"
-  integrity sha1-VwvH3t5G1hzc3mh9ZdPuy6o6r/U=
 
 lodash._root@~3.0.0:
   version "3.0.1"
@@ -4263,11 +4236,6 @@ lodash.noop@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/lodash.noop/-/lodash.noop-3.0.1.tgz#38188f4d650a3a474258439b96ec45b32617133c"
   integrity sha1-OBiPTWUKOkdCWEObluxFsyYXEzw=
-
-lodash.restparam@*:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/lodash.restparam/-/lodash.restparam-3.6.1.tgz#936a4e309ef330a7645ed4145986c85ae5b20805"
-  integrity sha1-k2pOMJ7zMKdkXtQUWYbIWuWyCAU=
 
 lodash.union@~4.6.0:
   version "4.6.0"
@@ -4898,10 +4866,10 @@ node-uuid@~1.4.0:
   resolved "https://registry.yarnpkg.com/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
   integrity sha1-sEDrCSOWivq/jTL7HxfxFn/auQc=
 
-node@10.12.0:
-  version "10.12.0"
-  resolved "https://registry.yarnpkg.com/node/-/node-10.12.0.tgz#72dbd553b9fc7550a66e774b89c71c34435e2e08"
-  integrity sha512-PJy1yLeYS9bYoYora/9jIQSUBCkw1XCS3AfMIYCJJVKq2xyLmDLyHv1rYDwNxXdkjoJusPQoW65H1gvrxQNq+Q==
+node@8:
+  version "8.12.0"
+  resolved "https://registry.yarnpkg.com/node/-/node-8.12.0.tgz#b62e72b3a77e89c29d3c8c21be07b4de5d6414d2"
+  integrity sha512-00OdiTAlqQ8mvxXg8D//OSD/bDBI3eBGvArBbJ2RB6ExyzpgoLxQzajhcj9FeKVmrzFYeUHjzCl7hzL9vPMpXw==
   dependencies:
     node-bin-setup "^1.0.0"
 
@@ -5423,9 +5391,9 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.0.0.tgz#85080bb87c64688fa47996fe8f7dfbe8211760b1"
   integrity sha512-hMp0onDKIajHfIkdRk3P4CdCmErkYAxxDtP3Wx/4nZ3aGlau2VKh3mZpcuFkH27WQkL/3WBCPOktzA9ZOAnMQQ==
 
-"pac-resolver@git+https://github.com/rosesandhello/node-pac-resolver.git":
+"pac-resolver@https://github.com/rosesandhello/node-pac-resolver":
   version "3.0.0"
-  resolved "git+https://github.com/rosesandhello/node-pac-resolver.git#ef0bea40b9409dfab2c7fd8e53df5e37febfeb0d"
+  resolved "https://github.com/rosesandhello/node-pac-resolver#ef0bea40b9409dfab2c7fd8e53df5e37febfeb0d"
   dependencies:
     co "^4.6.0"
     degenerator "^1.0.4"
@@ -6045,7 +6013,7 @@ readable-stream@~2.0.6:
     string_decoder "~0.10.x"
     util-deprecate "~1.0.1"
 
-readdir-scoped-modules@*, readdir-scoped-modules@^1.0.0:
+readdir-scoped-modules@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/readdir-scoped-modules/-/readdir-scoped-modules-1.0.2.tgz#9fafa37d286be5d92cbaebdee030dc9b5f406747"
   integrity sha1-n6+jfShr5dksuuve4DDcm19AZ0c=
