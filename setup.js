@@ -162,7 +162,7 @@ const setup = {
     },
     issuer: async function (baseOpts) {
         console.log('Starting issuer...');
-        let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-issuer/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3000 } });
+        let pid = exec(`yarn serve -s "${baseOpts}/packages/polymath-issuer/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3000 } });
         let file = createWriteStream(logs.issuer);
         pid.stdout.pipe(file);
         pid.stderr.pipe(file);
@@ -172,7 +172,7 @@ const setup = {
     },
     investor: async function (baseOpts) {
         console.log('Starting investor...');
-        let pid = exec(`node_modules/.bin/serve -s "${baseOpts}/packages/polymath-investor/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3002 } });
+        let pid = exec(`yarn serve -s "${baseOpts}/packages/polymath-investor/build"`, { cwd: currentDir, env: { ...process.env, PORT: 3002 } });
         let file = createWriteStream(logs.investor);
         pid.stdout.pipe(file);
         pid.stderr.pipe(file);
