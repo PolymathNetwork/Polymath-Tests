@@ -93,6 +93,7 @@ const setup = {
             let oldWrite = file.write;
             file.write = (data, error) => {
                 oldWrite.call(file, data, error);
+                console.log(data);
                 if (file.write != oldWrite) {
                     if (data.indexOf('Listening on') !== -1) {
                         file.write = oldWrite;
@@ -137,6 +138,7 @@ const setup = {
             let oldWrite = file.write;
             file.write = (data, error) => {
                 oldWrite.call(file, data, error);
+                console.log(data);
                 if (file.write != oldWrite) {
                     if (data.indexOf('Server is listening on port') !== -1) {
                         file.write = oldWrite;
