@@ -64,7 +64,7 @@ const envVars = ['METAMASK_NETWORK', 'METAMASK_SECRET', 'METAMASK_ACCOUNT_NUMBER
     // DIRS
     'TMP_DIR', 'REPORTS_DIR', 'LOG_DIR', 'CHECKOUT_DIR', 'NO_DELETE_ENV', 'NO_STARTUP',
     // Browser config
-    'BROWSER', 'MONGODB_URI', 'SPECS', 'TAGS', 'EXTENSIONS',
+    'BROWSER', 'MONGODB_URI', 'SPECS', 'TAGS', 'EXTENSIONS', 'NO_BUILD',
     'ENV', 'SEED', 'BSBROWSER', 'LOCALHOST']
 fs.writeFileSync('.env.docker', envVars.map(v => process.env[v] ? `export ${v}=${process.env[v]}` : '').filter(e => e).join('\n') || "");
 

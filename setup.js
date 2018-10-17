@@ -77,10 +77,8 @@ const setup = {
     ganache: async function (baseOpts) {
         console.log('Starting ganache...');
         if (!(typeof baseOpts === 'string' || baseOpts instanceof String)) {
-            let startup = process.env.NO_STARTUP;
-            process.env.NO_STARTUP = true;
+            process.env.NO_BUILD = true;
             baseOpts = await setup.apps(true);
-            process.env.NO_STARTUP = startup;
         }
         let folder = join(baseOpts, 'packages', 'polymath-shared');
         if (!existsSync(folder))
@@ -203,7 +201,7 @@ const setup = {
             path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
             // This should be removed in the near future
             //process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:8545`;
-            execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            if (!process.env.NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
     },
