@@ -248,8 +248,8 @@ const kill = () => {
     pids = null;
     removeSync(pidsFile);
     if (process.env.PRINT_LOGS) for (let log in logs) {
-        console.log(`Printing output of ${log}: ${log[logs]}`);
-        console.log(readFileSync(log[logs], 'utf8'));
+        console.log(`Printing output of ${log}: ${logs[log]}`);
+        console.log(readFileSync(logs[log], 'utf8'));
     }
 };
 process.on('SIGINT', function () {
