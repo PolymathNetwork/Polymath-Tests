@@ -76,11 +76,15 @@ const environments = function (): { [k: string]: RunnerConfig } {
                 mongo: process.env.MONGODB_URI || `mongodb://localhost:27017/polymath`
             }
         },
-        staging: {
-            baseUrl: `http://polymath-issuer-staging.netlify.com`,
+        develop: {
+            baseUrl: `http://polymath-issuer-develop.netlify.com`,
             apps: {
                 investor: `http://polymath-investor-staging.netlify.com`,
             },
+            emailConfig: emailConfig
+        },
+        beta: {
+            baseUrl: `http://betastudio.polymath.network`,
             emailConfig: emailConfig
         },
         production: {
