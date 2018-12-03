@@ -5,6 +5,7 @@ import { SignPage } from 'objects/pages/noToken/sign/sign';
 import { Ticker } from 'objects/pages/noToken/ticker/ticker';
 import { AccountCreation } from './accountCreation';
 import { IssuerTestData } from 'tests/issuerTestData';
+import { ConnectPage } from 'objects/pages/noToken/sign/connect';
 
 @binding([IssuerTestData])
 class SignTests extends AccountCreation {
@@ -13,6 +14,12 @@ class SignTests extends AccountCreation {
         let welcome = new Welcome();
         await welcome.navigateToPage();
         await welcome.next();
+    }
+
+    @given(/The issuer connects MetaMask to the app/)
+    public async connectMetaMask() {
+        let page = await new ConnectPage().load();
+        await page.next();
     }
 
     @given(/The issuer verifies the identity/)

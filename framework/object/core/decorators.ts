@@ -757,8 +757,7 @@ export interface CustomValuelessCallOpts extends CallOpts {
 }
 
 export function customValuelessCombobox(optionLocator: Locator,
-    opts: CustomValuelessCallOpts =
-        { getAttribute: 'value', selectedAttribute: 'value', ancestorPath: 'parent::*' }) {
+    opts: CustomValuelessCallOpts = {}) {
     if (opts.causesRefresh === undefined) opts.causesRefresh = false;
     opts.getAttribute = opts.getAttribute || 'value';
     opts.selectedAttribute = opts.selectedAttribute || 'value';

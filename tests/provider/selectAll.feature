@@ -6,6 +6,6 @@ Feature: Select a provider
         Given The issuer is authenticated
         And A token is reserved
 
-    Scenario: Select a provider
-        Given The issuer selects providers via click
+    Scenario: Select all providers
+        Given The issuer selects all the providers
         Then The providers are selected

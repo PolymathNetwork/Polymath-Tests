@@ -10,5 +10,7 @@ export abstract class Settings extends AbstractFeature {
 
 export abstract class SettingsPage extends AbstractPage {
     public customRpc: string;
+    public privacyMode: boolean;
     public abstract async next(): Promise<AbstractPage>;
+    public abstract async close(): Promise<AbstractPage>;
 }
