@@ -1,6 +1,6 @@
 import { binding, given, then } from "cucumber-tsflow";
 import { IssuerTestData } from "tests/issuerTestData";
-import { expect } from "framework/helpers";
+import { expect, oh } from "framework/helpers";
 import { Ticker } from "objects/pages/noToken/ticker/ticker";
 import { PageWithToken } from "objects/pages/withToken/base";
 import { Modal } from "objects/features/general/modal";
@@ -18,6 +18,7 @@ class ReserveToken extends AccountCreation {
             // The token is already present
             ticker.ticker.symbol = this.data.generateTicker().symbol;
             await ticker.ticker.apply();
+            await oh.browser.sleep(1); // the error removal takes a while
             error = await ticker.ticker.next();
         }
         await this.approveTransactions(() => ticker.ticker.next() as Promise<Modal>, error as Modal);

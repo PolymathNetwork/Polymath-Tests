@@ -9,15 +9,15 @@ import { CountdownFeature } from "objects/features/token/countdown";
 @injectable export class CreateTokenFeature extends AbstractFeature implements TokenInfoModel {
     protected featureSelector: Locator = By.xpath('.//*[@class="create-token-wrapper"]');
     @radioBox(By.xpath('.//*[@class="bx--radio-button-group"]'), {
-        './/*[@for="isDivisible-0"]': DivisibleIndivisible.Divisble,
-        './/*[@for="isDivisible-1"]': DivisibleIndivisible.Indivisible
+        './/*[@for="isDivisible-divisible"]': DivisibleIndivisible.Divisble,
+        './/*[@for="isDivisible-indivisible"]': DivisibleIndivisible.Indivisible
     }, {
             checkedSelector: async function (element) {
                 let selected = await oh.checked(By.xpath('self::*/..//input'), element);
                 return selected;
             }
         }) public tokenDivisibility: DivisibleIndivisible;
-    @order(2) @singleCheckbox(By.xpath('.//*[@for="investors-number-toggle"]'), { checkedSelector: By.xpath('//*[@id="investorsNumber"]') }) public allowMaxInvestors: boolean;
+    @order(2) @singleCheckbox(By.xpath('.//*[@for="limitInvestors"]'), { checkedSelector: By.xpath('//*[@id="investorsNumber"]') }) public allowMaxInvestors: boolean;
     @order(1) @optional @inputField<number>(By.xpath('.//*[@id="investorsNumber"]')) public maxInvestors?: number;
     @inputField<string>(By.xpath('.//*[@id="details"]')) public additionalTokenInformation: string;
 

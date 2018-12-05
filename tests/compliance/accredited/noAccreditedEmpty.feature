@@ -8,5 +8,5 @@ Feature: Whitelist with non-accredited empty field
         And A token is created
 
     Scenario: Non accredited investor with an empty field
-        Given The issuer uploads a whitelist with an empty non-accredited field
+        Given The issuer uploads a whitelist without non-accredited fields
         Then The issuer downloads the same investors

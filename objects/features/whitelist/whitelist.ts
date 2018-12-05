@@ -1,14 +1,15 @@
 import { AbstractFeature, optional } from "framework/object/abstract";
 import { Locator, By, oh } from "framework/helpers";
-import { singleCheckbox, order, inputField } from "framework/object/core/decorators";
+import { singleCheckbox, order, inputField, present } from "framework/object/core/decorators";
 import { WhitelistModel } from "models/whitelistModel";
 import { Modal } from "objects/features/general/modal";
 import { TransactionalTest } from "tests/transactionalTest";
 import { DownloadedFile } from "config/download/abstract";
 import { IssuerPage } from "objects/pages/base";
 
-class WhitelistModal extends Modal {
+export class WhitelistModal extends Modal {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "whitelist-import-modal") and contains(@class, "is-visible")]');
+    @present(By.xpath('')) public hasError: boolean;
     @inputField<string>(By.xpath('.//input[@type="file"]')) public file: string;
     public async cancel(lookForNext: boolean = true): Promise<IssuerPage> {
         return oh.click(By.xpath('.//button[contains(@class, "cancel-btn") and not(@for)]'), this.element).then(() => lookForNext && IssuerPage.WaitForPage(IssuerPage) as Promise<IssuerPage>);

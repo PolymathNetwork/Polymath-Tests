@@ -38,6 +38,7 @@ class SignTests extends AccountCreation {
     @given(/The issuer is authenticated/)
     public async authenticateFull() {
         await this.navigate();
+        if (!process.env.DISABLE_PRIVACY_MODE) await this.connectMetaMask();
         await this.verifyIdentity();
         await this.createAnAccount();
         await this.activateAccount();

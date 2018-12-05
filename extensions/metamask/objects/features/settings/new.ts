@@ -37,15 +37,16 @@ export class ConfirmationDialog extends AbstractFeature {
 @injectable export class NewSettingsPage extends SettingsPage {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "main-container") and contains(@class, "settings")]');
     @order(1) @inputField(By.xpath('.//*[@class="settings__input" or @id="new-rpc"]')) public customRpc: string;
-    @order(2) @singleCheckbox(By.xpath('.//*[preceding-sibling::*[./span[text()="Privacy Mode"]]]'), {
-        checkedSelector: By.xpath('.//*[preceding-sibling::*[./span[text()="Privacy Mode"]]]//*[contains(@style, "background-color: rgb(65, 66, 68)")]')
+    @order(2) @singleCheckbox(By.xpath('.//*[preceding-sibling::*[./span[text()="Privacy Mode"]]]/div/div'), {
+        checkedSelector: By.xpath('.//input[@value="true"]')
     }) public privacyMode: boolean;
     public async next(): Promise<MetamaskPage> {
         await oh.click(By.xpath('.//*[contains(@class, "rpc-save-button")]'));
         return MetamaskPage.Get<MetamaskPage>(MetamaskPage);
     }
     public async close(): Promise<MetamaskPage> {
-        await oh.click(By.xpath('.//*[@class="settings-page__close-button"]'));
+        // Metamask screwed up the close button...
+        await oh.click(By.xpath('.//*[contains(@class,"app-header__metafox-logo--horizontal")]'));
         return MetamaskPage.Get<MetamaskPage>(MetamaskPage);
     }
     public async reset(): Promise<this> {
