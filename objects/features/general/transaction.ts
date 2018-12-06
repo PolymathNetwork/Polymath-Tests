@@ -35,7 +35,7 @@ export enum Status {
 
 // TODO: Make this more flexible, cancelling transactions and such
 @injectable @forceVisibility export class Transaction extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "pui-tx-modal")][.//*[contains(@class,"pui-modal--after-open")]][.//*[@class="pui-tx-continue"]]');
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "pui-tx-modal")][.//*[@class="pui-tx-continue"]]');
     @present(By.xpath('self::*[contains(@class, "pui-tx-failed")]')) public failed: boolean;
     @inject(TransactionResult, { multiInstance: true }) public transactions: TransactionResult[];
     public async next(lookForNext: boolean = true): Promise<CorePage | TransactionResult> {
