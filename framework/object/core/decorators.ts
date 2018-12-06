@@ -68,10 +68,12 @@ export interface CallOpts {
     mainFieldLocator?: Locator | (() => Promise<Locator>);
     defaultValue?: Object;
     numberParseMethod?: NumberParseMethod;
-    dateFormat?: moment.MomentFormatSpecification;
+    dateFormat?: moment.MomentFormatSpecification | boolean;
     causesRefresh?: boolean;
+    matchNo?: number;
     locatorStrategy?: (...args) => Locator;
     context?: {};
+    clearMethod?: (selector, parent) => Promise<void>;
 }
 
 function parseNumber(value: string, parseMethod: NumberParseMethod): number {
@@ -171,7 +173,8 @@ export function customDecorator<T>(getFn: () => Promise<T>, setFn?: (param: T) =
                 // TODO(@JG): Add functionality to know if the value is present or not (or finally set) - only debugging
                 if (_val === value && !force)
                     return; // Avoid setting the same value again
-                let params = extend(false, clone(context), { target: context.target || this, _val: value, _oldVal: _val, _get: target[generateName(FnNames.Get, property)] });
+                let target = context.target || this;
+                let params = extend(false, clone(context), { target: target, _val: value, _oldVal: _val, _get: () => target[generateName(FnNames.Get, property)].call(target) });
                 try {
                     if (opts && opts.preSet) await opts.preSet.call(params, value);
                     await fn.call(params, params._val);
@@ -196,7 +199,7 @@ export enum LabelOptsMode {
 }
 export interface LabelOpts extends CallOpts {
     mode?: LabelOptsMode;
-    matchNo?: number;
+    
     alwaysArray?: boolean;
 }
 
@@ -221,8 +224,8 @@ async function parseText<T extends string | number | string[] | number[] | Date 
         }
         texts.push(text);
         if (opts.dateFormat) {
-            let date = moment(text, opts.dateFormat);
-            if (date) dates.push(date.toDate());
+            let date: moment.Moment | Date = opts.dateFormat === true ? new Date(text) : moment(text, opts.dateFormat);
+            if (date) dates.push(date instanceof Date ? date : date.toDate());
         }
         let number = parseNumber(text, opts.numberParseMethod);
         if (!isNaN(number)) numbers.push(number);
@@ -289,8 +292,14 @@ export function range(minimum: Locator, maximum: Locator, opts: CallOpts = { mai
         // Field not present (optional)
         if (!await oh.present(minimum, this.target.element) || !await oh.present(maximum, this.target.element)) return undefined;
         if (!value) value = { minimum: undefined, maximum: undefined };
-        await oh.typeCleared(minimum, value.minimum, this.target.element);
-        await oh.typeCleared(maximum, value.maximum, this.target.element);
+        if (opts.clearMethod) {
+            await opts.clearMethod.call(this, minimum, this.target.element);
+            await oh.type(minimum, value.minimum, 0, this.target.element);
+        } else await oh.typeCleared(minimum, value.minimum, this.target.element);
+        if (opts.clearMethod) {
+            await opts.clearMethod.call(this, maximum, this.target.element);
+            await oh.type(maximum, value.maximum, 0, this.target.element);
+        } else await oh.typeCleared(maximum, value.maximum, this.target.element);
     }, null, opts);
 }
 
@@ -445,9 +454,17 @@ export function inputField<T extends number | string | number[] | string[]>(loca
             if (await oh.enabled(el, this.target.element)) {
                 let val = value instanceof Array ? value[idx] : value;
                 if (!val) {
-                    if (!opts.neverClear) await oh.clear(el, this.target.element);
-                } else opts.neverClear ? await oh.type(el, val, 0, this.target.element) :
-                    await oh.typeCleared(el, val, this.target.element);
+                    if (!opts.neverClear) opts.clearMethod ? await opts.clearMethod.call(this, el, this.target.element) :
+                        await oh.clear(el, this.target.element);
+                } else {
+                    if (opts.neverClear) await oh.type(el, val, 0, this.target.element);
+                    else {
+                        if (opts.clearMethod) {
+                            await opts.clearMethod.call(this, el, this.target.element);
+                            await oh.type(el, val, 0, this.target.element);
+                        } else await oh.typeCleared(el, val, this.target.element);
+                    }
+                }
             } else {
                 assert(!value && value != 0, `Decorator - InputField: Error! Can't type in a disabled checkbox`);
             }

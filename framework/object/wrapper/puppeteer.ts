@@ -155,6 +155,11 @@ export class PuppeteerHandle {
                     'prompt_for_download': false,
                     'default_directory': this.options.downloadManager.downloadPath(),
                     'directory_upgrade': true
+                },
+                "browser": {
+                    "set_download_behavior": {
+                        behavior: "allow"
+                    }
                 }
             }
         }));

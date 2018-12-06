@@ -2,6 +2,7 @@ import { ElementWrapper, Locator, oh, WindowInfo, By } from '../../helpers';
 import { propertyDescriptor, InitMode, InitOpts, IConstructor, classExtensionDecorator } from './iConstructor';
 import { internal, internalKey, recurseClass } from './shared';
 import stackTrace = require('stack-trace');
+import deasync = require('deasync');
 
 const iframeSymbol: Symbol = Symbol('iframe');
 export function iframe(iframeName: Locator = null) {
@@ -173,11 +174,19 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
                 debugger;
             }
             if (Reflect.getMetadata(internalKey, this, prop)) continue;
-            let fn = (oldMethod) => async function (...args) {
+            let fn = (oldMethod) => function (...args) {
                 oh.setSynchronization(!usesAngular);
-                await this.enterLocalIframeSpace();
-                let res = await oldMethod.apply(this, args);
-                await this.exitLocalIframeSpace();
+                let self = this;
+                let res = deasync(async (callback) => {
+                    try {
+                        await self.enterLocalIframeSpace();
+                        let res = await oldMethod.apply(self, args);
+                        await self.exitLocalIframeSpace();
+                        callback(null, res);
+                    } catch (err) {
+                        callback(err);
+                    }
+                })();
                 oh.setSynchronization(usesAngular);
                 return res;
             };
@@ -217,6 +226,7 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
                         if (!initialized) debugger;
                         else result.push(initialized);
                     }
+                    opts.multiInstance = true;
                     return result as any as this;
                 }
                 // Workaround the fact that children may get the "parent" element before even it has been initialized
