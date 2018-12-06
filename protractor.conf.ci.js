@@ -1,5 +1,5 @@
 exports.config = require('./config/register')({
-    env: 'local',
+    env: 'develop',
     params: {
         browser: 'puppeteer',
         extensions: 'metamask',

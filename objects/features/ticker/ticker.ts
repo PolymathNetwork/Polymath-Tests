@@ -6,7 +6,7 @@ import { Modal } from "objects/features/general/modal";
 import { injectable } from "framework/object/core/iConstructor";
 
 @injectable export class TickerError extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[@id="ticker-error-msg"]');
+    protected featureSelector: Locator = By.xpath('.//span[preceding-sibling::*[@for="ticker"]]');
 }
 
 export class TickerFeature extends AbstractFeature implements TickerModel {

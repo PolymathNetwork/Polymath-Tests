@@ -21,6 +21,7 @@ import ProtractorPerf = require('protractor-perf');
 import { ILocation, ISize, promise as WebdriverPromise, IWebDriverOptionsCookie, By as WebdriverBy } from 'selenium-webdriver';
 import parseDomain = require('parse-domain');
 import { DownloadManager } from 'config/download/abstract';
+import { Command } from 'protractor';
 const cssHighlight = require('../injectors/cssHighlight');
 const xPathFinder = require('../injectors/xpath');
 
@@ -751,10 +752,11 @@ export class ChromeWrapper extends BrowserWrapper {
         if (this.headless && config.extraConfig && config.extraConfig.extensions) {
             console.warn(`WARNING! Extensions won't be loaded in chrome headless. See https://github.com/GoogleChrome/puppeteer/issues/659 for more information.`)
         }
+        await this.setDownloadBehaviour();
     }
     public async setDownloadBehaviour() {
         if (this.downloadManager) {
-            /*let cmd = new Command('SEND_COMMAND');
+            let cmd = new Command('SEND_COMMAND');
             cmd.setParameters({
                 'cmd': 'Page.setDownloadBehavior', 'params':
                 {
@@ -767,7 +769,7 @@ export class ChromeWrapper extends BrowserWrapper {
                 'SEND_COMMAND',
                 'POST',
                 '/session/:sessionId/chromium/send_command');
-            await this.driver.schedule(cmd, 'Set the download strategy for Chrome headless');*/
+            await this.driver.schedule(cmd, 'Set the download strategy for Chrome headless');
         }
     }
     protected static readonly MAX_WIDTH = 900;
@@ -775,7 +777,7 @@ export class ChromeWrapper extends BrowserWrapper {
     // Can't maximize in Headless
     public async maximize(): Promise<void> {
         if (!this.headless) {
-            await super.maximize(); // Doesn't work anymore
+            //await super.maximize(); // Doesn't work anymore
             await this.driver.fullscreen();
         }
         else return this.setSize({ width: ChromeWrapper.MAX_WIDTH, height: ChromeWrapper.MAX_HEIGHT });

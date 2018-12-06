@@ -8,21 +8,23 @@ import { oh, assert, expect } from "framework/helpers";
 class ProviderTests extends TransactionalTest {
     private selectRandom<T>(array: Array<T>): Array<T> {
         let totalSelect = oh.chance.natural({ maximum: array.length });
-        let copy = Array.from(array);
+        let copy: Array<T> = Array.from(array);
         for (let i = totalSelect; i < array.length; ++i) {
-            copy.splice(oh.chance.natural({ maximum: copy.length }));
+            copy.splice(oh.chance.natural({ maximum: copy.length }), 1);
         }
         return copy;
     }
     @given(/The issuer selects providers via click/)
     public async selectClick() {
         let page = await Providers.WaitForPage<Providers>(Providers);
+        await page.init();
         // As the number of providers may vary, it needs to be dynamically allocated
         let copy = this.selectRandom(page.providerNavigation);
         console.log(`Selected ${copy.length} providers: ${copy.map(c => c.title).join(',')}`);
         this.selected = {};
         for (let nav of copy) {
             let content = await nav.next();
+            await content.init();
             this.selected[nav.title] = [];
             for (let provider of this.selectRandom(content.providers)) {
                 provider.selected = true;
@@ -34,12 +36,14 @@ class ProviderTests extends TransactionalTest {
     @given(/The issuer selects a provider via popup/)
     public async selectPopup() {
         let page = await Providers.WaitForPage<Providers>(Providers);
+        await page.init();
         // As the number of providers may vary, it needs to be dynamically allocated
         let copy = this.selectRandom(page.providerNavigation);
         console.log(`Selected ${copy.length} providers: ${copy.map(c => c.title).join(',')}`);
         this.selected = {};
         for (let nav of copy) {
             let content = await nav.next();
+            await content.init();
             this.selected[nav.title] = [];
             for (let provider of this.selectRandom(content.providers)) {
                 let moreInfo = await provider.moreInfo();
@@ -51,6 +55,7 @@ class ProviderTests extends TransactionalTest {
     @given(/The issuer selects all the providers/)
     public async selectAll() {
         let page = await Providers.WaitForPage<Providers>(Providers);
+        await page.init();
         // As the number of providers may vary, it needs to be dynamically allocated
         let copy = this.selectRandom(page.providerNavigation);
         console.log(`Selected ${copy.length} providers: ${copy.map(c => c.title).join(',')}`);
@@ -66,9 +71,11 @@ class ProviderTests extends TransactionalTest {
     @given(/The providers are selected/)
     public async providersSelected() {
         let page = await Providers.WaitForPage<Providers>(Providers);
+        await page.init();
         for (let prov in this.selected) {
             let provider = page.providerNavigation.find(p => p.title === prov);
             let content = await provider.next();
+            await content.init();
             for (let selected of this.selected[prov]) {
                 let pr = content.providers.find(p => p.title === selected);
                 expect(pr, `Provider ${selected} isn't selected`).to.be.not.null;

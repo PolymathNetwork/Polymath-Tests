@@ -29,12 +29,12 @@ export class TestConfig {
         return cfgcaps;
     }
 
-    private static shutdownMethods: (() => Promise<{}> | {})[] = [];
+    private shutdownMethods: (() => Promise<{}> | {})[] = [];
     public static async registerShutdownProcedure(fn: () => Promise<{}> | {}): Promise<void> {
-        this.shutdownMethods.push(fn);
+        this.instance.shutdownMethods.push(fn);
     }
 
     public static async shutdown(): Promise<void> {
-        for (let method of this.shutdownMethods) { await method(); }
+        for (let method of this.instance.shutdownMethods) { await method(); }
     }
 }

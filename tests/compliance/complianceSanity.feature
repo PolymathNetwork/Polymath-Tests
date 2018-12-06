@@ -12,3 +12,4 @@ Feature: Compliance test
     Scenario: Modify whitelist positive path
         Given The issuer changes ownership settings
         And The issuer adds investors to the whitelist with default data
+        Then The issuer downloads the same investors including minted

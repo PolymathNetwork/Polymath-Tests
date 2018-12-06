@@ -59,6 +59,7 @@ export enum InitMode {
 export interface InitInjectOpts {
     mode?: InitMode;
     multiInstance?: boolean;
+    concatResults?: boolean;
     initArgs?: any[];
 }
 export interface InitOpts extends InitInjectOpts {
@@ -124,6 +125,7 @@ export abstract class IConstructor<I extends InitOpts = InitOpts> {
                     mode: metadata.initOpts.mode === undefined ? opts.mode : metadata.initOpts.mode,
                     multiInstance: metadata.initOpts.multiInstance === undefined ? opts.multiInstance : metadata.initOpts.multiInstance,
                     initArgs: metadata.initOpts.initArgs === undefined ? opts.initArgs : metadata.initOpts.initArgs,
+                    concatResults: metadata.initOpts.concatResults === undefined ? opts.concatResults : metadata.initOpts.concatResults,
                 } as I : opts;
                 // Get already executes weightedInit
                 this[prop] = await IConstructor.Get(metadata.class, args, newOpts);
@@ -184,7 +186,7 @@ export abstract class IConstructor<I extends InitOpts = InitOpts> {
     }
     private static baseKey: string = 'register:base';
     // Affected by https://github.com/Microsoft/TypeScript/issues/15997
-    public static async Get<T extends IConstructor<I>, I extends InitOpts = InitOpts>(type: any, args: any[] = [], opts: I = <I>{ mode: InitMode.SingleObject }): Promise<T> {
+    public static async Get<T extends IConstructor<I> | IConstructor<I>[], I extends InitOpts = InitOpts>(type: any, args: any[] = [], opts: I = <I>{ mode: InitMode.SingleObject }): Promise<T> {
         // Return all classes that implement T
         let matching = this.findMatching(type);
         if (!matching) {
@@ -196,14 +198,24 @@ export abstract class IConstructor<I extends InitOpts = InitOpts> {
         for (let type of matchingMatches) {
             try {
                 let created: IConstructor = new (Function.prototype.bind.apply(type, [null].concat(args)));
-                let init = await created.weightedInit(opts);
+                let newOpts = clone(opts);
+                let init = await created.weightedInit(newOpts);
                 if (init) res.push(init);
             } catch (error) {
                 debugger;
             }
         }
         //assert(res.length, `Couldn't find any non-empty element. The element doesn't exist in ${type} using ${args}`);
-        return res.length ? res.sort((a, b) => b[1] - a[1])[0][0] : null;
+        return res.length ? (opts.concatResults ? this.flat(res.map(el => el[0])) : res.sort((a, b) => b[1] - a[1])[0][0]) : null;
+    }
+
+    private static flat<T>(els: Array<T[] | T>): Array<T> {
+        let res = [];
+        for (let el of els) {
+            if (el instanceof Array) res = res.concat(el);
+            else res.concat(el);
+        }
+        return res;
     }
     // If we had proper reflection, we wouldn't need this
     private static _container: Container = new Container();

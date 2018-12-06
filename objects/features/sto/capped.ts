@@ -1,8 +1,8 @@
 import { injectable } from "framework/object/core/iConstructor";
 import { Locator, By, oh } from "framework/helpers";
-import { label, present, inputField, comboBox, ClickMode, LabelOptsMode, order, NumberParseMethod } from "framework/object/core/decorators";
+import { label, present, inputField, comboBox, ClickMode, order, NumberParseMethod, customValuelessCombobox } from "framework/object/core/decorators";
 import { StoConfig, StoWidget } from "./abstract";
-import { CappedStoConfigModel, AmPm, RaiseIn } from "models/cappedStoConfig";
+import { CappedStoConfigModel, RaiseIn } from "models/cappedStoConfig";
 import { Modal } from "objects/features/general/modal";
 
 
@@ -12,16 +12,8 @@ import { Modal } from "objects/features/general/modal";
         { clickMode: ClickMode.ClickAfterSet, sendEnter: true }) public startDate: string;
     @order(1) @inputField<string>(By.xpath('.//*[@id="end"]'), null,
         { clickMode: ClickMode.ClickAfterSet, sendEnter: true }) public endDate: string;
-    @inputField<string>(By.xpath('.//*[@name="startTime"]')) public startTime: string;
-    @comboBox(By.xpath('.//*[@id="startTime-select"]'), {
-        'AM': AmPm.AM,
-        'PM': AmPm.PM
-    }, { ignoreNotVisible: true, noEmptyOptionPresent: true }) public startTimeAmPm: AmPm;
-    @inputField<string>(By.xpath('.//*[@name="endTime"]')) public endTime: string;
-    @comboBox(By.xpath('.//*[@id="endTime-select"]'), {
-        'AM': AmPm.AM,
-        'PM': AmPm.PM
-    }, { ignoreNotVisible: true, noEmptyOptionPresent: true }) public endTimeAmPm: AmPm;
+    @customValuelessCombobox(By.xpath('.//*[@name="startTime"]')) public startTime: string;
+    @customValuelessCombobox(By.xpath('.//*[@name="endTime"]')) public endTime: string;
     @comboBox(By.xpath('.//*[@name="currency"]'), {
         'POLY': RaiseIn.Poly,
         'ETH': RaiseIn.Eth

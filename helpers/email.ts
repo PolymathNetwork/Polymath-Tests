@@ -10,7 +10,7 @@ export class EmailHandler {
     private static instance: EmailHandler;
     constructor(protected opts: Config) {
         deasync(async callback => {
-            if (EmailHandler.instance) {
+            if (EmailHandler.instance && EmailHandler.instance.connection) {
                 await EmailHandler.instance.connection.end();
                 EmailHandler.instance = null;
             }

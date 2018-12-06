@@ -36,6 +36,9 @@ class InvestTests extends TransactionalTest {
         let endDate = moment(page.countdown.toDate);
         let currentDate: moment.Moment = moment();
         console.log(`STO starts '${endDate.toLocaleString()}', we're currently at '${currentDate.toLocaleString()}'`);
+        if ((process.env.METAMASK_NETWORK || '').startsWith('l')) {
+            // Call CLI for time increase
+        }
         while ((currentDate = moment()).get('s') < endDate.get('s')) {
             console.log(`Waiting ${endDate.get('s') - currentDate.get('s')} seconds`);
             await oh.browser.sleep(30);

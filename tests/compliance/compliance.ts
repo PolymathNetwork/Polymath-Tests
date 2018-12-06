@@ -59,15 +59,17 @@ class ComplianceTest extends TransactionalTest {
         unlinkSync(modal.file);
     }
 
-    @then(/The issuer downloads the same investors/)
-    public async downloadInvestors() {
+    @then(/The issuer downloads the same investors( including minted)?/)
+    public async downloadInvestors(includeMinted: string) {
         let whitelist = await new Whitelist().load();
         let file = await whitelist.whitelist.download();
         let data = await ComplianceData.fromCsv(file.contents);
         let old = this.data.whitelist.data.addresses;
-        let combined = this.data.mint.addresses.concat(this.data.whitelist.data.addresses as any);
-        // TODO: Look for duplicates
-        this.data.whitelist.data.addresses = combined as any;
+        if (includeMinted) {
+            let combined = this.data.mint.addresses.concat(this.data.whitelist.data.addresses as any);
+            // TODO: Look for duplicates
+            this.data.whitelist.data.addresses = combined as any;
+        }
         let eq = await data.equals(this.data.whitelist.data, { ignoreClass: true, undefinedEqualsNotPresent: true });
         this.data.whitelist.data.addresses = old;
         if (!eq) debugger;

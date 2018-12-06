@@ -5,7 +5,8 @@ import { Locked } from "../../pages/locked";
 // Beware with circular references
 import { NewAccountManager } from "../account/new";
 import { MetamaskPage } from "../../pages";
-import { inputField } from "framework/object/core/decorators";
+import { inputField, singleCheckbox, order } from "framework/object/core/decorators";
+import { AbstractFeature } from "framework/object/abstract";
 
 
 @injectable export class NewSettingsFakeMenu extends Settings {
@@ -23,11 +24,41 @@ import { inputField } from "framework/object/core/decorators";
     // Taken from account manager, now they're the same
 }
 
+export class ConfirmationDialog extends AbstractFeature {
+    public featureSelector: Locator = By.xpath('.//*[@class="modal"]');
+    public async next() {
+        await oh.click('.//*[contains(@class, "btn-default")]');
+    }
+    public async cancel() {
+        await oh.click('.//*[contains(@class, "btn-secondary")]');
+    }
+}
+
 @injectable export class NewSettingsPage extends SettingsPage {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "main-container") and contains(@class, "settings")]');
-    @inputField(By.xpath('.//*[@class="settings__input" or @id="new-rpc"]')) public customRpc: string;
+    @order(1) @inputField(By.xpath('.//*[@class="settings__input" or @id="new-rpc"]')) public customRpc: string;
+    @order(2) @singleCheckbox(By.xpath('.//*[preceding-sibling::*[./span[text()="Privacy Mode"]]]/div/div'), {
+        checkedSelector: By.xpath('.//input[@value="true"]')
+    }) public privacyMode: boolean;
     public async next(): Promise<MetamaskPage> {
-        await oh.click(By.xpath('.//*[@class="settings__rpc-save-button" or @class="settings-tab__rpc-save-button"]'));
+        await oh.click(By.xpath('.//*[contains(@class, "rpc-save-button")]'));
         return MetamaskPage.Get<MetamaskPage>(MetamaskPage);
+    }
+    public async close(): Promise<MetamaskPage> {
+        // Metamask screwed up the close button...
+        await oh.click(By.xpath('.//*[contains(@class,"app-header__metafox-logo--horizontal")]'));
+        return MetamaskPage.Get<MetamaskPage>(MetamaskPage);
+    }
+    public async reset(): Promise<this> {
+        await oh.click(By.xpath('.//*[contains(@class,"settings-tab__button--orange") and text()="Reset Account"]'));
+        let dialog = await new ConfirmationDialog().load();
+        await dialog.next();
+        return this;
+    }
+    public async clearPrivacy(): Promise<this> {
+        await oh.click(By.xpath('.//*[contains(@class,"settings-tab__button--orange") and text()="Clear Privacy Data"]'));
+        let dialog = await new ConfirmationDialog().load();
+        await dialog.next();
+        return this;
     }
 }

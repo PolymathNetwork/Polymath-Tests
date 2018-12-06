@@ -15,7 +15,7 @@ class CreateTokenTest extends TransactionalTest {
         expect(providers).to.be.instanceof(Providers);
         let modal = await providers.createToken.next();
         await modal.next(true); // I consulted with my advisors
-        let page = await new CreateToken().navigation.navigate(CreateToken);
+        let page = await new CreateToken().load(); // Can't navigate to the page anymore, as the nav link is disabled
         expect(page).to.be.instanceof(CreateToken);
         await page.create.fill(this.data.tokenInfo);
         await this.approveTransactions(() => page.create.next());
