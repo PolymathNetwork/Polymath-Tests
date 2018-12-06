@@ -197,7 +197,7 @@ export abstract class AbstractObject<I extends AbstractObjectInitOpts = Abstract
             };
             await oh.wait(async function () {
                 return await fn.apply(_);
-            }, 'Timeout: Waiting for the Element to load', timeout, throwAfterTimeout);
+            }, 'Timeout: Waiting for the Element to load', { timeout: timeout, throwAfterTimeout: throwAfterTimeout, tryUntilTimeout: true });
             await this.exitLocalIframeSpace();
         }
         return this;
@@ -264,6 +264,6 @@ export abstract class AbstractObject<I extends AbstractObjectInitOpts = Abstract
                 }
             }
             return null;
-        }, `PageObject - Error! Timeout waiting for one of the pages to load`);
+        }, `PageObject - Error! Timeout waiting for one of the pages to load`, { throwAfterTimeout: true, tryUntilTimeout: true });
     }
 }

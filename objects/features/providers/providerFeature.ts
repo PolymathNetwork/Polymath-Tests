@@ -20,7 +20,6 @@ import { present, photo, label, singleCheckbox } from "framework/object/core/dec
     protected featureSelector: Locator = By.xpath('.//*[@class="provider" or contains(@class, "provider ")]');
     @singleCheckbox(By.xpath('self::*'), {
         checkedSelector: By.xpath('self::*[contains(@class, "provider-selected")]'),
-        preSet: async function () { debugger; }
     }) public selected: boolean;
     @photo(By.xpath('.//img')) public image: SimplePhoto;
     @label<string>(By.xpath('.//h2')) public title: string;

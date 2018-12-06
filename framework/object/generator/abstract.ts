@@ -72,4 +72,6 @@ export abstract class DataGenerator {
     public abstract stringOrNone(opts?: Options): string;
 
     public abstract integer(opts?: Options): number;
+
+    public abstract url(opts?: Options): string;
 }

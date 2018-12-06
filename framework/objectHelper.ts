@@ -11,7 +11,7 @@ import {
 import { StoreObject, SortedObject } from './object/interfaces';
 import { BrowserWrapper } from './object/wrapper';
 import { DataGenerator, GeneratorBackend, GetGenerator } from './object/generator';
-import { ByWrapper, RestartOpts } from './object/wrapper/browser';
+import { ByWrapper, RestartOpts, WaitForOpts } from './object/wrapper/browser';
 
 export interface HighlightOpts {
     delay?: number;
@@ -334,8 +334,8 @@ export class ObjectHelper {
     }
 
     public async wait<T>(untilCondition: () => T | Promise<T> | ProtractorPromise.Promise<T> | Function,
-        text: string, timeout: number = this.browser.allScriptsTimeout, throwAfterTimeout: boolean = true): Promise<T> {
-        return await this.browser.waitFor(untilCondition, text, timeout, throwAfterTimeout);
+        text: string, opts: WaitForOpts = { timeout: this.browser.allScriptsTimeout, throwAfterTimeout: true }): Promise<T> {
+        return await this.browser.waitFor(untilCondition, text, opts);
     }
 
     private async sendKeysWithDelay(el: ElementWrapper, text: string | number | Array<string>, pauseAfterChar: number = 50): Promise<void> {

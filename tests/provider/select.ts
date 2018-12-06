@@ -8,9 +8,9 @@ import { oh, assert, expect } from "framework/helpers";
 class ProviderTests extends TransactionalTest {
     private selectRandom<T>(array: Array<T>): Array<T> {
         let totalSelect = oh.chance.natural({ maximum: array.length });
-        let copy = Array.from(array);
+        let copy: Array<T> = Array.from(array);
         for (let i = totalSelect; i < array.length; ++i) {
-            copy.splice(oh.chance.natural({ maximum: copy.length }));
+            copy.splice(oh.chance.natural({ maximum: copy.length }), 1);
         }
         return copy;
     }

@@ -2,7 +2,6 @@ import { ElementWrapper, Locator, oh, WindowInfo, By } from '../../helpers';
 import { propertyDescriptor, InitMode, InitOpts, IConstructor, classExtensionDecorator } from './iConstructor';
 import { internal, internalKey, recurseClass } from './shared';
 import stackTrace = require('stack-trace');
-import deasync = require('deasync');
 
 const iframeSymbol: Symbol = Symbol('iframe');
 export function iframe(iframeName: Locator = null) {
@@ -174,8 +173,10 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
                 debugger;
             }
             if (Reflect.getMetadata(internalKey, this, prop)) continue;
-            let fn = (oldMethod) => function (...args) {
+            let fn = (oldMethod) => async function (...args) {
                 oh.setSynchronization(!usesAngular);
+                /*
+                This triggers an ABORT trap!
                 let self = this;
                 let res = deasync(async (callback) => {
                     try {
@@ -187,6 +188,10 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
                         callback(err);
                     }
                 })();
+                 */
+                await this.enterLocalIframeSpace();
+                let res = await oldMethod.apply(this, args);
+                await this.exitLocalIframeSpace();
                 oh.setSynchronization(usesAngular);
                 return res;
             };
