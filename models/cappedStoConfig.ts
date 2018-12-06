@@ -14,8 +14,8 @@ export class CappedStoConfigModel extends IDataModelObject {
     // TODO: Fix this
     public startDate: string = oh.chance.date({ year: oh.chance.natural({ min: moment().year() + 1, max: 5000 }), american: true });
     public endDate: string = oh.chance.date({ year: oh.chance.natural({ min: moment(new Date(this.startDate)).year() + 1, max: 5001 }), american: true });
-    public startTime: string = `${formatNumber(oh.chance.natural({ min: 1, max: 12 }))}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
-    public endTime: string = `${formatNumber(oh.chance.natural({ min: 1, max: 12 }))}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
+    public startTime: string = `${oh.chance.natural({ min: 1, max: 12 })}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
+    public endTime: string = `${oh.chance.natural({ min: 1, max: 12 })}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
     public raiseIn: RaiseIn = oh.chance.pickOneEnum(RaiseIn);
     public hardCap: number = oh.chance.natural({ min: 1 });
     public rate: number = oh.chance.natural({ max: this.hardCap });

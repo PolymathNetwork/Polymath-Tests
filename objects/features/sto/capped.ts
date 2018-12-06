@@ -8,12 +8,12 @@ import { Modal } from "objects/features/general/modal";
 
 @injectable export class CappedStoConfig extends StoConfig implements CappedStoConfigModel {
     protected featureSelector: Locator = By.xpath('.//*[@class="bx--form"][.//*[@name="startTime"]]');
-    @order(2) @inputField<string>(By.xpath('.//*[@id="start"]'), null,
+    @order(2) @inputField<string>(By.xpath('.//input[@id="startDate"]'), null,
         { clickMode: ClickMode.ClickAfterSet, sendEnter: true }) public startDate: string;
-    @order(1) @inputField<string>(By.xpath('.//*[@id="end"]'), null,
+    @order(1) @inputField<string>(By.xpath('.//input[@id="endDate"]'), null,
         { clickMode: ClickMode.ClickAfterSet, sendEnter: true }) public endDate: string;
-    @customValuelessCombobox(By.xpath('.//*[@name="startTime"]')) public startTime: string;
-    @customValuelessCombobox(By.xpath('.//*[@name="endTime"]')) public endTime: string;
+    @customValuelessCombobox(By.xpath('.//*[@name="startTime"]/option')) public startTime: string;
+    @customValuelessCombobox(By.xpath('.//*[@name="endTime"]/option')) public endTime: string;
     @comboBox(By.xpath('.//*[@name="currency"]'), {
         'POLY': RaiseIn.Poly,
         'ETH': RaiseIn.Eth

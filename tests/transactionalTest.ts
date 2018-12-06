@@ -1,17 +1,15 @@
 import { IssuerTestData } from "./issuerTestData";
 import { Modal, PolyModal } from "objects/features/general/modal";
-import { TransactionResult, Status } from "objects/features/general/transaction";
+import { TransactionResult, Status, Transaction } from "objects/features/general/transaction";
 import { AbstractPage } from "framework/object/abstract";
 import { CorePage } from "objects/pages/base";
-import { oh } from "framework/helpers";
 
 export class TransactionalTest {
     constructor(public data: IssuerTestData) { }
     public static async ApproveTransactions(clickFn: () => Promise<Modal>, openModal?: Modal, lookForNext: boolean = true): Promise<AbstractPage> {
         let modal = openModal || await clickFn();
         if (!modal) debugger;
-        let transaction = await modal.next();
-        if (!transaction) debugger;
+        let transaction: Modal | Transaction = modal;
         while (transaction instanceof Modal) {
             if (transaction instanceof PolyModal) {
                 await transaction.handleTransaction();
