@@ -9,11 +9,3 @@ Feature: Select a provider
     Scenario: Select a provider
         Given The issuer selects providers via click
         Then The providers are selected
-
-    Scenario: Select a provider via popup
-        Given The issuer selects a provider via popup
-        Then The providers are selected
-
-    Scenario: Select all providers
-        Given The issuer selects all the providers
-        Then The providers are selected

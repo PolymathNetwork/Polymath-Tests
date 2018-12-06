@@ -86,11 +86,10 @@ export class ElementWrapper extends ElementFinder implements OldMethods<ElementF
         return (!force && this._enabled !== undefined) ? new Promise<boolean>(r => r(this._enabled)) : this.oldMethods.isEnabled();
     }
     public sendKeys(text: any): any {
-        // TODO(@JCM): When using seed 2 in the test case PlacingAd_Smoke, it shows error 'Error: ENAMETOOLONG: name too long'
         // The string to send should be partioned in chunks instead of sending all at once
         this._text = undefined;
         this._attribute = undefined;
-        return this.oldMethods.sendKeys(text);
+        return text instanceof Array ? this.oldMethods.sendKeys.apply(this.oldMethods, text) : this.oldMethods.sendKeys(text);
     }
     public clear() {
         this._text = undefined;

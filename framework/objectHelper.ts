@@ -136,12 +136,12 @@ export class ObjectHelper {
         }
     }
 
-    public async type(selector: Locator | WebElement | ElementWrapper, text: string | number,
+    public async type(selector: Locator | WebElement | ElementWrapper, text: string | number | Array<string>,
         pauseAfterChar?: number, parent?: Locator | WebElement | ElementWrapper): Promise<void> {
-        let element = await this.by(selector, parent);
+        let element: ElementWrapper = await this.by(selector, parent);
         assert(await element.isEnabled(), `Type: Can't write in a disabled attribute`);
         let highlight = TestConfig.instance.protractorConfig.params.highlight;
-        let delay = (pauseAfterChar !== undefined && pauseAfterChar) || (highlight && highlight.delay && highlight.delay / text.toString().length);
+        let delay = (pauseAfterChar !== undefined && pauseAfterChar) || (highlight && highlight.delay && highlight.delay / (text instanceof Array ? text.join('') : text.toString()).length);
         if (highlight) await this.move(element);
         if (delay) {
             await this.sendKeysWithDelay(element, text, delay);
@@ -338,8 +338,8 @@ export class ObjectHelper {
         return await this.browser.waitFor(untilCondition, text, opts);
     }
 
-    private async sendKeysWithDelay(el: ElementWrapper, text: string | number, pauseAfterChar: number = 50): Promise<void> {
-        text = text.toString();
+    private async sendKeysWithDelay(el: ElementWrapper, text: string | number | Array<string>, pauseAfterChar: number = 50): Promise<void> {
+        text = text instanceof Array ? text : text.toString();
         for (let i = 0; i < text.length; i++) {
             await this.browser.sleep(pauseAfterChar * 2);
             await el.sendKeys(text[i]);
@@ -378,6 +378,14 @@ export class ObjectHelper {
         assert(key != null, `Error: Can't store values in a null reference`);
         return key.value !== undefined ? key.value : key.value = await fun();
     }
+
+    public async log(type: LogType = LogType.browser) {
+        return await this.browser.manage().logs().get(LogType[type]);
+    }
+}
+
+export enum LogType {
+    browser
 }
 
 export class Alert {

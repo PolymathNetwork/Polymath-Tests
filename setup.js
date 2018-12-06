@@ -221,21 +221,6 @@ const setup = {
     }
 }
 
-if (argv.params.setup.ganache) {
-    deasync(async function (callback) {
-        try {
-            await setup.ganache(argv.params.setup.ganache);
-            callback(null);
-        } catch (error) {
-            callback(error);
-        }
-    })();
-} else if (argv.params.setup.apps) {
-    setup.all(argv.params.setup.apps);
-} else {
-    throw `Unknown parameter for setup ${JSON.stringify(argv.params.setup)}`;
-}
-
 const kill = () => {
     if (mongo) {
         mongo.closeHandler(0);
@@ -259,6 +244,22 @@ process.on('SIGINT', function () {
 process.on('exit', function () {
     kill();
 });
+
+if (argv.params.setup.ganache) {
+    deasync(async function (callback) {
+        try {
+            await setup.ganache(argv.params.setup.ganache);
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    })();
+} else if (argv.params.setup.apps) {
+    setup.all(argv.params.setup.apps);
+} else {
+    throw `Unknown parameter for setup ${JSON.stringify(argv.params.setup)}`;
+}
+
 module.exports = kill;
 console.log(`Setup complete, started the following processes: ${Object.entries(pids).map(e => e[0] + ': ' + e[1].pid).join(', ')}
 Press Ctrl+C to terminate them.`);

@@ -4,7 +4,7 @@ import * as moment from 'moment/moment';
 import { NumberRange } from '../../helpers';
 
 export class ChanceGenerator extends DataGenerator {
-    private chance: Chance.SeededChance;
+    private chance: Chance.Chance;
     constructor(seed: number = null) {
         super(seed);
         this.chance = new Chance(this.seed);
@@ -124,6 +124,10 @@ export class ChanceGenerator extends DataGenerator {
             minimum: firstVal,
             maximum: this.chance.natural({ min: firstVal + 1, max: opts.max }),
         };
+    }
+
+    public boolOrNone(opts?: Chance.Options): boolean {
+        return this.chance.bool() ? this.chance.bool(opts) : null;
     }
 
     public stringOrNone(opts?: Chance.Options): string {

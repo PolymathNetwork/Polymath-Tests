@@ -96,11 +96,28 @@ export class Metamask extends Extension {
         await page.next();
         await this.exitPage();
     }
+
+    public async setSettings(opts: { privacyMode?: boolean, customRpc?: string }) {
+        await this.navigateToPage();
+        let page = await MetamaskPage.WaitForPage<MetamaskPage>(MetamaskPage).then(p => p.init({ mode: InitMode.OnlyObjects }));
+        let settings = await page.settings.settings();
+        if (opts.privacyMode !== undefined) settings.privacyMode = opts.privacyMode;
+        if (opts.customRpc !== undefined) settings.customRpc = opts.customRpc;
+        await settings.apply();
+        await this.exitPage();
+    }
+
     public async switchNetwork(network: Network = Network.Main) {
         await this.navigateToPage();
         let page = await MetamaskPage.WaitForPage<MetamaskPage>(MetamaskPage).then(p => p.init({ mode: InitMode.OnlyObjects }));
         let local = TestConfig.instance.protractorConfig.localhost;
         let port = process.env.GANACHE_PORT;
+        if (!process.env.DISABLE_PRIVACY_MODE) {
+            let settings = await page.settings.settings();
+            settings.privacyMode = true;
+            await settings.apply();
+            await settings.close();
+        }
         if ((local || port) && network === Network.Localhost) {
             local = local || 'localhost';
             port = port || '8545';

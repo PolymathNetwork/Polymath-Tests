@@ -33,17 +33,24 @@ export abstract class SharedComplianceItem extends IDataModelObject {
 export class ComplianceItem extends SharedComplianceItem {
     public canBuyFromSto: boolean;
     public exemptFromOwnership: boolean;
+    public isAccredited: boolean;
+    public nonAccreditedLimit: number;
     constructor(baseObject?: Object, nullable?: boolean) {
         super(baseObject, nullable);
         baseObject = baseObject || {};
-        this.canBuyFromSto = baseObject['Can Buy From STO'] || true;
-        this.exemptFromOwnership = baseObject['Exempt From % Ownership'] || true;
+        this.canBuyFromSto = baseObject['Can Buy From STO'] || oh.chance.boolOrNone();
+        this.exemptFromOwnership = baseObject['Exempt From % Ownership'] || oh.chance.boolOrNone();
+        this.isAccredited = baseObject['Is Accredited'] || oh.chance.boolOrNone();
+        this.nonAccreditedLimit = baseObject['Non-Accredited Limit'] || oh.chance.natural({ max: 25000 });
     }
     public static async fromCsv(text: string | Object): Promise<ComplianceItem> {
         return SharedComplianceItem.fromCsv.call(ComplianceItem, text);
     }
-    public toCSV(): string {
-        return `${super.toCSV()},${this.canBuyFromSto},${this.exemptFromOwnership}`;
+    public toCSV(opts?: ComplianceOpts): string {
+        return `${super.toCSV()},${this.canBuyFromSto}` +
+            `${!opts.noExemptFromOwnership && (',' + this.exemptFromOwnership)}` +
+            `${!opts.noIsAccredited && (',' + this.isAccredited)}` +
+            `${!opts.noNonAccreditedLimit && (',' + this.nonAccreditedLimit)}`;
     }
     public static fromAddress(address: string): ComplianceItem {
         let item = new ComplianceItem();
@@ -52,6 +59,13 @@ export class ComplianceItem extends SharedComplianceItem {
         item.ethAddress = address;
         return item;
     }
+}
+
+export interface ComplianceOpts {
+    noHeader?: boolean;
+    noExemptFromOwnership?: boolean;
+    noIsAccredited?: boolean;
+    noNonAccreditedLimit?: boolean;
 }
 
 export class ComplianceData extends IDataModelObject {
@@ -69,12 +83,19 @@ export class ComplianceData extends IDataModelObject {
             this.addresses = oh.chance.n(() => new ComplianceItem(), oh.chance.natural({ min: 1, max: 10 }));
         }
     }
-    public toCSV(): string {
-        return this.addresses.map(item => item.toCSV()).join('\n');
+    public toCSV(opts?: ComplianceOpts): string {
+        if (!opts) opts = {};
+        let csv = this.addresses.map(item => item.toCSV(opts));
+        let header = 'Address,Sale Lockup,Purchase Lockup,KYC/AML Expiry,Can Buy From STO';
+        if (!opts.noExemptFromOwnership) header += ',Exempt From % Ownership';
+        if (!opts.noIsAccredited) header += ',Is Accredited';
+        if (!opts.noNonAccreditedLimit) header += ',Non-Accredited Limit';
+        if (!opts.noHeader) csv = [header].concat(csv);
+        return csv.join('\n');
     }
-    public toFile(): string {
+    public toFile(opts?: ComplianceOpts): string {
         let file = tmpFile({ prefix: 'compliance-', postfix: '.csv' });
-        fs.writeFileSync(file, this.toCSV());
+        fs.writeFileSync(file, this.toCSV(opts));
         return file;
     }
 }

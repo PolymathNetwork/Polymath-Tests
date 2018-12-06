@@ -175,6 +175,20 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
             if (Reflect.getMetadata(internalKey, this, prop)) continue;
             let fn = (oldMethod) => async function (...args) {
                 oh.setSynchronization(!usesAngular);
+                /*
+                This triggers an ABORT trap!
+                let self = this;
+                let res = deasync(async (callback) => {
+                    try {
+                        await self.enterLocalIframeSpace();
+                        let res = await oldMethod.apply(self, args);
+                        await self.exitLocalIframeSpace();
+                        callback(null, res);
+                    } catch (err) {
+                        callback(err);
+                    }
+                })();
+                 */
                 await this.enterLocalIframeSpace();
                 let res = await oldMethod.apply(this, args);
                 await this.exitLocalIframeSpace();
@@ -217,6 +231,7 @@ export abstract class IImplementable<I extends InitOpts = InitOpts> extends ICon
                         if (!initialized) debugger;
                         else result.push(initialized);
                     }
+                    opts.multiInstance = true;
                     return result as any as this;
                 }
                 // Workaround the fact that children may get the "parent" element before even it has been initialized

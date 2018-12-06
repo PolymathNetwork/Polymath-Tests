@@ -1,11 +1,6 @@
 import { NumberRange } from '../../helpers';
 
-export interface Options {
-    [id: string]: any;
-    maximum?: number;
-    minimum?: number;
-    length?: number;
-}
+export interface Options { [id: string]: any; }
 export abstract class DataGenerator {
     constructor(public seed: number = null) { }
     // tslint:disable-next-line:max-line-length
@@ -71,6 +66,8 @@ export abstract class DataGenerator {
     public abstract rangeOrNone(opts?: Options): NumberRange;
 
     public abstract range(ops?: Options): NumberRange;
+
+    public abstract boolOrNone(opts?: Options): boolean;
 
     public abstract stringOrNone(opts?: Options): string;
 

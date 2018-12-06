@@ -12,6 +12,7 @@ export abstract class Modal extends AbstractFeature {
     }
     public async confirm(noNext: boolean = false): Promise<Transaction | Modal> {
         await oh.click(By.xpath('.//button[contains(@class, "bx--btn--primary")]'), this.element);
+        await oh.browser.sleep(1);
         if (noNext) return null;
         let page = await Transaction.WaitForPage([Transaction, Modal], false, this.parent) as Modal | Transaction;
         return page;
@@ -26,11 +27,11 @@ export abstract class Modal extends AbstractFeature {
 }
 
 @injectable @forceVisibility export class NormalModal extends Modal {
-    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "bx--modal") and contains(@class, "is-visible")][not(.//*[@class="pui-tx-row"])][not(.//button[contains(text(),"REQUEST") and contains(text(),"POLY")])]');
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "pui-confirm-modal")][.//*[contains(@class,"pui-modal--after-open")]][not(.//button[contains(text(),"REQUEST") and contains(text(),"POLY")])]');
 }
 
 @injectable @forceVisibility export class PolyModal extends Modal {
-    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "bx--modal") and contains(@class, "is-visible")][not(.//*[@class="pui-tx-row"])][.//button[contains(text(),"REQUEST") and contains(text(),"POLY")]]');
+    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "pui-confirm-modal")][.//*[contains(@class,"pui-modal--after-open")]][.//button[contains(text(),"REQUEST") and contains(text(),"POLY")]]');
     public async handleTransaction() {
         let t = await this.next();
         let tr = await t.next() as TransactionResult;

@@ -118,6 +118,15 @@ export abstract class AbstractObject<I extends AbstractObjectInitOpts = Abstract
             let descriptor = propertyDescriptor(this, property);
             if (!descriptor) debugger;
             if (descriptor.value instanceof AbstractObject) await (this[property] as AbstractObject).apply();
+            else if (descriptor.value instanceof Array && (this[property] as Array<any>).findIndex(el => el instanceof AbstractObject) !== -1) {
+                for (let el of this[property]) {
+                    if (!(el instanceof AbstractObject)) {
+                        debugger;
+                        throw `Framework: Mixed arrays are not supported`;
+                    }
+                    await el.apply();
+                }
+            }
             else {
                 let fn: (el: any) => Promise<void> = this[generateName(FnNames.Set, property)];
                 if (fn && (!dirtyOnly || Reflect.getMetadata(dirty, this, property))) {
