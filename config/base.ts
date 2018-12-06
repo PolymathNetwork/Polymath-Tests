@@ -22,6 +22,7 @@ mkdirpSync(reportsDir);
 process.on('uncaughtException', function (err) {
     console.error((err && err.stack) ? err.stack : err);
     debugger;
+    process.exit(1);
 });
 
 class Environment {
