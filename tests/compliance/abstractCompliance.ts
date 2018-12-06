@@ -3,8 +3,9 @@ import { Whitelist } from "objects/pages/withToken/compliance/whitelist";
 import { expect } from "framework/helpers";
 import { WhitelistModal } from "objects/features/whitelist/whitelist";
 import { given, binding } from "cucumber-tsflow";
+import { IssuerTestData } from "tests/issuerTestData";
 
-@binding()
+@binding([IssuerTestData])
 export class AbstractComplianceTest extends TransactionalTest {
     public modal: WhitelistModal;
     public async setWhitelist(setFn: () => Promise<void>) {

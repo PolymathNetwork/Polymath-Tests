@@ -2,11 +2,11 @@ import { AbstractFeature } from "framework/object/abstract";
 import { present, label, LabelOptsMode, singleCheckbox, inputField } from "framework/object/core/decorators";
 import { Locator, By, oh } from "framework/helpers";
 import { Modal } from "objects/features/general/modal";
-import { inject } from "framework/object/core/iConstructor";
+import { inject, injectable } from "framework/object/core/iConstructor";
 import { ProviderFeature } from "./providerFeature";
 import { ApplyProviderModel } from "models/applyProviderModel";
 
-export class ApplyProviderModal extends Modal implements ApplyProviderModel {
+@injectable export class ApplyProviderModal extends Modal implements ApplyProviderModel {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "providers-apply-modal")]');
     @inputField<string>(By.xpath('.//*[@name="companyName"]')) public name: string;
     @inputField<string>(By.xpath('.//*[@name="companyDesc"]')) public description: string;
@@ -21,7 +21,7 @@ export class ApplyProviderModal extends Modal implements ApplyProviderModel {
     }
 }
 
-export class ProviderHolder extends AbstractFeature {
+@injectable export class ProviderHolder extends AbstractFeature {
     public featureSelector: Locator = By.xpath('.//*[@class="tab-content" and not(@hidden)]');
     @present(By.xpath('.//*[contains(@class, "bx--btn--primary") and not(@disabled)]')) public canApply: boolean;
     @label<string>(By.xpath('.//*[@class="pui-h2"]')) public title: string;
@@ -39,7 +39,7 @@ export class ProviderHolder extends AbstractFeature {
     }
 }
 
-export class ProviderNavigation extends AbstractFeature {
+@injectable export class ProviderNavigation extends AbstractFeature {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "bx--tabs__nav-item")]');
     @label<string>(By.xpath('.//div[not(@class)]')) public title: string;
     @label<string>(By.xpath('.//*[@class="bx--tag"]'), /(\d+)/) public applied: number;

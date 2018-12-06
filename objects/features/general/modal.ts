@@ -12,6 +12,7 @@ export abstract class Modal extends AbstractFeature {
     }
     public async confirm(noNext: boolean = false): Promise<Transaction | Modal> {
         await oh.click(By.xpath('.//button[contains(@class, "bx--btn--primary")]'), this.element);
+        await oh.browser.sleep(1);
         if (noNext) return null;
         let page = await Transaction.WaitForPage([Transaction, Modal], false, this.parent) as Modal | Transaction;
         return page;

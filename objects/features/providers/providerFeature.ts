@@ -17,10 +17,13 @@ import { present, photo, label, singleCheckbox } from "framework/object/core/dec
 }
 
 @injectable export class ProviderFeature extends AbstractFeature {
-    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "providers-tab")]');
-    @singleCheckbox(By.xpath('self::*'), { checkedSelector: By.xpath('self::*[contains(@class, "provider-selected")]') }) public selected: boolean;
+    protected featureSelector: Locator = By.xpath('.//*[@class="provider" or contains(@class, "provider ")]');
+    @singleCheckbox(By.xpath('self::*'), {
+        checkedSelector: By.xpath('self::*[contains(@class, "provider-selected")]'),
+        preSet: async function () { debugger; }
+    }) public selected: boolean;
     @photo(By.xpath('.//img')) public image: SimplePhoto;
-    @label<string>(By.xpath('.//*[@class="pui-h3"]')) public title: string;
+    @label<string>(By.xpath('.//h2')) public title: string;
     @label<string>(By.xpath('.//*[@class="provider-description"]')) public description: string;
     public moreInfo(lookForNext: boolean = true): Promise<ProviderModal> {
         return oh.click(By.xpath('.//span[@role="button"]'), this.element).then(() => lookForNext && ProviderModal.WaitForPage<ProviderModal>(ProviderModal));

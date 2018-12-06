@@ -9,4 +9,4 @@ Feature: Whitelist with non-accredited empty field
 
     Scenario: Non accredited investor with an empty field
         Given The issuer uploads a whitelist without non-accredited fields
-        Then The issuer downloads the same investors
+        Then The issuer gets an error stating that the file is invalid

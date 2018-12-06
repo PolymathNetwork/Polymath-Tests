@@ -1,13 +1,10 @@
-import { TransactionalTest } from "tests/transactionalTest";
 import { binding, given } from "cucumber-tsflow";
-import { Whitelist } from "objects/pages/withToken/compliance/whitelist";
-import { expect, oh } from "framework/helpers";
-import { ComplianceItem } from "models/whitelistModel";
-import { WhitelistModal } from "objects/features/whitelist/whitelist";
+import { oh } from "framework/helpers";
 import { Modal } from "objects/features/general/modal";
 import { AbstractComplianceTest } from "../abstractCompliance";
+import { IssuerTestData } from "tests/issuerTestData";
 
-@binding()
+@binding([IssuerTestData])
 class ComplianceInvalidDateTests extends AbstractComplianceTest {
     @given(/The issuer uploads a whitelist with an (invalid|empty) (KYC|Sell|Buy) date/)
     public async whitelistWithAccredited(action: string, field: string) {
@@ -23,7 +20,6 @@ class ComplianceInvalidDateTests extends AbstractComplianceTest {
             this.modal.file = this.data.whitelist.data.toFile();
         });
         if (action !== 'invalid') {
-            await this.modal.next();
             await this.approveTransactions(() => this.modal.next() as Promise<Modal>);
         }
     }

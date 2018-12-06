@@ -20,7 +20,7 @@ export let oh: ObjectHelper = new ObjectHelper(() => helperBrowsers);
 export type Locator = WebdriverBy;
 export const Locator = {
     ...WebdriverBy, instanceOf: loc =>
-        loc instanceof WebdriverBy || loc instanceof ProtractorBy || (loc['using'] && loc['value'])
+        loc instanceof WebdriverBy || loc instanceof ProtractorBy || (loc && loc['using'] && loc['value'])
 };
 export let By: ByWrapper;
 export let by: ByWrapper;

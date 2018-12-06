@@ -8,6 +8,5 @@ Feature: Create a token while disabling the privacy mode
 
     Scenario: Create a Token with a disabled privacy mode
         Given The issuer disables the privacy mode
-        And The issuer verifies the identity
         Given The issuer creates a token
         Then The issuer has the token created

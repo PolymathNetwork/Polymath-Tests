@@ -67,6 +67,8 @@ export abstract class DataGenerator {
 
     public abstract range(ops?: Options): NumberRange;
 
+    public abstract boolOrNone(opts?: Options): boolean;
+
     public abstract stringOrNone(opts?: Options): string;
 
     public abstract integer(opts?: Options): number;

@@ -5,18 +5,11 @@ import { WhitelistModel } from "models/whitelistModel";
 import { Modal } from "objects/features/general/modal";
 import { TransactionalTest } from "tests/transactionalTest";
 import { DownloadedFile } from "config/download/abstract";
-import { IssuerPage } from "objects/pages/base";
 
 export class WhitelistModal extends Modal {
     protected featureSelector: Locator = By.xpath('.//*[contains(@class, "whitelist-import-modal") and contains(@class, "is-visible")]');
-    @present(By.xpath('')) public hasError: boolean;
+    @present(By.xpath('.//button[@type="submit" and @disabled]')) public hasError: boolean;
     @inputField<string>(By.xpath('.//input[@type="file"]')) public file: string;
-    public async cancel(lookForNext: boolean = true): Promise<IssuerPage> {
-        return oh.click(By.xpath('.//button[contains(@class, "cancel-btn") and not(@for)]'), this.element).then(() => lookForNext && IssuerPage.WaitForPage(IssuerPage) as Promise<IssuerPage>);
-    }
-    public upload(file): Promise<void> {
-        return oh.type(By.xpath('.//*[@id="id3"]'), file);
-    }
 }
 
 export class WhitelistFeature extends AbstractFeature implements WhitelistModel {

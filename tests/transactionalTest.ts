@@ -11,7 +11,6 @@ export class TransactionalTest {
         let modal = openModal || await clickFn();
         if (!modal) debugger;
         let transaction = await modal.next();
-        await oh.browser.sleep(1);
         if (!transaction) debugger;
         while (transaction instanceof Modal) {
             if (transaction instanceof PolyModal) {

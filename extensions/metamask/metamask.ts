@@ -98,6 +98,7 @@ export class Metamask extends Extension {
     }
 
     public async setSettings(opts: { privacyMode?: boolean, customRpc?: string }) {
+        await this.navigateToPage();
         let page = await MetamaskPage.WaitForPage<MetamaskPage>(MetamaskPage).then(p => p.init({ mode: InitMode.OnlyObjects }));
         let settings = await page.settings.settings();
         if (opts.privacyMode !== undefined) settings.privacyMode = opts.privacyMode;

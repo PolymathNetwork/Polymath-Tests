@@ -17,7 +17,7 @@ import { CountdownFeature } from "objects/features/token/countdown";
                 return selected;
             }
         }) public tokenDivisibility: DivisibleIndivisible;
-    @order(2) @singleCheckbox(By.xpath('.//*[@for="limitInvestors"]'), { checkedSelector: By.xpath('//*[@id="investorsNumber"]') }) public allowMaxInvestors: boolean;
+    @order(2) @singleCheckbox(By.xpath('.//*[@for="limitInvestors" and @class="bx--toggle__label"]'), { checkedSelector: By.xpath('//*[@id="investorsNumber"]') }) public allowMaxInvestors: boolean;
     @order(1) @optional @inputField<number>(By.xpath('.//*[@id="investorsNumber"]')) public maxInvestors?: number;
     @inputField<string>(By.xpath('.//*[@id="details"]')) public additionalTokenInformation: string;
 

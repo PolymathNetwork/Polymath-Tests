@@ -254,6 +254,11 @@ export = (opts = { params: {} }) => {
                             'prompt_for_download': false,
                             'default_directory': dlmgr.downloadPath(),
                             'directory_upgrade': true
+                        },
+                        browser: {
+                            set_download_behavior: {
+                                behavior: 'allow'
+                            }
                         }
                     }
                 }
@@ -283,6 +288,11 @@ export = (opts = { params: {} }) => {
                             'prompt_for_download': false,
                             'default_directory': dlmgr.downloadPath(),
                             'directory_upgrade': true
+                        },
+                        browser: {
+                            set_download_behavior: {
+                                behavior: 'allow'
+                            }
                         }
                     }
                 }

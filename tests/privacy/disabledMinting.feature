@@ -9,6 +9,5 @@ Feature: Mint test
 
     Scenario: Mint a Token positive path with a disabled privacy mode (in-between)
         Given The issuer disables the privacy mode
-        And The issuer verifies the identity
         Given The issuer adds minting data
         Then The issuer mints new investors

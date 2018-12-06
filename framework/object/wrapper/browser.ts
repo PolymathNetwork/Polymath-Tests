@@ -769,7 +769,7 @@ export class ChromeWrapper extends BrowserWrapper {
     // Can't maximize in Headless
     public async maximize(): Promise<void> {
         if (!this.headless) {
-            await super.maximize(); // Doesn't work anymore
+            //await super.maximize(); // Doesn't work anymore
             await this.driver.fullscreen();
         }
         else return this.setSize({ width: ChromeWrapper.MAX_WIDTH, height: ChromeWrapper.MAX_HEIGHT });
