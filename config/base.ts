@@ -85,12 +85,15 @@ const environments = function (): { [k: string]: RunnerConfig } {
         },
         beta: {
             baseUrl: `http://betastudio.polymath.network`,
+            apps: {
+                investor: ``,
+            },
             emailConfig: emailConfig
         },
         production: {
             baseUrl: 'https://tokenstudio.polymath.network',
             apps: {
-                investor: `http://`, // TODO: Fill this in
+                investor: ``,
             },
             emailConfig: emailConfig
         }

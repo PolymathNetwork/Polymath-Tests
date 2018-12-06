@@ -3,7 +3,6 @@ import { Modal, PolyModal } from "objects/features/general/modal";
 import { TransactionResult, Status } from "objects/features/general/transaction";
 import { AbstractPage } from "framework/object/abstract";
 import { CorePage } from "objects/pages/base";
-import { oh } from "framework/helpers";
 
 export class TransactionalTest {
     constructor(public data: IssuerTestData) { }
