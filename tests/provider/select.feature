@@ -8,4 +8,5 @@ Feature: Select a provider
 
     Scenario: Select a provider
         Given The issuer selects providers via click
-        Then The providers are selected
+        When The providers are selected
+        Then The issuer sends his information to the providers

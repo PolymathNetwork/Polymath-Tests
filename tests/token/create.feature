@@ -7,5 +7,6 @@ Feature: Create a token test
         And A token is reserved
 
     Scenario: Create a Token positive path
-        Given The issuer creates a token
+        Given The issuer goes to the Create a Token page
+        When The issuer creates a token
         Then The issuer has the token created

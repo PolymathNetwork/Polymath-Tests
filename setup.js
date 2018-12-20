@@ -80,9 +80,9 @@ const setup = {
             process.env.NO_BUILD = true;
             baseOpts = await setup.apps(true);
         }
-        let folder = resolve(baseOpts, 'packages', 'polymath-shared');
+        let folder = resolve(baseOpts, 'packages', 'new-polymath-scripts');
         if (!existsSync(folder))
-            throw `Can't find polymath-shared`;
+            throw `Can't find new-polymath-scripts`;
         let path = setNodeVersion();
         if (!process.env.NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
@@ -97,6 +97,9 @@ const setup = {
                 console.log(data);
                 if (file.write != oldWrite) {
                     if (data.indexOf('Listening on') !== -1) {
+                        console.log(`Ganache is listening on ${data}, waiting for init script to finish...`);
+                    }
+                    if (data.indexOf('child process exited with code') !== -1) {
                         file.write = oldWrite;
                         r();
                     }
@@ -229,7 +232,11 @@ const kill = () => {
     if (!pids) return;
     console.log('Killing processes...');
     for (let process in pids)
-        try { deasync(r => treeKill(pids[process].pid, 'SIGKILL', r))(); } catch (error) { }
+        try {
+            deasync(r => treeKill(pids[process].pid, 'SIGKILL', r))();
+        } catch (error) {
+            console.log(`Error while terminating process ${process}: ${error}`);
+        }
     pids = null;
     removeSync(pidsFile);
     if (process.env.PRINT_LOGS) for (let log in logs) {

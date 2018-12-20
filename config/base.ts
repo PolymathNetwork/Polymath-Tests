@@ -436,7 +436,7 @@ export = (opts = { params: {} }) => {
         console.error(`An error ocurred in the configuration file, exiting.`);
         console.error(error);
         debugger;
-        if (error) process.exit(1);
+        process.kill(process.pid, 9);
     }
 }
 
