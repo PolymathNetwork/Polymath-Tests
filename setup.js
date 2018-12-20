@@ -233,12 +233,13 @@ const kill = () => {
     }
     if (!pids) return;
     console.log('Killing processes...');
-    for (let process in pids)
+    for (let proc in pids) {
         try {
-            deasync(r => treeKill(pids[process].pid, 'SIGKILL', r))();
+            process.kill(pids[proc].pid, 'SIGKILL');
         } catch (error) {
-            console.log(`Error while terminating process ${process}: ${error}`);
+            console.log(`Error while terminating process ${proc}: ${error}`);
         }
+    }
     pids = null;
     removeSync(pidsFile);
     if (process.env.TEST_PRINT_LOGS) for (let log in logs) {
