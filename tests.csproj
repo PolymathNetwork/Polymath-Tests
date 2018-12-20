@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+    <TargetFramework>netstandard1.5</TargetFramework>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -15,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreProtractor.TestAdapter" Version="1.0.*" />
+    <PackageReference Include="CoreProtractor.TestAdapter" Version="1.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
   </ItemGroup>
 

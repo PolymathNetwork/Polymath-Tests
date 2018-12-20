@@ -29,7 +29,7 @@ The following environment variables are required for the tests to work:
 The following are required for the email-related tests to work:
 
 - EMAIL_USER: Your email user
-- EMAIL_PASSWORD=: Your email password (you need to activate the set your account to allow weak security applications) or an application password
+- EMAIL_PASSWORD: Your email password (you need to activate the set your account to allow weak security applications) or an application password
 
 Supported domains are gmail.com and outlook.com.
 

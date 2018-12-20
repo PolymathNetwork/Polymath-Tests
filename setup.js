@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { join, resolve } = require('path');
+const { resolve } = require('path');
 const { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream } = require('fs-extra');
 const { argv } = require('yargs');
 const { execSync, exec } = require('child_process');
@@ -13,8 +13,8 @@ if (!argv.params || !argv.params.setup || !(argv.params.setup === true || argv.p
 }
 
 let currentDir = __dirname;
-let checkoutDir = process.env.CHECKOUT_DIR || join(__dirname, 'git-checkout');
-let pidsFile = join(checkoutDir, 'pids.pid');
+let checkoutDir = process.env.CHECKOUT_DIR || resolve(__dirname, 'git-checkout');
+let pidsFile = resolve(checkoutDir, 'pids.pid');
 console.log('Performing cleanup...');
 if (existsSync(pidsFile)) {
     for (let p of readFileSync(pidsFile, 'utf8').split('\n')) {
@@ -25,7 +25,7 @@ if (existsSync(pidsFile)) {
 if (process.env.COVERAGE !== false) process.env.COVERAGE = true;
 if (!process.env.NO_DELETE_ENV) removeSync(checkoutDir);
 mkdirpSync(checkoutDir);
-let logDir = process.env.LOG_DIR || join(currentDir, 'logs');
+let logDir = process.env.LOG_DIR || resolve(currentDir, 'logs');
 mkdirpSync(logDir);
 
 let sources = {
@@ -35,10 +35,10 @@ let sources = {
 };
 
 let logs = {
-    issuer: join(logDir, "issuer.log"),
-    investor: join(logDir, "investor.log"),
-    offchain: join(logDir, "offchain.log"),
-    ganache: join(logDir, "ganache.log"),
+    issuer: resolve(logDir, "issuer.log"),
+    investor: resolve(logDir, "investor.log"),
+    offchain: resolve(logDir, "offchain.log"),
+    ganache: resolve(logDir, "ganache.log"),
 };
 
 let pids = {};
@@ -48,7 +48,7 @@ let charSep = process.platform === "win32" ? ';' : ':';
 const setNodeVersion = () => {
     let path = process.env.PATH.replace(/[:;]?[^:;]*node_modules[^:;]*/g, '');
     if (path.endsWith(charSep)) path = path.substr(0, path.length - 1);
-    path = `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${join(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
+    path = `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${resolve(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
     console.log(`Using path: ${path}`);
     return path;
 }
@@ -80,13 +80,13 @@ const setup = {
             process.env.NO_BUILD = true;
             baseOpts = await setup.apps(true);
         }
-        let folder = join(baseOpts, 'packages', 'polymath-shared');
+        let folder = resolve(baseOpts, 'packages', 'new-polymath-scripts');
         if (!existsSync(folder))
-            throw `Can't find polymath-shared`;
+            throw `Can't find new-polymath-scripts`;
         let path = setNodeVersion();
-        if (!process.env.NO_STARTUP) execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-        path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
-        path = `${join(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
+        if (!process.env.NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
+        path = `${resolve(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
         console.log(`Using path: ${path}`);
         let pid = exec(`yarn local-blockchain:start`, { cwd: folder, env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         let file = createWriteStream(logs.ganache);
@@ -97,6 +97,9 @@ const setup = {
                 console.log(data);
                 if (file.write != oldWrite) {
                     if (data.indexOf('Listening on') !== -1) {
+                        console.log(`Ganache is listening on ${data}, waiting for init script to finish...`);
+                    }
+                    if (data.indexOf('child process exited with code') !== -1) {
                         file.write = oldWrite;
                         r();
                     }
@@ -118,8 +121,8 @@ const setup = {
         // TODO: Reset offchain on test end
         let folder = `${baseOpts}/packages/polymath-offchain`;
         let path = setNodeVersion();
-        process.env.MONGO_DIRECTORY = join(__dirname, 'mongo');
-        let db = join(checkoutDir, 'mongo');
+        process.env.MONGO_DIRECTORY = resolve(__dirname, 'mongo');
+        let db = resolve(checkoutDir, 'mongo');
         mkdirpSync(db);
         let mongodHelper = new MongodHelper([
             '--port', "27017",
@@ -131,9 +134,9 @@ const setup = {
         }, (e) => {
             console.log('error starting mongodb', e);
         });
-        if (!process.env.NO_STARTUP) execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-        path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
-        path = `${join(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
+        if (!process.env.NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
+        path = `${resolve(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
         console.log(`Using path: ${path}`);
         let pid = exec(`yarn start`, { cwd: folder, env: { ...process.env, PATH: path, PORT: 3001, NODE_ENV: 'development' } });
         let file = createWriteStream(logs.offchain);
@@ -181,7 +184,7 @@ const setup = {
         console.log(`Investor started with pid ${pid.pid}`);
     },
     apps: async function (baseOpts) {
-        let folder = join(checkoutDir, 'apps');
+        let folder = resolve(checkoutDir, 'apps');
         if (baseOpts === true) await this.git(sources.apps, folder);
         else folder = baseOpts;
         folder = resolve(folder);
@@ -194,11 +197,11 @@ const setup = {
             process.env.REACT_APP_DEPLOYMENT_STAGE = `local`;
         }
         process.env.REACT_APP_NETWORK_LOCAL_WS = `ws://${process.env.LOCALHOST}:8545`;
-        if (!process.env.NO_STARTUP && existsSync(join(folder, 'package.json'))) {
+        if (!process.env.NO_STARTUP && existsSync(resolve(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = setNodeVersion();
-            execSync('yarn', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-            path = `${join(folder, 'node_modules', '.bin')}${charSep}${path}`;
+            execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
             // This should be removed in the near future
             //process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:8545`;
             if (!process.env.NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
@@ -229,7 +232,11 @@ const kill = () => {
     if (!pids) return;
     console.log('Killing processes...');
     for (let process in pids)
-        try { deasync(r => treeKill(pids[process].pid, 'SIGKILL', r))(); } catch (error) { }
+        try {
+            deasync(r => treeKill(pids[process].pid, 'SIGKILL', r))();
+        } catch (error) {
+            console.log(`Error while terminating process ${process}: ${error}`);
+        }
     pids = null;
     removeSync(pidsFile);
     if (process.env.PRINT_LOGS) for (let log in logs) {
@@ -240,6 +247,7 @@ const kill = () => {
 process.on('SIGINT', function () {
     console.log("Caught interrupt signal, exiting...");
     kill();
+    process.exit(0);
 });
 process.on('exit', function () {
     kill();

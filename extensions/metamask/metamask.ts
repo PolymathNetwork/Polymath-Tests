@@ -132,12 +132,13 @@ export class Metamask extends Extension {
     // TODO: Add changing an account
     // TODO: Make sure to switch to the original page after interacting with metamask
     // TODO: Refresh the page multiple times if the transaction is not appearing still
-    public async confirmTransaction(opts?: { gasLimit?: number, gas?: number }) {
+    public async confirmTransaction(opts?: { gasLimit?: number, gas?: number, cancel?: boolean }) {
         await this.navigateToPage();
         let page = await Transaction.WaitForPage<Transaction>(Transaction, { refreshOnNotFound: true });
         await Transaction.RemoveCss();
-        if (opts) await page.fill(opts as any, false);
-        await page.next();
+        if (opts && (opts.gas || opts.gasLimit)) await page.fill(opts as any, false);
+        if (opts && opts.cancel) await page.cancel();
+        else await page.next();
         await this.exitPage();
     }
 

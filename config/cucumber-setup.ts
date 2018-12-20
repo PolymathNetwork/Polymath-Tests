@@ -13,7 +13,8 @@ const debugMode = process.env.IS_DEBUG;
 process.on('uncaughtException', function (err) {
     console.error((err && err.stack) ? err.stack : err);
     debugger;
-    if (err) throw err;
+    if (err) process.exit(1);
+    // TODO : Find out how to mark the current test case as failed instead
 });
 
 // For process.exit file removal, when having a lot of files

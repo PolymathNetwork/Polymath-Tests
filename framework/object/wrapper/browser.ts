@@ -336,7 +336,7 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
                 callback();
             })();
         }
-        this._position = this._caps = this._size = this._processedConfig = null;
+        this._position = this._size = null;
     }
 
     protected _caps: Capabilities;
@@ -424,15 +424,19 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
         return fn();
     }
 
-    public async present(selector: Locator | ElementWrapper, parent?: Locator | ElementWrapper): Promise<boolean> {
+    public async present(selector: Locator | ElementWrapper, parent?: Locator | ElementWrapper, fromPresent: number = 9): Promise<boolean> {
         try {
             if (!selector) return false;
             selector = (selector instanceof ElementFinder ? selector : (await this.by(selector, parent, false)));
             return await (selector as ElementFinder).isPresent();
         } catch (err) {
             if (err.name === "NoSuchWindowError") {
+                if (fromPresent++ > 10) {
+                    console.error(`We couldn't get the window 10 times, did you close it?`);
+                    throw err;
+                }
                 await this.switchToFrame(await this.currentFrame());
-                return this.present(selector, parent);
+                return this.present(selector, parent, fromPresent);
             }
             // This 'catch' is not a safeguard, it often means that the locator is invalid
             let errorSelector = selector;

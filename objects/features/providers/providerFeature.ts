@@ -21,6 +21,7 @@ import { present, photo, label, singleCheckbox } from "framework/object/core/dec
     @singleCheckbox(By.xpath('self::*'), {
         checkedSelector: By.xpath('self::*[contains(@class, "provider-selected")]'),
     }) public selected: boolean;
+    @present(By.xpath('self::*[contains(@class, "provider-applied")]')) public applied: boolean;
     @photo(By.xpath('.//img')) public image: SimplePhoto;
     @label<string>(By.xpath('.//h2')) public title: string;
     @label<string>(By.xpath('.//*[@class="provider-description"]')) public description: string;

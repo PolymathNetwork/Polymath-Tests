@@ -7,7 +7,7 @@ Feature: Compliance test
         And A token is reserved
         And A token is created
         And The issuer skips minting
-        And Capped STO launched
+    #And Capped STO launched # tbd: implement support for the datepicker
 
     Scenario: Modify whitelist positive path
         Given The issuer changes ownership settings
