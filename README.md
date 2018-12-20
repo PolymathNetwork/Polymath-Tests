@@ -22,14 +22,14 @@ $ npm test
 
 The following environment variables are required for the tests to work:
 
-- METAMASK_SECRET: Your Metamask secret
-- METAMASK_PASSWORD: Your Metamask password
-- METAMASK_ACCOUNT_NUMBER: Optional. Indicates which account number from Metamask to use
+- TEST_MM_SECRET: Your Metamask secret
+- TEST_MM_PASSWORD: Your Metamask password
+- TEST_MM_ACCOUNT_NUMBER: Optional. Indicates which account number from Metamask to use
 
 The following are required for the email-related tests to work:
 
-- EMAIL_USER: Your email user
-- EMAIL_PASSWORD: Your email password (you need to activate the set your account to allow weak security applications) or an application password
+- TEST_EMAIL_USER: Your email user
+- TEST_EMAIL_PASSWORD: Your email password (you need to activate the set your account to allow weak security applications) or an application password
 
 Supported domains are gmail.com and outlook.com.
 

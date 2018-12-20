@@ -56,18 +56,7 @@ const isChildOf = (child, parent) => {
     return (!!relative && relative.split(path.sep)[0] !== '..' && relative !== child) ? relative : false;
 }
 
-const envVars = ['METAMASK_NETWORK', 'METAMASK_SECRET', 'METAMASK_ACCOUNT_NUMBER',
-    // Tests config
-    'EMAIL_USER', 'EMAIL_PASSWORD', 'CBT_KEY', 'CBT_USER', 'FAIL_LOG', 'UPLOAD_PROVIDERS',
-    'GANACHE_PORT', 'BRANCH', 'EXTRA_PATH', 'SKIP_OFFCHAIN', 'PRINT_LOGS',
-    'REACT_APP_NETWORK_KOVAN', 'REACT_APP_NETWORK_MAIN', 'SENDGRID_API_KEY',
-    // DIRS
-    'TMP_DIR', 'REPORTS_DIR', 'LOG_DIR', 'CHECKOUT_DIR', 'NO_DELETE_ENV', 'NO_STARTUP',
-    // Browser config
-    'BROWSER', 'MONGODB_URI', 'SPECS', 'TAGS', 'EXTENSIONS', 'NO_BUILD',
-    'ENV', 'SEED', 'BSBROWSER', 'LOCALHOST']
-fs.writeFileSync('.env.docker', envVars.map(v => process.env[v] ? `export ${v}=${process.env[v]}` : '').filter(e => e).join('\n') || "");
-
+require('./envDump');
 const dockerFolder = 'docker-content';
 if (!fs.existsSync(dockerFolder)) fs.mkdirSync(dockerFolder);
 const map = [];
@@ -109,7 +98,7 @@ if (!process.env.NO_LAUNCH_DOCKER) {
 let failed = false;
 try {
     console.log('Docker Launcher: Launching tests...');
-    execSync(`docker exec test_run bash -c "source .env.docker && yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
+    execSync(`docker exec test_run bash -c "yarn install && yarn test ${newArgv.join(' ')}"`, { stdio: 'inherit' });
 } catch (error) {
     failed = error;
     console.warn('Docker Launcher: Error captured, restoring files...');

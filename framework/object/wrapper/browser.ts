@@ -224,12 +224,10 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
     }
 
     public downloadManager: DownloadManager;
-    public static create(browser: ProtractorBrowser) {
+    public static async create(browser: ProtractorBrowser): Promise<BrowserWrapper> {
         // Parse own constructor and find out locally implemented functions
-        let caps: Capabilities = deasync(async callback =>
-            callback(null, await browser.driver.getCapabilities()))(),
-            config: RunnerConfig = deasync(async callback =>
-                callback(null, await browser.getProcessedConfig()))(),
+        let caps: Capabilities = await browser.driver.getCapabilities(),
+            config: RunnerConfig = await browser.getProcessedConfig(),
             // 'os' for BrowserStack, 'platformName' for the Android emulator, 'platform' for Desktop
             created: BrowserWrapper, os: string = caps.get('os') || caps.get('platformName') || caps.get('platform');
         browser.ignoreSynchronization = true; // Ignore Angular by default, objects will enable it on-demand
@@ -243,7 +241,7 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
             default:
                 let found: PuppeteerHandle;
                 if (caps.get('browserName') === 'chrome' && !config.browserstackUser) {
-                    if (PuppeteerHandle.any && (found = deasync(async cb => cb(null, await PuppeteerHandle.find(browser)))())) {
+                    if (PuppeteerHandle.any && (found = await PuppeteerHandle.find(browser))) {
                         created = new PuppeteerWrapper(browser, found);
                     } else created = new ChromeWrapper(browser);
                 } else created = new BrowserWrapper(browser);
@@ -263,8 +261,17 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
             return element;
         })(); // Manually replace this one
         browser.ignoreSynchronization = true; // Ignore Angular by default, objects will enable it on-demand
-        deasync(callback => (browser as BrowserWrapper).setup(config).then(() => callback()))();
+        await (browser as BrowserWrapper).setup(config);
         return browser as BrowserWrapper;
+    }
+    public static createSync(browser: ProtractorBrowser) {
+        return deasync(async callback => {
+            try {
+                callback(null, await BrowserWrapper.create(browser));
+            } catch (error) {
+                callback(error)
+            }
+        })();
     }
 
     public $ = (query: string): ElementFinder => {
@@ -398,11 +405,18 @@ export class BrowserWrapper extends ProtractorBrowser implements OldMethods<Prot
             let ignoreSynchronization = this.ignoreSynchronization;
             let position = await this.getPosition();
             let size = await this.getSize();
-            let cookies;
+            let cookies: IWebDriverOptionsCookie[];
             if (restartOpts.CopyCookies) {
                 cookies = await this.manage().getCookies();
             }
-            let newBrowser = BrowserWrapper.create(await this.oldMethods.restart());
+            let restarted = await this.oldMethods.restart();
+            /**
+             * ! If we need to install extensions, then the browser is only 'ready'
+             * ! whenever all the extensions have finished installing. This means we
+             * ! need to wait an unknown amount of time before interacting with it
+             */
+            await this.sleep(5);
+            let newBrowser = await BrowserWrapper.create(restarted);
             newBrowser.events = this.events;
             newBrowser._caps = this._caps;
             newBrowser._processedConfig = this._processedConfig;
