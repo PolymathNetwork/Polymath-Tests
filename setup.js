@@ -32,13 +32,10 @@ mkdirpSync(logDir);
 let findAndKill = port => {
     deasync(async callback => {
         let proc = await findProcess('port', port);
-        for (let p of proc)
-            await new Promise((r, e) => {
-                treeKill(p.pid, 'SIGKILL', err => {
-                    if (err) console.log(`Error while killing ${p}: ${err}`);
-                    r();
-                })
-            });
+        for (let p of proc) {
+            console.log(`Killing process '${p.cmd}' as it's using port ${port}`);
+            process.kill(p.pid, 'SIGKILL');
+        }
         callback();
     })();
 }
