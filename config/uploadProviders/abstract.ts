@@ -11,7 +11,7 @@ export abstract class UploadProvider {
     public static async init(): Promise<void> {
         let providers: Object;
         // Some providers may have multiline strings
-        eval(`providers = ${(process.env.UPLOAD_PROVIDERS || '{}')}`);
+        eval(`providers = ${(process.env.TEST_UPLOAD_PROVIDERS || '{}')}`);
         for (let provider in providers) {
             let reg = this.registeredProviders[provider];
             if (reg) {

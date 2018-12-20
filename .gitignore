@@ -1,7 +1,7 @@
 node_modules
 package-lock.json
 polymath2.png
-.env
+.env*
 .DS_Store
 .todo
 *.log

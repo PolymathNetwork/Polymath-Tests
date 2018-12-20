@@ -33,7 +33,7 @@ export class ObjectHelper {
     private init(browsers: ProtractorBrowser[] = this.initFn()) {
         if (!browsers) return;
         this.hasInit = true;
-        this.triggeredBrowsers = browsers.map(BrowserWrapper.create);
+        this.triggeredBrowsers = browsers.map(BrowserWrapper.createSync);
         this.browser = this.triggeredBrowsers.find(browser => !browser.helper);
         this.chance = new (GetGenerator(GeneratorBackend.Chance))(this.browser.params && this.browser.params.generatorSeed);
         this.alert = new Alert(this);

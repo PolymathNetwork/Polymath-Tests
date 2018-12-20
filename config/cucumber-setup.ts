@@ -50,15 +50,15 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
     if (first) first = false;
     else await oh.restart();
     await oh.browser.maximize();
-    let secret = process.env.METAMASK_SECRET;
-    if (!secret) throw `Missing metamask secret! You need to add the environment variable 'METAMASK_SECRET' for the tests to work`;
+    let secret = process.env.TEST_MM_SECRET;
+    if (!secret) throw `Missing metamask secret! You need to add the environment variable 'TEST_MM_SECRET' for the tests to work`;
     console.log('DEBUG: Importing metamask account');
     await Metamask.instance.importAccount(secret);
     console.log('DEBUG: Switching network');
-    await Metamask.instance.switchNetwork(Network[find(Network, process.env.METAMASK_NETWORK)] || Network.Kovan);
+    await Metamask.instance.switchNetwork(Network[find(Network, process.env.TEST_MM_NETWORK)] || Network.Kovan);
     console.log('DEBUG: Switching account');
-    if (process.env.METAMASK_ACCOUNT_NUMBER)
-        for (let i = 1; i < parseInt(process.env.METAMASK_ACCOUNT_NUMBER); ++i)
+    if (process.env.TEST_MM_ACCOUNT_NUMBER)
+        for (let i = 1; i < parseInt(process.env.TEST_MM_ACCOUNT_NUMBER); ++i)
             await Metamask.instance.switchAccount();
     let info = await Metamask.instance.accountInfo();
     console.log(`INFO: Using '${info.name}' (${info.ethAddress}) with ${info.ethAmount} ETH`);
@@ -81,7 +81,7 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
 After(async function (this: World, scenario: HookScenarioResult) {
     let world = this;
     const report = async function () {
-        switch (process.env.FAIL_LOG) {
+        switch (process.env.TEST_FAIL_LOG) {
             default:
             case 'image':
                 let base64 = await oh.browser.takeScreenshot();

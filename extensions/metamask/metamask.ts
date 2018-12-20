@@ -111,8 +111,8 @@ export class Metamask extends Extension {
         await this.navigateToPage();
         let page = await MetamaskPage.WaitForPage<MetamaskPage>(MetamaskPage).then(p => p.init({ mode: InitMode.OnlyObjects }));
         let local = TestConfig.instance.protractorConfig.localhost;
-        let port = process.env.GANACHE_PORT;
-        if (!process.env.DISABLE_PRIVACY_MODE) {
+        let port = process.env.TEST_GANACHE_PORT;
+        if (!process.env.TEST_DISABLE_PRIVACY_MODE) {
             let settings = await page.settings.settings();
             settings.privacyMode = true;
             await settings.apply();
