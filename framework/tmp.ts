@@ -2,7 +2,7 @@ import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-let baseDir = process.env.TMP_DIR || null;
+let baseDir = process.env.TEST_TMP_DIR || null;
 if (baseDir && !path.isAbsolute(baseDir)) baseDir = path.join(__dirname, '..', baseDir);
 
 if (baseDir) {

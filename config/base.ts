@@ -11,11 +11,11 @@ import { join } from 'path';
 import { UploadProvider } from './uploadProviders';
 import { mkdirpSync, moveSync } from 'fs-extra';
 import { Config } from 'imap';
-let localhost = process.env.LOCALHOST || 'localhost';
+let localhost = process.env.TEST_LOCALHOST || 'localhost';
 const debugMode = process.env.IS_DEBUG;
-const reportsDir = process.env.REPORTS_DIR || join(__dirname, '..', 'reports');
-process.env.LOG_DIR = join(reportsDir, 'logs');
-if (!process.env.SELENIUM_DIR) process.env.SELENIUM_DIR = join(__dirname, '..', '.webdriver');
+const reportsDir = process.env.TEST_REPORTS_DIR || join(__dirname, '..', 'reports');
+process.env.TEST_LOG_DIR = join(reportsDir, 'logs');
+if (!process.env.TEST_SELENIUM_DIR) process.env.TEST_SELENIUM_DIR = join(__dirname, '..', '.webdriver');
 
 mkdirpSync(reportsDir);
 
@@ -40,11 +40,11 @@ class Environment {
     }
 }
 // email configuration
-let match = /.*@(.*)/.exec(process.env.EMAIL_USER);
+let match = /.*@(.*)/.exec(process.env.TEST_EMAIL_USER);
 let emailServer = match && match.length === 2 ? match[1] : '';
 let emailConfig: Config = {
-    user: process.env.EMAIL_USER,
-    password: process.env.EMAIL_PASSWORD,
+    user: process.env.TEST_EMAIL_USER,
+    password: process.env.TEST_EMAIL_PASSWORD,
     port: 993,
     tls: true
 }
@@ -74,7 +74,7 @@ const environments = function (): { [k: string]: RunnerConfig } {
             },
             emailConfig: emailConfig,
             dbConfig: {
-                mongo: process.env.MONGODB_URI || `mongodb://localhost:27017/polymath`
+                mongo: process.env.TEST_MONGODB_URI || `mongodb://localhost:27017/polymath`
             }
         },
         develop: {
@@ -158,7 +158,7 @@ export = (opts = { params: {} }) => {
             if (currentEnv.argv.params && currentEnv.argv.params.setup) {
                 // We put it into a function so that localhost and the parameters can be modified
                 try {
-                    process.env.LOCALHOST = localhost;
+                    process.env.TEST_LOCALHOST = localhost;
                     let kill = require('../setup');
                     shutdownFns.push(async () => {
                         await kill();
@@ -171,7 +171,7 @@ export = (opts = { params: {} }) => {
         };
         currentEnv.config = {
             allScriptsTimeout: debugMode ? 60 * 60 * 1000 : 4 * 60 * 1000,
-            specs: process.env.SPECS || currentEnv.argv.specs || ['tests/**/*.feature'],
+            specs: process.env.TEST_SPECS || currentEnv.argv.specs || ['tests/**/*.feature'],
             SELENIUM_PROMISE_MANAGER: false,
             disableChecks: true,
             noGlobals: true,
@@ -188,7 +188,7 @@ export = (opts = { params: {} }) => {
                     './objects/**/*.ts',
                     './tests/**/*.ts',
                 ],
-                tags: process.env.TAGS || currentEnv.argv.params.tags || '',
+                tags: process.env.TEST_TAGS || currentEnv.argv.params.tags || '',
                 // TODO: Add multiple formats (e.g. html)
                 format: 'node_modules/cucumber-pretty'
             },
@@ -208,10 +208,10 @@ export = (opts = { params: {} }) => {
                 reportPath: reportsDir,
                 generatorSeed: currentEnv.argv.seed || (Math.random() * Number.MAX_SAFE_INTEGER),
             },
-            ...environments()[process.env.ENV || currentEnv.argv.env || 'local']
+            ...environments()[process.env.TEST_ENV || currentEnv.argv.env || 'local']
         };
-        let browserString = process.env.BROWSER || (currentEnv.argv.params.browser && currentEnv.argv.params.browser.toLowerCase()) || 'puppeteer';
-        let extensionsString = process.env.EXTENSIONS || currentEnv.argv.params.extensions;
+        let browserString = process.env.TEST_BROWSER || (currentEnv.argv.params.browser && currentEnv.argv.params.browser.toLowerCase()) || 'puppeteer';
+        let extensionsString = process.env.TEST_EXTENSIONS || currentEnv.argv.params.extensions;
         switch (browserString) {
             case 'puppeteer': {
                 setup();
@@ -348,13 +348,13 @@ export = (opts = { params: {} }) => {
                 break;
             }
             case 'cloud': {
-                assert(process.env.CBT_USER, `Crossbrowsertesting user is not defined`);
-                assert(process.env.CBT_KEY, `Crossbrowsertesting key is not defined`);
+                assert(process.env.TEST_CBT_USER, `Crossbrowsertesting user is not defined`);
+                assert(process.env.TEST_CBT_KEY, `Crossbrowsertesting key is not defined`);
                 // In crossbrowsertesting, our 'localhost' is 'local'
                 localhost = 'local';
                 setup();
                 let input = ['Windows 10:chrome:68.0'];
-                let browser = process.env.BSBROWSER || currentEnv.argv.params.bsbrowser;
+                let browser = process.env.TEST_BSBROWSER || currentEnv.argv.params.bsbrowser;
                 if (browser) {
                     if (browser instanceof Array) {
                         input = browser;
@@ -380,8 +380,8 @@ export = (opts = { params: {} }) => {
                     beforeLaunch: function () {
                         oldBefore();
                         deasync(callback => cbt.start({
-                            "username": process.env.CBT_USER,
-                            "authkey": process.env.CBT_KEY
+                            "username": process.env.TEST_CBT_USER,
+                            "authkey": process.env.TEST_CBT_KEY
                         }, callback))();
                     },
                     afterLaunch: async function (exitCode: number) {
@@ -390,7 +390,7 @@ export = (opts = { params: {} }) => {
                         await cbt.stop();
                         await oldAfter(exitCode);
                     },
-                    seleniumAddress: `http://${process.env.CBT_USER}:${process.env.CBT_KEY}@hub.crossbrowsertesting.com/wd/hub`,
+                    seleniumAddress: `http://${process.env.TEST_CBT_USER}:${process.env.TEST_CBT_KEY}@hub.crossbrowsertesting.com/wd/hub`,
                     extraConfig: {
                         downloadManager: dlmgr.getConfig()
                     },
@@ -436,7 +436,6 @@ export = (opts = { params: {} }) => {
         console.error(`An error ocurred in the configuration file, exiting.`);
         console.error(error);
         debugger;
-        process.kill(process.pid, 9);
     }
 }
 

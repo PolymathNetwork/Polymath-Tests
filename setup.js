@@ -13,7 +13,7 @@ if (!argv.params || !argv.params.setup || !(argv.params.setup === true || argv.p
 }
 
 let currentDir = __dirname;
-let checkoutDir = process.env.CHECKOUT_DIR || resolve(__dirname, 'git-checkout');
+let checkoutDir = process.env.TEST_CHECKOUT_DIR || resolve(__dirname, 'git-checkout');
 let pidsFile = resolve(checkoutDir, 'pids.pid');
 console.log('Performing cleanup...');
 if (existsSync(pidsFile)) {
@@ -22,10 +22,10 @@ if (existsSync(pidsFile)) {
     }
     removeSync(pidsFile);
 }
-if (process.env.COVERAGE !== false) process.env.COVERAGE = true;
-if (!process.env.NO_DELETE_ENV) removeSync(checkoutDir);
+if (process.env.TEST_COVERAGE !== false) process.env.TEST_COVERAGE = true;
+if (!process.env.TEST_NO_DELETE_ENV) removeSync(checkoutDir);
 mkdirpSync(checkoutDir);
-let logDir = process.env.LOG_DIR || resolve(currentDir, 'logs');
+let logDir = process.env.TEST_LOG_DIR || resolve(currentDir, 'logs');
 mkdirpSync(logDir);
 
 let sources = {
@@ -43,20 +43,20 @@ let logs = {
 
 let pids = {};
 let defaultBranch = 'develop';
-let branch = process.env.BRANCH || process.env.TRAVIS_BRANCH || defaultBranch;
+let branch = process.env.TEST_BRANCH || process.env.TRAVIS_BRANCH || defaultBranch;
 let charSep = process.platform === "win32" ? ';' : ':';
 const setNodeVersion = () => {
     let path = process.env.PATH.replace(/[:;]?[^:;]*node_modules[^:;]*/g, '');
     if (path.endsWith(charSep)) path = path.substr(0, path.length - 1);
-    path = `${process.env.EXTRA_PATH ? process.env.EXTRA_PATH + charSep : ''}${resolve(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
+    path = `${process.env.TEST_EXTRA_PATH ? process.env.TEST_EXTRA_PATH + charSep : ''}${resolve(__dirname, 'node_modules', '.bin')}${charSep}${path}`;
     console.log(`Using path: ${path}`);
     return path;
 }
 
-if (!process.env.METAMASK_NETWORK || !process.env.METAMASK_SECRET) {
+if (!process.env.TEST_MM_NETWORK || !process.env.TEST_MM_SECRET) {
     console.log(`Metamask network or secret is not set, using defaults`);
-    process.env.METAMASK_SECRET = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-    process.env.METAMASK_NETWORK = "l";
+    process.env.TEST_MM_SECRET = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+    process.env.TEST_MM_NETWORK = "l";
 }
 let mongo;
 
@@ -77,14 +77,14 @@ const setup = {
     ganache: async function (baseOpts) {
         console.log('Starting ganache...');
         if (!(typeof baseOpts === 'string' || baseOpts instanceof String)) {
-            process.env.NO_BUILD = true;
+            process.env.TEST_NO_BUILD = true;
             baseOpts = await setup.apps(true);
         }
         let folder = resolve(baseOpts, 'packages', 'new-polymath-scripts');
         if (!existsSync(folder))
             throw `Can't find new-polymath-scripts`;
         let path = setNodeVersion();
-        if (!process.env.NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        if (!process.env.TEST_NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
         path = `${resolve(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
         console.log(`Using path: ${path}`);
@@ -92,14 +92,16 @@ const setup = {
         let file = createWriteStream(logs.ganache);
         await new Promise((r, e) => {
             let oldWrite = file.write;
+            let seenOn = false;
             file.write = (data, error) => {
                 oldWrite.call(file, data, error);
                 console.log(data);
                 if (file.write != oldWrite) {
                     if (data.indexOf('Listening on') !== -1) {
                         console.log(`Ganache is listening on ${data}, waiting for init script to finish...`);
+                        seenOn = true;
                     }
-                    if (data.indexOf('child process exited with code') !== -1) {
+                    if (seenOn && data.indexOf('child process exited with code') !== -1) {
                         file.write = oldWrite;
                         r();
                     }
@@ -121,7 +123,7 @@ const setup = {
         // TODO: Reset offchain on test end
         let folder = `${baseOpts}/packages/polymath-offchain`;
         let path = setNodeVersion();
-        process.env.MONGO_DIRECTORY = resolve(__dirname, 'mongo');
+        process.env.TEST_MONGO_DIRECTORY = resolve(__dirname, 'mongo');
         let db = resolve(checkoutDir, 'mongo');
         mkdirpSync(db);
         let mongodHelper = new MongodHelper([
@@ -134,7 +136,7 @@ const setup = {
         }, (e) => {
             console.log('error starting mongodb', e);
         });
-        if (!process.env.NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        if (!process.env.TEST_NO_STARTUP) execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
         path = `${resolve(baseOpts, 'node_modules', '.bin')}${charSep}${path}`;
         console.log(`Using path: ${path}`);
@@ -188,23 +190,23 @@ const setup = {
         if (baseOpts === true) await this.git(sources.apps, folder);
         else folder = baseOpts;
         folder = resolve(folder);
-        if (!process.env.SKIP_OFFCHAIN) {
-            process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.LOCALHOST}:3001`;
-            process.env.POLYMATH_OFFCHAIN_URL = `http://${process.env.LOCALHOST}:3001`;
-            process.env.POLYMATH_ISSUER_URL = `http://${process.env.LOCALHOST}:3000`;
+        if (!process.env.TEST_SKIP_OFFCHAIN) {
+            process.env.REACT_APP_POLYMATH_OFFCHAIN_ADDRESS = `http://${process.env.TEST_LOCALHOST}:3001`;
+            process.env.POLYMATH_OFFCHAIN_URL = `http://${process.env.TEST_LOCALHOST}:3001`;
+            process.env.POLYMATH_ISSUER_URL = `http://${process.env.TEST_LOCALHOST}:3000`;
             process.env.WEB3_NETWORK_LOCAL_WS = `ws://localhost:8545`;
-            process.env.MONGODB_URI = `mongodb://localhost:27017/polymath`;
+            process.env.TEST_MONGODB_URI = `mongodb://localhost:27017/polymath`;
             process.env.REACT_APP_DEPLOYMENT_STAGE = `local`;
         }
-        process.env.REACT_APP_NETWORK_LOCAL_WS = `ws://${process.env.LOCALHOST}:8545`;
-        if (!process.env.NO_STARTUP && existsSync(resolve(folder, 'package.json'))) {
+        process.env.REACT_APP_NETWORK_LOCAL_WS = `ws://${process.env.TEST_LOCALHOST}:8545`;
+        if (!process.env.TEST_NO_STARTUP && existsSync(resolve(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = setNodeVersion();
             execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
             path = `${resolve(folder, 'node_modules', '.bin')}${charSep}${path}`;
             // This should be removed in the near future
-            //process.env.REACT_APP_NODE_WS = `ws://${process.env.LOCALHOST}:8545`;
-            if (!process.env.NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            //process.env.REACT_APP_NODE_WS = `ws://${process.env.TEST_LOCALHOST}:8545`;
+            if (!process.env.TEST_NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
     },
@@ -213,7 +215,7 @@ const setup = {
             try {
                 folder = await setup.apps(folder);
                 await setup.ganache(folder);
-                if (!process.env.SKIP_OFFCHAIN) await setup.offchain(folder);
+                if (!process.env.TEST_SKIP_OFFCHAIN) await setup.offchain(folder);
                 await setup.issuer(folder);
                 await setup.investor(folder);
                 callback(null);
@@ -239,7 +241,7 @@ const kill = () => {
         }
     pids = null;
     removeSync(pidsFile);
-    if (process.env.PRINT_LOGS) for (let log in logs) {
+    if (process.env.TEST_PRINT_LOGS) for (let log in logs) {
         console.log(`Printing output of ${log}: ${logs[log]}`);
         console.log(readFileSync(logs[log], 'utf8'));
     }
