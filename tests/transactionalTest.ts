@@ -6,7 +6,7 @@ import { CorePage } from "objects/pages/base";
 
 export class TransactionalTest {
     constructor(public data: IssuerTestData) { }
-    public static async ApproveTransactions(clickFn: () => Promise<Modal>, openModal?: Modal, lookForNext: boolean = true): Promise<AbstractPage> {
+    public static async GoToTransactions(clickFn: () => Promise<Modal>, openModal?: Modal): Promise<Transaction> {
         let modal = openModal || await clickFn();
         if (!modal) debugger;
         let transaction: Modal | Transaction = modal;
@@ -19,13 +19,23 @@ export class TransactionalTest {
         }
         await transaction.refresh('failed');
         if (transaction.failed) throw `Transaction failed`;
+        return transaction;
+    }
+    public static async MassApproveTransactions(transaction: Transaction, lookForNext: boolean = true, approveNumber: number = null): Promise<AbstractPage | TransactionResult> {
         let result: TransactionResult | CorePage;
-        while ((result = await transaction.next(lookForNext)) instanceof TransactionResult) {
+        let totalCompleted = 0;
+        while (
+            (approveNumber == null || approveNumber > totalCompleted++) &&
+            (result = await transaction.next(lookForNext)) instanceof TransactionResult) {
             if (result.status === Status.Fail) throw `Transaction ${result.name} with ethScan ${result.ethscan} failed`;
         }
         return result;
     }
+    public static async ApproveTransactions(clickFn: () => Promise<Modal>, openModal?: Modal, lookForNext: boolean = true): Promise<AbstractPage> {
+        let transaction = await TransactionalTest.GoToTransactions(clickFn, openModal)
+        return await TransactionalTest.MassApproveTransactions(transaction, lookForNext) as CorePage;
+    }
     public async approveTransactions(clickFn: () => Promise<Modal>, openModal?: Modal, lookForNext: boolean = true): Promise<AbstractPage> {
-        return TransactionalTest.ApproveTransactions(clickFn, openModal, lookForNext);
+        return await TransactionalTest.ApproveTransactions(clickFn, openModal, lookForNext);
     }
 }

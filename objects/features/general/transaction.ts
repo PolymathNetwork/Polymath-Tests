@@ -58,7 +58,7 @@ export enum Status {
                     await transaction.waitForLoading();
                     break;
                 case Status.Loading:
-                    await Metamask.instance.confirmTransaction();
+                    await Metamask.instance.confirmTransaction({ cancel: cancel });
                     await transaction.waitForCompletion();
                     return transaction;
                 case Status.Fail:

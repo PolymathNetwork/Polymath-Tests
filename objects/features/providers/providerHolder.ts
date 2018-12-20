@@ -1,5 +1,5 @@
 import { AbstractFeature } from "framework/object/abstract";
-import { present, label, LabelOptsMode, singleCheckbox, inputField } from "framework/object/core/decorators";
+import { present, label, singleCheckbox, inputField } from "framework/object/core/decorators";
 import { Locator, By, oh } from "framework/helpers";
 import { Modal } from "objects/features/general/modal";
 import { inject, injectable } from "framework/object/core/iConstructor";
@@ -30,10 +30,10 @@ import { ApplyProviderModel } from "models/applyProviderModel";
     @singleCheckbox(By.xpath('.//*[@for="select-all-providers"]'), {
         checkedSelector: By.xpath('.//*[@id="select-all-providers"]')
     }) public selectAll: boolean;
-    public applySelected(lookForNext: boolean = true) {
+    public applySelected(lookForNext: boolean = true): Promise<ApplyProviderModal> {
         return oh.click(By.xpath('.//*[contains(@class, "bx--btn--primary")]'), this.element).then(() => lookForNext && ApplyProviderModal.WaitForPage<ApplyProviderModal>(ApplyProviderModal));
     }
-    public skip(lookForNext: boolean = true) {
+    public skip(lookForNext: boolean = true): Promise<ProviderHolder> {
         // You should refresh the current provider after calling this
         return oh.click(By.xpath('.//*[contains(@class, "bx--btn--secondary")]'), this.element).then(() => lookForNext && ProviderHolder.WaitForPage<ProviderHolder>(ProviderHolder));
     }

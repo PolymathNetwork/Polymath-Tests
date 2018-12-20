@@ -52,6 +52,30 @@ class ProviderTests extends TransactionalTest {
             }
         }
     }
+    @given(/The issuer sends his information to the providers/)
+    public async apply() {
+        let page = await Providers.WaitForPage<Providers>(Providers);
+        await page.init();
+        let actualPage = page.providerNavigation.find(el => el.actual);
+        let oldApplied = actualPage.applied;
+        let toApply = page.providers.providers.map((el, idx) => { { return { el: el, idx: idx } } })
+            .filter(el => el.el.selected || el.el.applied);
+        let oldSelected = page.providers.providers.filter(el => el.applied).length;
+        expect(oldApplied, "The selected number on the top of the page").to.be.equal(oldSelected, "The number of already applied items");
+        let dialog = await page.providers.applySelected();
+        await dialog.fill(this.data.issuerInfo);
+        await dialog.next();
+        await page.refresh();
+        actualPage = page.providerNavigation.find(el => el.actual);
+        expect(actualPage.applied).to.be.equal(toApply.length);
+        let newApplied = page.providers.providers.map((el, idx) => { { return { el: el, idx: idx } } })
+            .filter(el => el.el.applied);
+        expect(newApplied.map(el => el.idx), "Applied providers")
+            .to.be.equal(toApply.map(el => el.idx), "Should be equalling the previous applied plus the old selected");
+        expect(page.providers.providers.filter(el => el.selected).length, "Selected providers")
+            .to.be.equal(0, "Should be empty after applying them");
+        // TODO: Check emails
+    }
     @given(/The issuer selects all the providers/)
     public async selectAll() {
         let page = await Providers.WaitForPage<Providers>(Providers);

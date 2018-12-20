@@ -157,11 +157,16 @@ export = (opts = { params: {} }) => {
         const setup = () => {
             if (currentEnv.argv.params && currentEnv.argv.params.setup) {
                 // We put it into a function so that localhost and the parameters can be modified
-                process.env.LOCALHOST = localhost;
-                let kill = require('../setup');
-                shutdownFns.push(async () => {
-                    await kill();
-                })
+                try {
+                    process.env.LOCALHOST = localhost;
+                    let kill = require('../setup');
+                    shutdownFns.push(async () => {
+                        await kill();
+                    });
+                } catch (error) {
+                    console.error(`An error ocurred while setting up the project: ${error}`);
+                    throw error;
+                }
             }
         };
         currentEnv.config = {
@@ -428,9 +433,10 @@ export = (opts = { params: {} }) => {
         }
         return currentEnv;
     } catch (error) {
+        console.error(`An error ocurred in the configuration file, exiting.`);
         console.error(error);
         debugger;
-        throw error;
+        process.kill(process.pid, 9);
     }
 }
 

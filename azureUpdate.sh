@@ -5,8 +5,8 @@ if [[ -z $FILE || -z $PAT || -z $WORK_ITEM ]]; then
   exit 1
 fi
 
-name=${FILE%.*}
-name=${name##*/}
+name=${FILE//\//.}
+name=${name//\\/.}
 read -r -d '' body <<EOM
 [
   {

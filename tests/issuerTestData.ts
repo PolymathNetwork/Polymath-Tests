@@ -7,6 +7,7 @@ import { TestConfig } from "framework/helpers";
 import { WhitelistModel } from "models/whitelistModel";
 import { MintData } from "models/mint";
 import { NoticeModel } from "helpers/mongo";
+import { ApplyProviderModel } from "models/applyProviderModel";
 
 // Defines a Token and all the related information
 export class IssuerTestData {
@@ -32,4 +33,5 @@ export class IssuerTestData {
     public whitelist: WhitelistModel = new WhitelistModel();
 
     public notice?: NoticeModel;
+    public issuerInfo: ApplyProviderModel = new ApplyProviderModel();
 }
