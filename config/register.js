@@ -2,7 +2,7 @@ process.env.TS_NODE_TRANSPILE_ONLY = true;
 require('app-module-path').addPath(`${__dirname}/..`);
 let argv = require('yargs').argv;
 let exists = require('fs').existsSync;
-let dotEnvFile = argv.dotenv || `${__dirname}/../.env`;
+let dotEnvFile = require('path').resolve(argv.dotenv || `${__dirname}/../.env`);
 if (exists(dotEnvFile)) {
     require('dotenv').config({ path: dotEnvFile });
     console.log(`Dotenv file found ${dotEnvFile}`);

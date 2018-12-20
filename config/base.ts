@@ -15,7 +15,7 @@ let localhost = process.env.TEST_LOCALHOST || 'localhost';
 const debugMode = process.env.IS_DEBUG;
 const reportsDir = process.env.TEST_REPORTS_DIR || join(__dirname, '..', 'reports');
 process.env.TEST_LOG_DIR = join(reportsDir, 'logs');
-if (!process.env.TEST_SELENIUM_DIR) process.env.TEST_SELENIUM_DIR = join(__dirname, '..', '.webdriver');
+if (!process.env.SELENIUM_DIR) process.env.SELENIUM_DIR = join(__dirname, '..', '.webdriver');
 
 mkdirpSync(reportsDir);
 
