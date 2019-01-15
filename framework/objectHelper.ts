@@ -17,6 +17,15 @@ export interface HighlightOpts {
     delay?: number;
 }
 
+export interface ClickOptions {
+    resetCache?: boolean;
+    keepIframe?: boolean;
+    fromMoveClick?: boolean;
+    doubleClick?: boolean;
+    throwOnError?: boolean;
+    autoScroll?: boolean;
+}
+
 export class ObjectHelper {
     private _browser: BrowserWrapper;
     public set browser(val: BrowserWrapper) {
@@ -105,21 +114,32 @@ export class ObjectHelper {
         return await this.browser.scrollTo(selector, parent, bruteForce);
     }
 
+
     public async click(selector: Locator | WebElement | ElementWrapper,
-        parent?: Locator | WebElement | ElementWrapper, resetCache: boolean = true, keepIframe: boolean = false, fromMoveClick: boolean = false): Promise<void> {
+        parent?: Locator | WebElement | ElementWrapper, opts?: ClickOptions): Promise<void> {
         let highlightOpts: HighlightOpts = TestConfig.instance.protractorConfig.params.highlight;
-        if (TestConfig.instance.protractorConfig.params.highlight && !fromMoveClick) return this.moveClick(selector, parent, resetCache, keepIframe);
+        if (!opts) opts = {};
+        if (opts.resetCache === undefined) opts.resetCache = true;
+        if (opts.keepIframe === undefined) opts.keepIframe = false;
+        if (opts.fromMoveClick === undefined) opts.fromMoveClick = false;
+        if (opts.doubleClick === undefined) opts.doubleClick = false;
+        if (opts.throwOnError === undefined) opts.throwOnError = true;
+        if (opts.autoScroll === undefined) opts.autoScroll = true;
+        if (TestConfig.instance.protractorConfig.params.highlight && !opts.fromMoveClick) return this.moveClick(selector, parent, opts.resetCache, opts.keepIframe);
         let el: ElementWrapper;
         try {
             el = await this.by(selector, parent);
             // This is better than the "minimal scroll" from Selenium's implementation (which will just put the element in the viewport)
-            if (!await this.inViewport(el)) await this.scrollTo(el);
+            if (opts.autoScroll && !await this.inViewport(el)) await this.scrollTo(el);
             assert(await this.visible(el)(), `Click: Can't click a non-visible element (${selector})`);
             if (highlightOpts) {
                 await this.browser.sleep(highlightOpts.delay);
             }
-            await el.click();
+            if (opts.doubleClick)
+                await this.browser.actions().doubleClick(await el.getWebElement());
+            else await el.click();
         } catch (err) {
+            if (!opts.throwOnError) return;
             if ((err.message as string).indexOf('is not clickable at point') !== -1) {
                 try {
                     await this.scrollTo(el, null, true);
@@ -132,7 +152,7 @@ export class ObjectHelper {
             debugger;
             if (err) throw `Click: An error occurred for ${selector && (selector instanceof ElementFinder ? selector.locator() : selector['value'])}: ${err}`;
         } finally {
-            if (resetCache) this.browser.resetCache(keepIframe);
+            if (opts.resetCache) this.browser.resetCache(opts.keepIframe);
         }
     }
 
@@ -295,7 +315,12 @@ export class ObjectHelper {
         let element = await this.by(selector, parent);
         await this.wait(this.visible(element), `Timeout: Element should be visible before clicking it`);
         await this.move(element);
-        await this.click(element, null, resetCache, keepIframe, true);
+        await this.click(element, null, { resetCache: resetCache, keepIframe: keepIframe, fromMoveClick: true });
+    }
+
+    public async doubleClick(selector: Locator | ElementWrapper,
+        parent?: Locator | ElementWrapper, resetCache: boolean = true, keepIframe: boolean = false): Promise<void> {
+        await this.click(selector, parent, { resetCache: resetCache, keepIframe: keepIframe, doubleClick: true });
     }
 
     public async clear(selector: Locator | ElementWrapper,

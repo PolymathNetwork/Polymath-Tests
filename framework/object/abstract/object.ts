@@ -50,6 +50,7 @@ export interface AbstractObjectInitOpts extends InitOpts {
 export interface WaitOptions {
     resetCache?: boolean;
     refreshOnNotFound?: boolean;
+    runOnNotFound?: () => Promise<void>;
 }
 
 export abstract class AbstractObject<I extends AbstractObjectInitOpts = AbstractObjectInitOpts> extends IImplementable<I> {
@@ -258,10 +259,13 @@ export abstract class AbstractObject<I extends AbstractObjectInitOpts = Abstract
                 else res = await (new (Function.prototype.bind.apply(page, [null].concat(args))))
                     .init(<AbstractObjectInitOpts>{ mode: InitMode.SingleObject, timeout: 1000, throwAfterTimeout: false });
                 if (res) return res as T;
-                if (options && (options as WaitOptions).refreshOnNotFound) {
-                    await oh.refresh();
-                    await oh.browser.sleep(0.5);
-                }
+            }
+            if (options && (options as WaitOptions).refreshOnNotFound) {
+                await oh.refresh();
+                await oh.browser.sleep(0.5);
+            }
+            if (options && (options as WaitOptions).runOnNotFound) {
+                await (options as WaitOptions).runOnNotFound();
             }
             return null;
         }, `PageObject - Error! Timeout waiting for one of the pages to load`, { throwAfterTimeout: true, tryUntilTimeout: true });

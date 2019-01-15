@@ -1,6 +1,6 @@
 import { AbstractFeature } from "framework/object/abstract";
 import { Locator, By, oh } from "framework/helpers";
-import { inputField, label, NumberParseMethod } from "framework/object/core/decorators";
+import { inputField, label, NumberParseMethod, order } from "framework/object/core/decorators";
 import { TickerModel } from "models/ticker";
 import { Modal } from "objects/features/general/modal";
 import { injectable } from "framework/object/core/iConstructor";
@@ -16,6 +16,8 @@ export class TickerFeature extends AbstractFeature implements TickerModel {
     @label<string>(By.xpath('.//*[@name="owner"]'), null, { numberParseMethod: NumberParseMethod.None }) public ethAddress: string;
     public async next(): Promise<Modal | TickerError> {
         await oh.click(By.xpath('.//button[@type="submit"]'), this.element);
-        return await TickerError.WaitForPage([Modal, TickerError]) as Modal | TickerError;
+        return await TickerError.WaitForPage([Modal, TickerError], {
+            runOnNotFound: () => oh.click(By.xpath('.//button[@type="submit"]'), this.element, { throwOnError: false })
+        }) as Modal | TickerError;
     }
 }

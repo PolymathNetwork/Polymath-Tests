@@ -1,16 +1,11 @@
 import { AbstractFeature, optional } from "framework/object/abstract";
 import { Locator, By, oh } from "framework/helpers";
-import { singleCheckbox, order, inputField, present } from "framework/object/core/decorators";
+import { singleCheckbox, order, inputField } from "framework/object/core/decorators";
 import { WhitelistModel } from "models/whitelistModel";
 import { Modal } from "objects/features/general/modal";
 import { TransactionalTest } from "tests/transactionalTest";
 import { DownloadedFile } from "config/download/abstract";
-
-export class WhitelistModal extends Modal {
-    protected featureSelector: Locator = By.xpath('.//*[contains(@class, "whitelist-import-modal") and contains(@class, "is-visible")]');
-    @present(By.xpath('.//button[@type="submit" and @disabled]')) public hasError: boolean;
-    @inputField<string>(By.xpath('.//input[@type="file"]')) public file: string;
-}
+import { WhitelistModal } from "./modal";
 
 export class WhitelistFeature extends AbstractFeature implements WhitelistModel {
     public featureSelector: Locator = By.xpath('.//*[@id="compliance"]');
@@ -32,7 +27,7 @@ export class WhitelistFeature extends AbstractFeature implements WhitelistModel 
     }
     public async import(): Promise<WhitelistModal> {
         await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn") and contains(@class, "bx--btn--primary")]'), this.element);
-        return new WhitelistModal().load();
+        return WhitelistModal.WaitForPage<WhitelistModal>(WhitelistModal);
     }
     public async download(acceptAndDownload: boolean = true): Promise<DownloadedFile> {
         let modal = await oh.click(By.xpath('.//*[contains(@class,"import-whitelist-btn") and contains(@class, "bx--btn--secondary")]'), this.element).then(() => Modal.Get<Modal>(Modal));

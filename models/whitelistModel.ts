@@ -38,9 +38,9 @@ export class ComplianceItem extends SharedComplianceItem {
     constructor(baseObject?: Object, nullable?: boolean) {
         super(baseObject, nullable);
         baseObject = baseObject || {};
-        this.canBuyFromSto = baseObject['Can Buy From STO'] || oh.chance.boolOrNone();
-        this.exemptFromOwnership = baseObject['Exempt From % Ownership'] || oh.chance.boolOrNone();
-        this.isAccredited = baseObject['Is Accredited'] || oh.chance.boolOrNone();
+        this.canBuyFromSto = baseObject['Can Buy From STO'] || oh.chance.bool();
+        this.exemptFromOwnership = baseObject['Exempt From % Ownership'] || oh.chance.bool();
+        this.isAccredited = baseObject['Is Accredited'] || oh.chance.bool();
         this.nonAccreditedLimit = baseObject['Non-Accredited Limit'] || oh.chance.natural({ max: 25000 });
     }
     public static async fromCsv(text: string | Object): Promise<ComplianceItem> {

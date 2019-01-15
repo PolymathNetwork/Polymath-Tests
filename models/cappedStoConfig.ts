@@ -5,7 +5,7 @@ import * as moment from 'moment';
 
 
 export enum RaiseIn {
-    Poly, Eth
+    POLY, ETH, DAI
 }
 
 const formatNumber = num => num < 10 ? `0${num}` : num;
@@ -16,7 +16,7 @@ export class CappedStoConfigModel extends IDataModelObject {
     public endDate: string = oh.chance.date({ year: oh.chance.natural({ min: moment(new Date(this.startDate)).year() + 1, max: 5001 }), american: true });
     public startTime: string = `${oh.chance.natural({ min: 1, max: 12 })}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
     public endTime: string = `${oh.chance.natural({ min: 1, max: 12 })}:${formatNumber(oh.chance.bool() ? 30 : 0)} ${oh.chance.bool() ? 'AM' : 'PM'}`;
-    public raiseIn: RaiseIn = oh.chance.pickOneEnum(RaiseIn);
+    public raiseIn: RaiseIn = oh.chance.pickOneEnum(RaiseIn, false, [RaiseIn.DAI]);
     public hardCap: number = oh.chance.natural({ min: 1 });
     public rate: number = oh.chance.natural({ max: this.hardCap });
     public ethAddress: string = EthAddress.Generate().address;
