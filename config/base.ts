@@ -11,6 +11,8 @@ import { join } from 'path';
 import { UploadProvider } from './uploadProviders';
 import { mkdirpSync, moveSync } from 'fs-extra';
 import { Config } from 'imap';
+import { Setup } from '../setup';
+import { stringify } from 'circular-json';
 let localhost = process.env.TEST_LOCALHOST || 'localhost';
 const debugMode = process.env.IS_DEBUG;
 const reportsDir = process.env.TEST_REPORTS_DIR || join(__dirname, '..', 'reports');
@@ -157,16 +159,23 @@ export = (opts = { params: {} }) => {
         const setup = () => {
             if (currentEnv.argv.params && currentEnv.argv.params.setup) {
                 // We put it into a function so that localhost and the parameters can be modified
-                try {
-                    process.env.TEST_LOCALHOST = localhost;
-                    let kill = require('../setup');
-                    shutdownFns.push(async () => {
-                        await kill();
-                    });
-                } catch (error) {
-                    console.error(`An error ocurred while setting up the project: ${error}`);
-                    throw error;
-                }
+                process.env.TEST_LOCALHOST = localhost;
+                deasync(async function (callback) {
+                    try {
+                        await Setup.instance.cleanup();
+                        await Setup.instance.register();
+                        if (currentEnv.argv.params.setup.ganache) await Setup.instance.ganache(currentEnv.argv.params.setup.ganache);
+                        else if (currentEnv.argv.params.setup.apps) await Setup.instance.apps(currentEnv.argv.params.setup.apps);
+                        else throw `Unknown setup option, only ganache and apps are supported: ${stringify(currentEnv.argv.params.setup)}`;
+                        shutdownFns.push(async () => {
+                            await Setup.instance.kill();
+                        });
+                        callback(null);
+                    } catch (error) {
+                        console.error(`An error ocurred while setting up the project: ${error}`);
+                        callback(error);
+                    }
+                })();
             }
         };
         currentEnv.config = {

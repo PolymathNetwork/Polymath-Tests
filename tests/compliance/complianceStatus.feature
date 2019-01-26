@@ -4,10 +4,11 @@ Feature: Compliance test
 
     Background: Capped STO launched
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
-        And The issuer skips minting
-    #And Capped STO launched # tbd: implement support for the datepicker
+        And A token is reserved @optional
+        And A token is created @optional
+        And The issuer skips minting @optional
+        # Launching an STO is not supported by the ganache configuration
+        And Capped STO launched
 
     Scenario: Modify whitelist positive path
         Given The issuer changes ownership settings

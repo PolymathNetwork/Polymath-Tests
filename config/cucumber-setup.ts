@@ -1,4 +1,4 @@
-import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before, AfterAll, BeforeAll } from 'cucumber';
+import { After, HookScenarioResult, World, Status, setDefaultTimeout, Before, AfterAll } from 'cucumber';
 import { oh, WindowInfo, By, TestConfig } from 'framework/helpers';
 import { Metamask, Network } from 'extensions/metamask';
 import { stringify } from 'circular-json';
@@ -6,8 +6,9 @@ import { Mongo } from 'helpers/mongo';
 import { createReporter } from 'istanbul-api';
 import * as istanbulCoverage from 'istanbul-lib-coverage';
 import { join } from 'path';
-import { writeFileSync, mkdirpSync, removeSync } from 'fs-extra';
+import { writeFileSync, mkdirpSync, removeSync, existsSync } from 'fs-extra';
 import { sync } from 'glob';
+import { Setup, Process } from 'setup';
 const debugMode = process.env.IS_DEBUG;
 
 process.on('uncaughtException', function (err) {
@@ -38,18 +39,41 @@ AfterAll({ timeout: 1 * 60 * 1000 }, async function () {
     }
 });
 
+
+let first = true;
+Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (this: World, scenario: HookScenarioResult) {
+    if (first) first = false;
+    else await oh.restart();
+    await oh.browser.maximize();
+});
+
+Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (this: World, scenario: HookScenarioResult) {
+    // Restart ganache if running
+    let config = `${scenario.sourceLocation.uri}.json`
+    if (Setup.instance.isRunning(Process.Ganache) && existsSync(config)) {
+        await Setup.instance.kill(Process.Ganache);
+        await Setup.instance.ganache({
+            folder: Setup.instance.ganacheFolder,
+            config: config
+        });
+        // Skip steps that are marked as done in the ganache config
+        console.log('Skipping steps done by the ganache configuration...');
+        scenario.pickle.steps = scenario.pickle.steps.filter(step => step.text.indexOf('@optional') === null);
+        // Define a global variable stating that the test is being run with the ganache configuration
+        global['GanacheConfig'] = true;
+    } else {
+        console.log('Ganache configuration not found, running all the steps');
+        global['GanacheConfig'] = false;
+    }
+});
+
+
 let find = function (en: Object, name: string): string {
     for (let key of Object.keys(en)) if (isNaN(key as any) && key.toLowerCase().startsWith(name)) return key;
     return null;
 }
 
-let first = true;
 Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (this: World, scenario: HookScenarioResult) {
-    // TODO: Make this browser independent
-    // TODO: Implement automatic startup
-    if (first) first = false;
-    else await oh.restart();
-    await oh.browser.maximize();
     let secret = process.env.TEST_MM_SECRET;
     if (!secret) throw `Missing metamask secret! You need to add the environment variable 'TEST_MM_SECRET' for the tests to work`;
     console.log('DEBUG: Importing metamask account');
@@ -62,6 +86,9 @@ Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (
             await Metamask.instance.switchAccount();
     let info = await Metamask.instance.accountInfo();
     console.log(`INFO: Using '${info.name}' (${info.ethAddress}) with ${info.ethAmount} ETH`);
+});
+
+Before({ timeout: debugMode ? 60 * 60 * 1000 : 5 * 60 * 1000 }, async function (this: World, scenario: HookScenarioResult) {
     console.log('DEBUG: Closing extra windows');
     let def = await oh.browser.defaultFrame(true);
     let all = await oh.browser.getAllWindowHandles();

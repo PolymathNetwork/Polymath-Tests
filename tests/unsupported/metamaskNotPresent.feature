@@ -5,8 +5,8 @@ Feature: Unsupported Browser
 
     Scenario: Metamask is not present / Issuer
         Given The issuer navigates to the issue url
-        Then The user is asked to install metamask
+        Then The issuer is asked to install metamask
 
     Scenario: Metamask is not present / Investor
         Given The user navigates to the investor page
-        Then The user is asked to install metamask
+        Then The issuer is asked to install metamask

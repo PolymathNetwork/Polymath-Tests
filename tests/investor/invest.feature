@@ -4,11 +4,11 @@ Feature: Normal invest for an investor
 
     Background: An STO is started
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
-        And Investors are minted
+        And A token is reserved @optional
+        And A token is created @optional
+        And Investors are minted @optional
         And Capped STO launched immediately
-        And 3 known addresses are whitelisted
+        And 3 known addresses are whitelisted @optional
 
     Scenario: Invest in a token
         Given The investor selects the account number 2

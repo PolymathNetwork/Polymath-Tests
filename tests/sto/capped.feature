@@ -4,9 +4,9 @@ Feature: Capped STO test
 
     Background: Investors minted
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
-        And Investors are minted
+        And A token is reserved @optional
+        And A token is created @optional
+        And Investors are minted @optional
 
     Scenario: Create a STO positive path
         Given The issuer selects the a Capped STO

@@ -4,8 +4,8 @@ Feature: Compliance test
 
     Background: Capped STO launched
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
+        And A token is reserved @optional
+        And A token is created @optional
 
     Scenario: Empty Sell
         Given The issuer uploads a whitelist with an empty Sell date

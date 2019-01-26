@@ -1,12 +1,12 @@
 @issuer @sto @sanity
 Feature: Capped STO test
-    In this test we attempt to create a Capped STO while the privacy mode is disabled
+    This test attempts to create a Capped STO while the privacy mode is disabled
 
     Background: Investors minted
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
-        And Investors are minted
+        And A token is reserved @optional
+        And A token is created @optional
+        And Investors are minted @optional
 
     Scenario: Create a STO positive path with a disabled privacy mode (in-between)
         Given The issuer disables the privacy mode
