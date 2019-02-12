@@ -12,19 +12,21 @@
             "args": [
                 "${workspaceFolder}/protractor.conf.js",
                 "--troubleshoot",
-                "--params.extensions=metamask",
-                "--params.browser=puppeteer"
+                //"--params.extensions=metamask",
+                //"--params.browser=puppeteer",
                 //"--params.tags=@sanity or @status",
                 //"--params.tags=@sanity",
                 //"--params.browser=puppeteer",
-                //"--params.setup.ganache",
+                //"--params.setup.ganache=../polymath-apps",
+                "--env=develop",
                 //"--params.setup.apps='../polymath-apps'",
+                //"--params.setup.apps",
                 //"--params.browser=cloud",
                 //"--params.bsbrowser='Windows 10:chrome:68.0;Windows 10:chrome:67.0'",
                 //"--params.browser=chrome"
             ],
             // Define here your environment variables (e.g. metamask secret & password)
-            "envFile": "${workspaceFolder}/.env",
+            "envFile": "${workspaceFolder}/.env.local",
             "console": "integratedTerminal",
             "runtimeVersion": "default",
             "stopOnEntry": false,

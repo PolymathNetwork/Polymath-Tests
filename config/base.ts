@@ -13,7 +13,7 @@ import { mkdirpSync, moveSync } from 'fs-extra';
 import { Config } from 'imap';
 import { Setup } from '../setup';
 import { stringify } from 'circular-json';
-let localhost = process.env.TEST_LOCALHOST || 'localhost';
+let localhost = process.env.TEST_LOCALHOST || 'local';
 const debugMode = process.env.IS_DEBUG;
 const reportsDir = process.env.TEST_REPORTS_DIR || join(__dirname, '..', 'reports');
 process.env.TEST_LOG_DIR = join(reportsDir, 'logs');
@@ -153,7 +153,7 @@ const getExtensions = function (env: string[], browser: ExtensionBrowser): { inf
     return res;
 }
 
-export = (opts = { params: {} }) => {
+export = (opts: { params: {}, specs: [] }) => {
     try {
         let currentEnv = new Environment(opts);
         const setup = () => {
@@ -221,9 +221,12 @@ export = (opts = { params: {} }) => {
         };
         let browserString = process.env.TEST_BROWSER || (currentEnv.argv.params.browser && currentEnv.argv.params.browser.toLowerCase()) || 'puppeteer';
         let extensionsString = process.env.TEST_EXTENSIONS || currentEnv.argv.params.extensions;
+        // Parse all the specs here
+        setup();
+        // See which tests require specific browsers and remove them from the general spec execution
+        // So that they will only be ran with a specific browser
         switch (browserString) {
             case 'puppeteer': {
-                setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
                 let pup = new PuppeteerHandle({
@@ -249,7 +252,6 @@ export = (opts = { params: {} }) => {
                 break;
             }
             case 'chrome': {
-                setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
                 let ext = {};
@@ -283,7 +285,6 @@ export = (opts = { params: {} }) => {
                 break;
             }
             case 'chromium': {
-                setup();
                 let extensions = getExtensions(extensionsString, ExtensionBrowser.Chrome);
                 let dlmgr = new LocalDownloadManager();
                 let ext = {};
@@ -317,7 +318,6 @@ export = (opts = { params: {} }) => {
                 break;
             }
             case 'firefox': {
-                setup();
                 let dlmgr = new LocalDownloadManager()
                 currentEnv.config.capabilities = {
                     directConnect: true,
@@ -331,7 +331,6 @@ export = (opts = { params: {} }) => {
                 break;
             }
             case 'edge': {
-                setup();
                 let dlmgr = new LocalDownloadManager()
                 currentEnv.config.capabilities = {
                     directConnect: true,
@@ -360,8 +359,6 @@ export = (opts = { params: {} }) => {
                 assert(process.env.TEST_CBT_USER, `Crossbrowsertesting user is not defined`);
                 assert(process.env.TEST_CBT_KEY, `Crossbrowsertesting key is not defined`);
                 // In crossbrowsertesting, our 'localhost' is 'local'
-                localhost = 'local';
-                setup();
                 let input = ['Windows 10:chrome:68.0'];
                 let browser = process.env.TEST_BSBROWSER || currentEnv.argv.params.bsbrowser;
                 if (browser) {
