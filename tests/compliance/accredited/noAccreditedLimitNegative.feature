@@ -4,8 +4,8 @@ Feature: Non-Accredited investor with a negative number
 
     Background: Token is created
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
+        And A token is reserved @optional
+        And A token is created @optional
 
     Scenario: Non-Accredited negative
         Given The issuer uploads a whitelist with a non-accredited field with negative numbers

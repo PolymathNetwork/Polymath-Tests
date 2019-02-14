@@ -5,8 +5,8 @@ Feature: No accredited fields
 
     Background: Token is created
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
+        And A token is reserved @optional
+        And A token is created @optional
 
     Scenario: No accredited fields
         Given The issuer uploads a whitelist without accredited fields

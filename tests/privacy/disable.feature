@@ -1,5 +1,5 @@
 Feature: App with disabled privacy
-    In this test we attempt simple sign-in to the application with a disabled privacy mode
+    This test attempts a simple sign-in to the application with a disabled privacy mode
 
     Scenario: Start App with disabled privacy
         Given The issuer disables the privacy mode

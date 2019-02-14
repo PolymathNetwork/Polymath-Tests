@@ -1,11 +1,12 @@
 import { binding, given, then } from "cucumber-tsflow";
 import { StoSelector } from "objects/pages/withToken/sto/selector";
-import { CappedSto, CappedStoConfig } from "objects/features/sto/capped";
+import { CappedSto } from "objects/features/sto/capped";
 import { expect } from "framework/helpers";
 import { TransactionalTest } from "tests/transactionalTest";
 import { IssuerTestData } from "tests/issuerTestData";
 import { StoCountdown } from "objects/pages/withToken/sto/stoCountdown";
 import { CappedStoConfigModel } from "models/cappedStoConfig";
+import { CappedStoConfig } from "objects/features/sto/capped.config";
 
 @binding([IssuerTestData])
 class STOToken extends TransactionalTest {
@@ -20,7 +21,7 @@ class STOToken extends TransactionalTest {
 
     @given(/The issuer configures and starts the Capped STO/)
     public async configureSTO(immediate?: string) {
-        let config: CappedStoConfig = await CappedStoConfig.WaitForPage(CappedStoConfig) as CappedStoConfig;
+        let config: CappedStoConfig = await CappedStoConfig.WaitForPage<CappedStoConfig>(CappedStoConfig);
         if (immediate) CappedStoConfigModel.startNow(this.data.stoConfig);
         await config.fill(this.data.stoConfig);
         await this.approveTransactions(() => config.next()); // Here we need to jump through the transactions...

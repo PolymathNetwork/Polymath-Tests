@@ -8,7 +8,7 @@ import { AbstractObjectInitOpts } from "framework/object/abstract";
 
 
 @injectable export class NewLocked extends Locked {
-    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="create-password"]]');
+    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="create-password" or contains(@class,"create-password__import-link")]]');
     @order(2) @inputField<string>(By.xpath('.//*[@id="create-password"]')) public password: string;
     @order(1) @fillWith('password') @inputField<string>(By.xpath('.//*[@id="confirm-password"]')) public passwordConfirm: string;
     public next(lookForNext: boolean = true): Promise<MetamaskPage> {

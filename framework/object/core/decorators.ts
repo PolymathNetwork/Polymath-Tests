@@ -199,7 +199,6 @@ export enum LabelOptsMode {
 }
 export interface LabelOpts extends CallOpts {
     mode?: LabelOptsMode;
-    
     alwaysArray?: boolean;
 }
 
@@ -305,10 +304,13 @@ export function range(minimum: Locator, maximum: Locator, opts: CallOpts = { mai
 
 
 const isSelected = async function (element: ElementWrapper, opts: CheckedOpts) {
-    return (opts.checkedSelector && (
-        (typeof opts.checkedSelector === 'function' && await opts.checkedSelector.call(this, element)) ||
-        (Locator.instanceOf(opts.checkedSelector) && await oh.present(opts.checkedSelector, element))
-    )) || await oh.selected(element);
+    if (opts.checkedSelector) {
+        if (typeof opts.checkedSelector === 'function')
+            return await opts.checkedSelector.call(this, element);
+        if (Locator.instanceOf(opts.checkedSelector))
+            return await oh.present(opts.checkedSelector, element);
+    }
+    return await oh.selected(element);
 };
 
 export interface CheckedOpts extends CallOpts {
@@ -506,6 +508,7 @@ export interface MultiFieldOpts extends CheckedOpts {
     generalLocAsParent?: boolean;
     ignoreTargetElement?: boolean;
     ignoreNotVisible?: boolean;
+    clickLocator?: Locator;
 }
 
 function multiField(baseOrMultifieldLocator: Locator | (() => Promise<Locator>), mapping: Map,
@@ -550,6 +553,7 @@ function multiField(baseOrMultifieldLocator: Locator | (() => Promise<Locator>),
     };
     return customDecorator(async function (): Promise<number> {
         // For these cases where the field is not present (optional)
+        if (opts.clickLocator) await oh.click(opts.clickLocator, this.target.element);
         if (opts.mainFieldLocator instanceof Function)
             baseOrMultifieldLocator = await opts.mainFieldLocator.call(this);
         if (!await oh.present(baseOrMultifieldLocator, !opts.ignoreTargetElement && this.target.element)) return undefined;
@@ -617,6 +621,7 @@ function multiField(baseOrMultifieldLocator: Locator | (() => Promise<Locator>),
         }
         return selectedValue;
     }, async function (value: number): Promise<void> {
+        if (opts.clickLocator) await oh.click(opts.clickLocator, this.target.element);
         if (opts.mainFieldLocator instanceof Function)
             baseOrMultifieldLocator = await opts.mainFieldLocator.call(this);
         // For these cases where the field is not present (e.g. optional)
@@ -771,6 +776,8 @@ export interface CustomValuelessCallOpts extends CallOpts {
     selectedAttribute?: string;
     ancestorPath?: string;
     customCompare?: (selectedValue: string, intendedValue: string[]) => boolean;
+    clickLocator?: Locator;
+    selected?: () => Promise<string>;
 }
 
 export function customValuelessCombobox(optionLocator: Locator,
@@ -784,12 +791,12 @@ export function customValuelessCombobox(optionLocator: Locator,
     let specificSelector = (val: string[] | number[]) => {
         let baseString = `${optionLocator['value']}[`;
         for (let i = 0; i < val.length; ++i) {
-            baseString += `@${opts.getAttribute}="${val[i]}"`;
+            baseString += `${opts.getAttribute === 'text' ? 'text()' : '@' + opts.getAttribute}="${val[i]}"`;
             if (i + 1 < val.length) baseString += ' or ';
         }
         return By.xpath(`${baseString}]`);
     };
-    let selected = async function () {
+    let selected = opts.selected || async function () {
         {
             // Officially we should be running the following code:
             //return await oh.present(selectedLocator, this.target.element) ? await oh.value(selectedLocator, this.target.element) : null;
@@ -799,19 +806,23 @@ export function customValuelessCombobox(optionLocator: Locator,
     };
     return customDecorator<number | string>(async function (): Promise<number | string> {
         // Field not present (optional)
+        if (opts.clickLocator && await oh.present(opts.clickLocator, this.target.element))
+            await oh.click(opts.clickLocator, this.target.element);
         if (!await oh.present(optionLocator, this.target.element)) return undefined;
         let val = await selected.call(this);
         let number = parseNumber(val, opts.numberParseMethod);
         return isNaN(number) ? val : number;
     }, async function (value: number | string | string[] | number[]) {
         // Field not present (optional)
+        if (opts.clickLocator && await oh.present(opts.clickLocator, this.target.element))
+            await oh.click(opts.clickLocator, this.target.element);
         if (!await oh.present(optionLocator, this.target.element)) return undefined;
         if (!(value instanceof Array)) value = [value] as string[] | number[];
         let locator = specificSelector(value);
         if (!await oh.present(locator, this.target.element))
             debugger;
         assert(await oh.present(locator, this.target.element), `customValuelessCombobox: Error! Couldn't find the value ${value}`);
-        await oh.click(locator, this.target.element, opts.causesRefresh);
+        await oh.click(locator, this.target.element, { resetCache: opts.causesRefresh });
         let sel: string = await selected.call(this);
         assert(opts.customCompare ? opts.customCompare(sel, (value as Array<string | number>).map(el => el.toString())) :
             (value as Array<string | number>).findIndex(el => el.toString() === sel) !== -1,

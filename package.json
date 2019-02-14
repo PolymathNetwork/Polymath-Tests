@@ -12,7 +12,8 @@
         "postinstall": "npm run webdriver-manager -- update --gecko=false --out_dir .webdriver --ignore_ssl --relativeFromCwd --relative && node_modules/.bin/mongodb-download --downloadDir=mongo",
         "protractor": "protractor",
         "test": "npm run protractor -- protractor.conf.ci.js",
-        "docker": "node docker.js"
+        "docker": "node docker.js",
+        "setup": "node -r ./config/register.js setup.ts"
     },
     "dependencies": {
         "@josepmc/mongodb-prebuilt": "^6.3.5",

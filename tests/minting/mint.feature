@@ -4,8 +4,8 @@ Feature: Mint test
 
     Background: Token Created
         Given The issuer is authenticated
-        And A token is reserved
-        And A token is created
+        And A token is reserved @optional
+        And A token is created @optional
 
     Scenario: Mint a Token positive path
         Given The issuer adds minting data

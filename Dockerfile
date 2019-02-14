@@ -23,7 +23,7 @@ command=Xvfb :99 -screen 0 1920x1080x24+32\n\
 [program:x11vnc]\n\
 command=x11vnc -display :99\n\
 [program:apps]\n\
-command=bash -c "if [ \"%%(ENV_NO_APP)s\" != \"true\" ]; then node setup.js --params.setup.apps; fi"\n\
+command=bash -c "if [ \"%%(ENV_NO_APP)s\" != \"true\" ]; then yarn setup --apps; fi"\n\
 directory=/tests\n\
 stdout_logfile=/dev/stdout\n\
 stdout_logfile_maxbytes=0\n\

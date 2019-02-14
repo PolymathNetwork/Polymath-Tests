@@ -27,7 +27,8 @@ export class Metamask extends Extension {
         // "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlcgI4VVL4JUvo6hlSgeCZp9mGltZrzFvc2Asqzb1dDGO9baoYOe+QRoh27/YyVXugxni480Q/R147INhBOyQZVMhZOD5pFMVutia9MHMaZhgRXzrK3BHtNSkKLL1c5mhutQNwiLqLtFkMSGvka91LoMEC8WTI0wi4tACnJ5FyFZQYzvtqy5sXo3VS3gzfOBluLKi7BxYcaUJjNrhOIxl1xL2qgK5lDrDOLKcbaurDiwqofVtAFOL5sM3uJ6D8nOO9tG+T7hoobRFN+nxk43PHgCv4poicOv+NMZQEk3da1m/xfuzXV88NcE/YRbRLwAS82m3gsJZKc6mLqm4wZHzBwIDAQAB",
         extensionId: 'nkbihfbeogaeaoehlefnkodbefgpgknn',
     }
-    public get extensionUrl() { return `chrome-extension://${this.options.extensionId}/popup.html`; }
+    // New MM versions changed this
+    public get extensionUrl() { return `chrome-extension://${this.options.extensionId}/home.html`; }
     public static get instance(): Metamask {
         let capabilities = oh.browser.getCapabilities();
         let instance = capabilities.get(Metamask.key);

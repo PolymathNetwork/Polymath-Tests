@@ -4,7 +4,7 @@ Feature: Create a token test
 
     Background: Token Reserved
         Given The issuer is authenticated
-        And A token is reserved
+        And A token is reserved @optional
 
     Scenario: Create a Token positive path
         Given The issuer goes to the Create a Token page

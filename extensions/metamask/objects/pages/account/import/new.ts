@@ -7,7 +7,7 @@ import { TermsAndConditions } from "../../terms";
 
 
 @injectable export class NewImport extends Import {
-    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="import-account"]]');
+    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="import-account"] or .//*[self::button and text()="Import"]]');
     @inputField<string>(By.xpath('.//*[@id="password"]')) public password: string;
     @fillWith('password') @inputField<string>(By.xpath('.//*[@id="confirm-password"]')) public passwordConfirm: string;
     @inputField<string>(By.xpath('.//textarea')) public seed: string;

@@ -1,13 +1,14 @@
 process.env.TS_NODE_TRANSPILE_ONLY = true;
-require('app-module-path').addPath(`${__dirname}/..`);
+global['app-path'] = `${__dirname}/..`;
+require('app-module-path').addPath(global['app-path']);
 let argv = require('yargs').argv;
 let exists = require('fs').existsSync;
-let dotEnvFile = require('path').resolve(argv.dotenv || `${__dirname}/../.env`);
+let dotEnvFile = require('path').resolve(argv.dotenv || `${global['app-path']}/.env`);
 if (exists(dotEnvFile)) {
     require('dotenv').config({ path: dotEnvFile });
     console.log(`Dotenv file found ${dotEnvFile}`);
 } else console.log(`No dotenv file found, loading defaults`);
-let tsconfig = require(`${__dirname}/../tsconfig.json`);
+let tsconfig = require(`${global['app-path']}/tsconfig.json`);
 require('ts-node').register({
     transpileOnly: true,
     compilerOptions: tsconfig.compilerOptions

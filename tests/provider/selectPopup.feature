@@ -4,7 +4,7 @@ Feature: Select a provider
 
     Background: Token Reserved
         Given The issuer is authenticated
-        And A token is reserved
+        And A token is reserved @optional
 
     Scenario: Select a provider via popup
         Given The issuer selects a provider via popup

@@ -26,7 +26,7 @@ import { Detail } from "../account/detail";
 }
 
 @injectable export class WelcomeMetamaskBeta extends TermsAndConditions {
-    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="first-time-flow"]]');
+    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="welcome-page__wrapper"]]');
     public async next(lookForNext: boolean = true): Promise<Locked> {
         return oh.click(By.xpath('.//button'), this.element)
             .then(() => lookForNext && Locked
@@ -35,7 +35,7 @@ import { Detail } from "../account/detail";
 }
 
 @injectable export class NewTerms extends TermsAndConditions {
-    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="tou"]]');
+    protected featureSelector: Locator = By.xpath('self::*[.//*[@class="first-time-flow__markdown"]]');
     public async next(lookForNext: boolean = true): Promise<TermsAndConditions | Detail> {
         await this.scrollToEnd();
         return oh.click(By.xpath('.//button'), this.element)
