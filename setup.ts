@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream } from 'fs-extra';
+import { mkdirpSync, removeSync, readFileSync, pathExistsSync, writeFileSync, existsSync, createWriteStream, copySync } from 'fs-extra';
 import { argv } from 'yargs';
 import { execSync, exec, ChildProcess } from 'child_process';
 import deasync = require('deasync');
@@ -8,11 +8,20 @@ import { MongodHelper } from '@josepmc/mongodb-prebuilt';
 import findProcess = require('find-process');
 
 export enum Process {
-    Investor,
-    Issuer,
-    Offchain,
-    Ganache,
+    Investor = 1,
+    Issuer = 2,
+    Offchain = 4,
+    Ganache = 8,
     All = Investor | Issuer | Offchain | Ganache
+}
+
+enum GanacheStatus {
+    WaitingForAccounts,
+    DumpingAccounts,
+    DumpingPK,
+    WaitingForGanacheToStart,
+    WaitingForScriptToFinish,
+    ScriptFinished
 }
 
 export class Setup {
@@ -81,13 +90,13 @@ export class Setup {
         let previousLength = Object.keys(this.pids).length;
         console.log('Killing processes...');
         for (let pr in this.pids) {
-            if (this.pids[proc].type & proc) {
-                console.log(`Terminating ${Process[this.pids[proc].type]}...`);
+            if (this.pids[pr].type & proc) {
+                console.log(`Terminating ${Process[this.pids[pr].type]}...`);
                 try {
                     treeKill(this.pids[pr].pid.pid, 'SIGKILL');
-                    delete this.pids[proc];
+                    delete this.pids[pr];
                 } catch (error) {
-                    console.log(`Error while terminating process ${pr}: ${error}`);
+                    console.log(`Error while terminating process ${Process[pr]}: ${error}`);
                 }
             }
         }
@@ -98,7 +107,7 @@ export class Setup {
         }
         if (!newLength) {
             // All of them have been killed
-            this.pids = null;
+            this.pids = {};
             removeSync(this.pidsFile);
             if (process.env.TEST_PRINT_LOGS) for (let log in this.logs) {
                 console.log(`Printing output of ${log}: ${this.logs[log]}`);
@@ -126,6 +135,7 @@ export class Setup {
         }
     }
     public ganacheFolder: string;
+    public accounts: { [k: number]: { address?: string, pk?: string } } = {};
     public async ganache(opts: { folder: string | boolean, config?: string }) {
         console.log('Starting ganache...');
         let baseOpts = opts.folder;
@@ -134,7 +144,7 @@ export class Setup {
             baseOpts = await this.apps({ folder: true });
         }
         let path = this.setNodeVersion();
-        this.findAndKill(8545);
+        await this.findAndKill(8545);
         /*let folder = resolve(baseOpts, 'packages', 'new-polymath-scripts');
         if (!existsSync(folder))
             throw `Can't find new-polymath-scripts`;
@@ -142,26 +152,62 @@ export class Setup {
         path = `${resolve(folder, 'node_modules', '.bin')}${this.charSep}${path}`;*/
         path = `${resolve(baseOpts, 'node_modules', '.bin')}${this.charSep}${path}`;
         console.log(`Using path: ${path}`);
-        let pid = exec(`yarn local-blockchain:start ${opts.config ? '--seedData ' + opts.config : ''}`, { cwd: baseOpts, env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+        let pid = exec(`yarn local-blockchain:start ${opts.config ? `--seedData "${opts.config}" -e 1000000` : ''}`, { cwd: baseOpts, env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         let file = createWriteStream(this.logs.ganache);
         await new Promise((r, e) => {
             let oldWrite = file.write;
-            let seenOn = false;
+            let accountRegex = /\((\d)\) (0x[a-f0-9A-F]+)/;
+            let status: GanacheStatus = GanacheStatus.WaitingForAccounts;
             file.write = (data: { indexOf: { (arg0: string): number; (arg0: string): number; }; toLowerCase: () => { indexOf: (arg0: string) => number; }; }, error: any): boolean => {
                 let res = oldWrite.call(file, data, error);
                 console.log(data);
                 if (file.write != oldWrite) {
-                    if (data.indexOf('Listening on') !== -1) {
-                        console.log(`Ganache is listening on ${data}, waiting for init script to finish...`);
-                        seenOn = true;
-                    }
-                    if (seenOn && data.indexOf('child process exited with code') !== -1) {
-                        file.write = oldWrite;
-                        r();
-                    }
                     if (data.toLowerCase().indexOf('error') !== -1) {
                         file.write = oldWrite;
+                        console.error(`Error while starting ganache on stage ${GanacheStatus[status]}`);
                         e(data);
+                    }
+                    for (let input of data.toString().split('\n')) {
+                        switch (status) {
+                            case GanacheStatus.WaitingForAccounts:
+                                if (input.indexOf('Available Accounts') !== -1) {
+                                    status = GanacheStatus.DumpingAccounts;
+                                }
+                                break;
+                            case GanacheStatus.DumpingAccounts:
+                                if (input.indexOf('Private Keys') !== -1) {
+                                    status = GanacheStatus.DumpingPK;
+                                } else if (accountRegex.test(input.toString())) {
+                                    let match = accountRegex.exec(input.toString());
+                                    let accNumber = parseInt(match[1]);
+                                    this.accounts[accNumber] = this.accounts[accNumber] || {};
+                                    this.accounts[accNumber].address = match[2];
+                                }
+                                break;
+                            case GanacheStatus.DumpingPK:
+                                if (input.indexOf('HD Wallet') !== -1) {
+                                    status = GanacheStatus.WaitingForGanacheToStart;
+                                } else if (accountRegex.test(input.toString())) {
+                                    let match = accountRegex.exec(input.toString());
+                                    let accNumber = parseInt(match[1]);
+                                    this.accounts[accNumber] = this.accounts[accNumber] || {};
+                                    this.accounts[accNumber].pk = match[2];
+                                }
+                                break;
+                            case GanacheStatus.WaitingForGanacheToStart:
+                                if (input.indexOf('Listening on') !== -1) {
+                                    status = GanacheStatus.WaitingForScriptToFinish;
+                                    console.log(`Ganache is listening on ${input}, waiting for init script to finish...`);
+                                }
+                                break;
+                            case GanacheStatus.WaitingForScriptToFinish:
+                                if (input.indexOf('child process exited with code') !== -1) {
+                                    status = GanacheStatus.ScriptFinished;
+                                    file.write = oldWrite;
+                                    r();
+                                }
+                                break;
+                        }
                     }
                 }
                 return res;
@@ -183,7 +229,7 @@ export class Setup {
         let path = this.setNodeVersion();
         process.env.TEST_MONGO_DIRECTORY = resolve(__dirname, 'mongo');
         let port = 3001;
-        this.findAndKill(port);
+        await this.findAndKill(port);
         let db = resolve(this.checkoutDir, 'mongo');
         mkdirpSync(db);
         let mongodHelper = new MongodHelper([
@@ -231,7 +277,7 @@ export class Setup {
     private async issuer(baseOpts: string) {
         console.log('Starting issuer...');
         let port = 3000;
-        this.findAndKill(port);
+        await this.findAndKill(port);
         let pid = exec(`yarn serve -s "${baseOpts}/packages/polymath-issuer/build"`, { cwd: this.currentDir, env: { ...process.env, PORT: `${port}` } });
         let file = createWriteStream(this.logs.issuer);
         pid.stdout.pipe(file);
@@ -245,7 +291,7 @@ export class Setup {
     public async investor(baseOpts: string) {
         console.log('Starting investor...');
         let port = 3002;
-        this.findAndKill(port);
+        await this.findAndKill(port);
         let pid = exec(`yarn serve -s "${baseOpts}/packages/polymath-investor/build"`, { cwd: this.currentDir, env: { ...process.env, PORT: `${port}` } });
         let file = createWriteStream(this.logs.investor);
         pid.stdout.pipe(file);
@@ -256,6 +302,7 @@ export class Setup {
         writeFileSync(this.pidsFile, Object.values(this.pids).map(p => p.pid).join('\n'));
         console.log(`Investor started with pid ${pid.pid}`);
     }
+    public cliDir: string;
     public async apps(baseOpts: { folder: string | boolean }) {
         let folder = resolve(this.checkoutDir, 'apps');
         if (baseOpts.folder === true) await this.git(this.sources.apps, folder);
@@ -273,11 +320,28 @@ export class Setup {
         if (!process.env.TEST_NO_STARTUP && existsSync(resolve(folder, 'package.json'))) {
             console.log('Installing apps...');
             let path = this.setNodeVersion();
-            execSync('yarn --network-timeout=100000', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
-            path = `${resolve(folder, 'node_modules', '.bin')}${this.charSep}${path}`;
+            execSync('yarn --network-timeout=100000 --frozen-lockfile', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            let coreFolder = process.env.TEST_CLI_DIR || `${folder}/node_modules/@polymathnetwork/polymath-scripts/node_modules/polymath-core/CLI`;
+            if (existsSync(coreFolder)) {
+                // Set up CLI
+                console.log('Installing CLI dependencies...');
+                let finalFolder = resolve(folder, 'build');
+                this.cliDir = resolve(finalFolder, 'CLI');
+                let fixturesFolder = `${folder}/packages/new-polymath-scripts/src/fixtures`;
+                removeSync(finalFolder);
+                mkdirpSync(finalFolder);
+                copySync(coreFolder, this.cliDir);
+                copySync(fixturesFolder, resolve(finalFolder, 'build'));
+                execSync('yarn --network-timeout=100000 --frozen-lockfile', { cwd: this.cliDir, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            }
+            else {
+                throw `CLI dependencies not found: *tests won't work*.
+                Please configure TEST_CLI_DIR accordingly (actual value is: ${process.env.TEST_CLI_DIR}).`;
+            }
+            //path = `${resolve(folder, 'node_modules', '.bin')}${this.charSep}${path}`;
             // This should be removed in the near future
             //process.env.REACT_APP_NODE_WS = `ws://${process.env.TEST_LOCALHOST}:8545`;
-            if (!process.env.TEST_NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
+            //if (!process.env.TEST_NO_BUILD) execSync('yarn build:apps', { cwd: folder, stdio: 'inherit', env: { ...process.env, PATH: path, NODE_ENV: 'development' } });
         }
         return folder;
     }
