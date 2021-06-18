@@ -84,7 +84,7 @@
         "request-promise-native": "^1.0.5",
         "serve": "^10.1.1",
         "stack-trace": "0.0.10",
-        "striptags": "^3.1.0",
+        "striptags": "^3.2.0",
         "tar-fs": "^1.16.3",
         "tmp": "0.0.33",
         "to-title-case": "^1.0.0",
