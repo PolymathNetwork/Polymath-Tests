@@ -34,7 +34,7 @@
         "@types/imap-simple": "^4.2.0",
         "@types/istanbul-lib-coverage": "^1.1.0",
         "@types/mailparser": "^2.0.2",
-        "@types/mongoose": "^5.3.3",
+        "@types/mongoose": "^5.11.96",
         "@types/node-rsa": "^0.4.3",
         "@types/puppeteer": "^1.11.1",
         "@types/request": "^2.48.1",
